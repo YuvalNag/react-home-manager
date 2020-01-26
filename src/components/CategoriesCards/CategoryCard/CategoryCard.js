@@ -10,7 +10,7 @@ const categoryCard = props => {
     }
     const image = require(`../../../assets/images/${imageName}`);
     return (
-        <Button variant="secondary" className="w-50 ">
+        <Button variant="secondary" className="w-50">
             <Card className="img-thumbnail" style={{
         backgroundColor:'rgba(47,79,79 ,0.7)',
          color: 'white'

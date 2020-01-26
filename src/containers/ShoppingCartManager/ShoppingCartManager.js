@@ -33,16 +33,13 @@ class ShoppingCartManager extends Component {
                     </Col>
 
                 </Row>
-
-                <Row style={{ backgroundColor: 'lightgray' }} className="h-75 ">
-                    <Col >
+                <Row  style={{ backgroundColor: 'currentColor' }} className="h-25 ">
+                    <SummeryBar />
+                </Row>
+                <Row style={{ backgroundColor: 'l ightgray' }} className="h-75 ">
+                    <Col className='p-0'>
                         {this.state.categoriesInfo?<CategoriesCards categories={this.state.categoriesInfo} />:<Spinner  animation="border"/>}
                     </Col>
-                </Row>
-
-
-                <Row style={{ backgroundColor: 'currentColor' }} className="h-25 ">
-                    <SummeryBar />
                 </Row>
             </Container>
         )
