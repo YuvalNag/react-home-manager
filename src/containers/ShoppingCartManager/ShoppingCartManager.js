@@ -8,7 +8,6 @@ import AddToCartButton from '../../components/AddToCartButton/AddToCartButton'
 import ProductSelector from '../../components/ProductSelector/ProductSelector'
 import CategoriesCards from '../../components/CategoriesCards/CategoriesCards'
 import SummeryBar from '../../components/SummeryBar/SummeryBar'
-import bsBreakpoints from 'bs-breakpoints'
 
 
 
@@ -24,21 +23,29 @@ class ShoppingCartManager extends Component {
             { title: 'Meat', description: '', imageName: 'meat.jpg' },
             { title: 'Fish', description: '', imageName: 'fish.jpg' },
             { title: 'Drinks & Spirits', description: '', imageName: 'drinks.jpg' }],
-        currentBreakpoint: null
-
+        currentProduct: {
+            productInfo: 'salmon loveFish 69',
+            amount: 5
+        }
     }
-  
+    currentProductChangedHandler = (event) => {
+        const name = event.target.name
+        const value = event.target.value
+        let newProduct={...this.state.currentProduct}
+        newProduct[name]=value
+        this.setState({currentProduct: newProduct })
+    }
     render() {
-       
-
         return (
             <Container >
-                <Row xs="auto" style={{ backgroundColor: 'currentColor' }} >
+                <Row xs={8} style={{ backgroundColor: 'currentColor' }}  >
                     <Col>
-                        <ProductSelector />
+                        <ProductSelector
+                            {...this.state.currentProduct}
+                            Changed={this.currentProductChangedHandler} />
                     </Col>
-                    <Col xs="auto">
-                        <AddToCartButton />
+                    <Col xs={3}>
+                        <AddToCartButton currentProduct={this.state.currentProduct} />
                     </Col>
 
                 </Row>
