@@ -5,6 +5,7 @@ import './App.css';
 import ShoppingCartManager from './containers/ShoppingCartManager/ShoppingCartManager' 
 function App() {
   return (
+    
     <div className="App">
       <ShoppingCartManager/>
     </div>

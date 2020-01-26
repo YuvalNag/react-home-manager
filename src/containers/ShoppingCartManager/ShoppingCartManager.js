@@ -8,20 +8,29 @@ import AddToCartButton from '../../components/AddToCartButton/AddToCartButton'
 import ProductSelector from '../../components/ProductSelector/ProductSelector'
 import CategoriesCards from '../../components/CategoriesCards/CategoriesCards'
 import SummeryBar from '../../components/SummeryBar/SummeryBar'
+import bsBreakpoints from 'bs-breakpoints'
+
 
 
 class ShoppingCartManager extends Component {
 
     state = {
         categoriesInfo: [
+            { title: 'Health & Beauty', description: '', imageName: 'healty.jpg' },
             { title: 'Bakery & Pastry', description: '', imageName: 'bakery.jpg' },
             { title: 'Fruits & Vegetables', description: '', imageName: 'fruits_vegetables.jpg' },
             { title: 'Dairy & Cheese', description: '', imageName: 'dairy.jpg' },
+            { title: 'Pantry', description: '', imageName: 'pantry.jpg' },
             { title: 'Meat', description: '', imageName: 'meat.jpg' },
             { title: 'Fish', description: '', imageName: 'fish.jpg' },
-            { title: 'Drinks & Spirits', description: '', imageName: 'drinks.jpg' }]
+            { title: 'Drinks & Spirits', description: '', imageName: 'drinks.jpg' }],
+        currentBreakpoint: null
+
     }
+  
     render() {
+       
+
         return (
             <Container >
                 <Row xs="auto" style={{ backgroundColor: 'currentColor' }} >
@@ -29,16 +38,16 @@ class ShoppingCartManager extends Component {
                         <ProductSelector />
                     </Col>
                     <Col xs="auto">
-                        <AddToCartButton  />
+                        <AddToCartButton />
                     </Col>
 
                 </Row>
-                <Row  style={{ backgroundColor: 'currentColor' }} className="h-25 ">
+                <Row style={{ backgroundColor: 'currentColor' }} className="h-25 ">
                     <SummeryBar />
                 </Row>
                 <Row style={{ backgroundColor: 'l ightgray' }} className="h-75 ">
                     <Col className='p-0'>
-                        {this.state.categoriesInfo?<CategoriesCards categories={this.state.categoriesInfo} />:<Spinner  animation="border"/>}
+                        {this.state.categoriesInfo ? <CategoriesCards categories={this.state.categoriesInfo} /> : <Spinner animation="border" />}
                     </Col>
                 </Row>
             </Container>
