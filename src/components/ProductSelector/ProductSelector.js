@@ -2,42 +2,33 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
-import { GoSearch } from "react-icons/go";
 import Button from 'react-bootstrap/Button'
 import { FiMapPin } from "react-icons/fi";
 
+import SearchProduct from './SearchProduct/SearchProduct'
+import AddToCartButton from './AddToCartButton/AddToCartButton'
 
 const productSelector = props => (
     <Form >
         <Form.Row>
             <Col className='m-1 p-0' >
-                <Form.Group as={Row} className='m-0' >
-                    <Col xs="auto" className='p-0' >
-                        <Button variant="secondary">
-                            <GoSearch />
-                        </Button>
-                    </Col>
-
-                    <Col className='p-0' >
-                        <Form.Control type="text" onChange={props.Changed} name='productInfo' placeholder="Search" value={props.productInfo} />
-                    </Col>
-                </Form.Group>
+                <SearchProduct changed={props.searchChanged} productInfo={props.productInfo} itemClicked={props.itemClicked} items={props.items}/>
             </Col>
             <Col sm={2} className='m-1'>
 
-                <Form.Control type="number" onChange={props.Changed} name='amount' placeholder="#Amount" value={props.amount} />
+                <Form.Control type="number" onChange={props.amountChanged} placeholder="#Amount" value={props.amount} />
 
             </Col>
             <Col className='m-1 p-0' >
                 <Form.Group as={Row} className='m-0' >
                     <Col xs="auto" className='p-0'>
-                        <Button variant="secondary">
+                        <Button >
                             <FiMapPin />
                         </Button>
                     </Col>
 
                     <Col className='p-0'>
-                        <Form.Control type="text" placeholder="Location" />
+                        <AddToCartButton valid={props.valid}/>
                     </Col>
                 </Form.Group>
             </Col>

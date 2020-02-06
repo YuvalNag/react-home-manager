@@ -1,65 +1,116 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Spinner from 'react-bootstrap/Spinner'
 
-import AddToCartButton from '../../components/AddToCartButton/AddToCartButton'
 import ProductSelector from '../../components/ProductSelector/ProductSelector'
 import CategoriesCards from '../../components/CategoriesCards/CategoriesCards'
 import SummeryBar from '../../components/SummeryBar/SummeryBar'
 
-
+import * as actionType from '../../store/actions'
 
 class ShoppingCartManager extends Component {
 
     state = {
-        categoriesInfo: [
-            { title: 'Health & Beauty', description: '', imageName: 'healty.jpg' },
-            { title: 'Bakery & Pastry', description: '', imageName: 'bakery.jpg' },
-            { title: 'Fruits & Vegetables', description: '', imageName: 'fruits_vegetables.jpg' },
-            { title: 'Dairy & Cheese', description: '', imageName: 'dairy.jpg' },
-            { title: 'Pantry', description: '', imageName: 'pantry.jpg' },
-            { title: 'Meat', description: '', imageName: 'meat.jpg' },
-            { title: 'Fish', description: '', imageName: 'fish.jpg' },
-            { title: 'Drinks & Spirits', description: '', imageName: 'drinks.jpg' }],
-        currentProduct: {
-            productInfo: 'salmon loveFish 69',
-            amount: 5
+        orderFrom: {
+            product: {
+                elementType: 'input',
+                elementConfig: {
+                    type: 'text',
+                    placeholder: 'Search for...'
+                },
+                value: '',
+                touched: false,
+                valid: true,
+                validationRules: {
+                    required: true
+                },
+                validationError: null
+            },
+            amount: {
+                elementType: 'input',
+                elementConfig: {
+                    type: 'number',
+                    placeholder: '#Amount'
+                },
+                value: '',
+                touched: false,
+                valid: true,
+                validationRules: {
+                    required: true,
+                    between: [2, 20]
+                },
+                validationError: null
+            }
+        },
+        validProduct: false
+    }
+    validator = (items, amount, productInfo) => {
+        const validProductInfo = items.findIndex(item => item === productInfo.replace(/ /g, '_')) !== -1
+        const validAmount = amount > 0
+        return validProductInfo && validAmount
+    }
+
+    componentDidMount() {
+        //fatch list from backend
+        //this.setState({ items: this.props.items });
+
+    }
+    componentDidUpdate(prevProps, prevState) {
+        const inputIsValid = this.validator(this.props.items, this.props.chosenProduct.amount, this.props.chosenProduct.productInfo)
+        if (this.state.validProduct !== inputIsValid) {
+            this.setState({ validProduct: inputIsValid })
         }
     }
-    currentProductChangedHandler = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        let newProduct={...this.state.currentProduct}
-        newProduct[name]=value
-        this.setState({currentProduct: newProduct })
-    }
+
+
     render() {
         return (
-            <Container >
-                <Row xs={8} style={{ backgroundColor: 'currentColor' }}  >
+            <Container className='mw-100'>
+                <Row style={{ backgroundColor: 'currentColor' }}  >
                     <Col>
                         <ProductSelector
-                            {...this.state.currentProduct}
-                            Changed={this.currentProductChangedHandler} />
+                            {...this.props.chosenProduct}
+                            items={this.props.filteredItems}
+                            searchChanged={this.props.onSearchInputChanged}
+                            amountChanged={this.props.onAmountInputChanged}
+                            itemClicked={this.props.onItemClicked}
+                            valid={this.state.validProduct} />
                     </Col>
-                    <Col xs={3}>
-                        <AddToCartButton currentProduct={this.state.currentProduct} />
-                    </Col>
-
                 </Row>
                 <Row style={{ backgroundColor: 'currentColor' }} className="h-25 ">
                     <SummeryBar />
                 </Row>
-                <Row style={{ backgroundColor: 'l ightgray' }} className="h-75 ">
+                <Row style={{ backgroundColor: 'lightgray' }} className="h-75 ">
                     <Col className='p-0'>
-                        {this.state.categoriesInfo ? <CategoriesCards categories={this.state.categoriesInfo} /> : <Spinner animation="border" />}
+                        {this.props.categoriesInfo ? <CategoriesCards categories={this.props.categoriesInfo} /> : <Spinner animation="border" />}
                     </Col>
                 </Row>
             </Container>
         )
     }
 }
+const mapStateToProps = state => {
+    return {
+        categoriesInfo: state.categoriesInfo,
+        items: state.items,
+        filteredItems: state.filteredItems,
+        chosenProduct: state.chosenProduct
+    }
+}
 
-export default ShoppingCartManager
+const mapDispatchToProps = dispatch => {
+    return {
+        onSearchInputChanged: (event) => dispatch({ type: actionType.SEARCH_INPUT, searchText: event.target.value }),
+        onItemClicked: (index) => dispatch({ type: actionType.ITEM_CLICKED, itemIndex: index }),
+        onAmountInputChanged: (event) => dispatch({ type: actionType.AMOUNT_INPUT, amount: event.target.value }),
+        onAddToCartClicked: (index) => dispatch({ type: actionType.ADD_TO_CART, itemIndex: index }),
+
+
+
+    };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(ShoppingCartManager)

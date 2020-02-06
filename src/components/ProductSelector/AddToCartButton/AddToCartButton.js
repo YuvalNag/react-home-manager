@@ -5,9 +5,9 @@ import Button from 'react-bootstrap/Button'
 const addToCartButton = props => (
 
     <Button style={{fontSize:'15px'}}
-    className='mt-3 mt-sm-1 w-75 h-75 pb-3'
+     className='ml-1 w-100 '
     value="Input" 
-    disabled={!props.currentProduct} >
+    disabled={!props.valid} >
         Add To Cart</Button>
 
 )
