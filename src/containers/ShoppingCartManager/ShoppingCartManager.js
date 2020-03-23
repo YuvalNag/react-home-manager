@@ -26,7 +26,8 @@ class ShoppingCartManager extends Component {
         validatedLocation: false,
         searchTerm: '',
         quantity: 1,
-        category: '',
+        category: null,
+        categoryChosen: false,
         chosenItem: null
     }
 
@@ -74,7 +75,7 @@ class ShoppingCartManager extends Component {
     };
     searchChangedHandler = (event) => {
         const value = event.target.value;
-        const key = value.charAt(value.length-1)
+        const key = value.charAt(value.length - 1)
         this.setState({ searchTerm: value })
 
         if (key === ' ') {
@@ -100,22 +101,25 @@ class ShoppingCartManager extends Component {
         });
     }
     categoryClickedHandler = (event) => {
-        this.setState({ category: event.target.innerText });
+        this.setState({ category: event.target.innerText, categoryChosen: true });
     }
     addToCartClickedHandler = () => {
-        this.props.onTryAddItemToCart({
-            item: this.state.chosenItem,
-            quantity: this.state.quantity,
-            category: this.state.category
-        })
-        console.log(this.state.chosenItem);
+        if (this.state.categoryChosen) {
+            this.props.onTryAddItemToCart({
+                item: this.state.chosenItem,
+                quantity: this.state.quantity,
+                category: this.state.category
+            })
+            console.log(this.state.chosenItem);
 
-        this.setState({
-            quantity: 1,
-            chosenItem: null,
-            searchTerm: '',
-            category: ''
-        })
+            this.setState({
+                quantity: 1,
+                chosenItem: null,
+                searchTerm: ' ',
+                category: null,
+                categoryChosen: false
+            })
+        }
     }
     deleteItemClickedHandler = (product) => {
         this.props.onTryDeleteItemFromCart(product)
@@ -142,11 +146,11 @@ class ShoppingCartManager extends Component {
         if (!this.props.locationInfo) {
             this.locationClickedHandler()
         }
-        this.props.onTryFetchCartProducts()
-
     }
     componentDidUpdate(prevProps, prevState) {
-
+        if (this.props.brunches && (prevProps.brunches !== this.props.brunches)) {
+            this.props.onTryFetchCartProducts(this.props.brunches)
+        }
     }
 
 
@@ -216,6 +220,7 @@ class ShoppingCartManager extends Component {
                                     itemClicked={this.itemClickedHandler}
                                     productIsValid={this.state.quantity && this.state.chosenItem}
                                     addToCartClicked={this.addToCartClickedHandler}
+                                    categoryChosen={this.state.categoryChosen}
                                 />
                             </Col>
                         </Row>
@@ -267,7 +272,7 @@ const mapDispatchToProps = dispatch => {
         onTryFetchItems: (searchTerm, brunches) => dispatch(actions.tryFetchItems(searchTerm, brunches)),
         onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
-        onTryFetchCartProducts: () => dispatch(actions.tryFetchCartProducts()),
+        onTryFetchCartProducts: (brunches) => dispatch(actions.tryFetchCartProducts(brunches)),
 
     };
 };

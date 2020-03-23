@@ -31,6 +31,12 @@ const productSelector = props => (
                         )}
                     </Dropdown.Menu>
                 </Dropdown>
+                {!props.categoryChosen ? <p style={{
+                    width: '100 %',
+                    marginTop: '.25rem',
+                    fontSize: '80%',
+                    color: '#dc3545'
+                }}>Please, choose category!</p> : null}
             </Col>
 
             <Col className='m-1 p-0'>
@@ -38,7 +44,7 @@ const productSelector = props => (
                     valid={props.productIsValid} />
             </Col>
         </Form.Row>
-    </Form>
+    </Form >
 
 )
 export default productSelector

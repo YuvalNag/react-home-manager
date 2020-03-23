@@ -83,7 +83,7 @@ export const tryFetchItems = (searchTerm, brunches) => {
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
 
 
-            axios.get('/supermarket/item' + queryParams + '&limit=' + 15)
+            axios.get('/supermarket/item' + queryParams)// + '&limit=' + 15)
                 .then(response => {
                     console.log(response.data);
                     dispatch(reqToServer(fetchItemsSuccess(response.data.items)))
@@ -130,15 +130,18 @@ const fetchCartProductsSuccess = (products) => {
                 code: item.ItemCode,
                 name: item.ItemName,
                 quantity: item.ListItem.quantity,
-                category: item.ListItem.category
+                category: item.ListItem.category,
+                avgPrice: item.ItemBranches.reduce((avg, cur) => avg + cur.ItemPrice / item.ItemBranches.length, 0).toFixed(2)
             };
         })
     };
 }
-export const tryFetchCartProducts = () => {
+export const tryFetchCartProducts = (brunches) => {
     return dispatch => {
         dispatch(reqToServerStart())
-        axios.get('/list/default/item')
+        const queryParams = '?price=' + true + brunches.map(brunch => ('&branchIds=' + brunch.id)).join('');
+
+        axios.get('/list/default/item' + queryParams)
             .then(response => {
                 console.log(response.data);
                 dispatch(reqToServer(fetchCartProductsSuccess(response.data.items)))

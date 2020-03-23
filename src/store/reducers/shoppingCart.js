@@ -71,13 +71,17 @@ const fetchCartProductsSuccess = (state, action) => {
     const products = {};
     let price = 0;
     for (const element of action.products) {
-        price += element.quantity * 4;
+        price += element.quantity * element.avgPrice;
         if (products.hasOwnProperty(element.category)) {
-            products[element.category].push({ name: element.name, quantity: element.quantity, code: element.code })
+            let product = { ...element };
+            delete product.category;
+            products[element.category].push(product)
         }
         else {
             products[element.category] = [];
-            products[element.category].push({ name: element.name, quantity: element.quantity, code: element.code })
+            let product = { ...element };
+            delete product.category;
+            products[element.category].push(product)
         }
     };
     const cart = updateObject(state.cart, {

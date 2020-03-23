@@ -27,7 +27,10 @@ const CategoryCard = (props) => {
                 <ListGroup variant="flush">{
                     props.products.map(product =>
                         <ListGroup.Item key={product.code}> {product.name}
-                            <Badge>4<span style={{ fontSize: '18px' }}>₪</span></Badge>
+                            <Badge>
+                                {product.avgPrice}
+                                <span style={{ fontSize: '18px' }}>₪</span>
+                            </Badge>
                             <div style={{
                                 display: 'inline - flex',
                                 float: 'right',
