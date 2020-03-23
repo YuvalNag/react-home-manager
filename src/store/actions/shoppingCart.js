@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes'
 import axios from '../../axios/axios-shoppingCart'
 import { reqToServerStart, reqToServerFail, reqToServer } from './reqToServer'
+import ShoppingCartManager from '../../containers/ShoppingCartManager/ShoppingCartManager'
 
 
 
@@ -50,7 +51,7 @@ export const tryFetchBrunches = (location) => {
     }
 }
 
-const fetchItemsSuccess = (items) => {
+const fetchItemsSuccess = (items, filteredItems) => {
     // const chains = {
     //     '7290027600007': 'https://res.cloudinary.com/shufersal/image/upload/f_auto,q_auto/v1551800918/prod/product_images/products_medium/WFN50_M_P_' + item.ItemCode + '_1.png',
     //     '7290172900007': 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg',
@@ -59,25 +60,29 @@ const fetchItemsSuccess = (items) => {
     // }
     return {
         type: actionTypes.FETCH_ITEMS_SUCCESS,
-        items: items.map(item => {
-            return {
-                code: item.ItemCode,
-                name: item.ItemName,
-                ManufacturerName: item.ManufacturerName,
-                Branches: item.ItemBranches,
-                isWeighted: item.bIsWeighted && true,
-                url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
-                // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
-            }
-        })
+        items: items,
+        filteredItems: filteredItems
     }
 }
+const filterItems = (items, searchText) => {
+    let filteredItems = []
+    if (searchText.trim() !== '' && items) {
+
+        filteredItems = items.filter((item) => item.ItemName.search(new RegExp(searchText, 'gi')) > -1);
+    }
+    return filteredItems
+}
 export const tryFetchItems = (searchTerm, brunches) => {
-    return dispatch => {
-        console.log(searchTerm);
-
-        if (searchTerm && searchTerm !== '') {
-
+    if (searchTerm.trim() === '') {
+        return {
+            type: actionTypes.FETCH_ITEMS_SUCCESS,
+            items: [],
+            filteredItems: []
+        }
+    }
+    else if (searchTerm.length === 1) {
+        return dispatch => {
+            console.log(searchTerm);
             dispatch(reqToServerStart())
             const queryParams = '?searchTerm=' + searchTerm + brunches.map(brunch => ('&branchIds=' + brunch.id)).join('');
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
@@ -85,12 +90,34 @@ export const tryFetchItems = (searchTerm, brunches) => {
 
             axios.get('/supermarket/item' + queryParams)// + '&limit=' + 15)
                 .then(response => {
-                    console.log(response.data);
-                    dispatch(reqToServer(fetchItemsSuccess(response.data.items)))
+                    const items = response.data.items.map(item => {
+                        return {
+                            code: item.ItemCode,
+                            name: item.ItemName,
+                            ManufacturerName: item.ManufacturerName,
+                            Branches: item.ItemBranches,
+                            isWeighted: item.bIsWeighted && true,
+                            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+                            // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
+                        }
+                    });
+                    const filteredItems=filterItems(items,searchTerm)
+                    dispatch(reqToServer(fetchItemsSuccess(items,filteredItems)))
                 })
                 .catch(error => { dispatch(reqToServerFail(error.message)) })
         }
-        else dispatch(fetchItemsSuccess([]))
+    }
+
+    else {
+        return (dispatch, getState) => {
+            dispatch(() => {
+                return {
+                    type: actionTypes.FETCH_ITEMS_SUCCESS,
+                    filteredItems: filterItems(getState().shoppingCart.items, searchTerm),
+                    items: getState().shoppingCart.items
+                }
+            });
+        }
     }
 
 }

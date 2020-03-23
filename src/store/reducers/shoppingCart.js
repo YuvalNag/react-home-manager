@@ -48,7 +48,7 @@ const reducer = (state = initialState, action) => {
     }
 }
 const fetchItemsSuccess = (state, action) => {
-    return updateObject(state, { filteredItems: action.items })
+    return updateObject(state, { items: action.items, filteredItems: action.filteredItems })
 }
 const fetchBrunchesSuccess = (state, action) => {
     return updateObject(state, { brunches: action.brunches })

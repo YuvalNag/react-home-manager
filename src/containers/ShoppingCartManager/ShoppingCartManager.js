@@ -78,12 +78,12 @@ class ShoppingCartManager extends Component {
         const key = value.charAt(value.length - 1)
         this.setState({ searchTerm: value })
 
-        if (key === ' ') {
+        // if (key === ' ') {
             console.log(this.state.searchTerm);
 
-            this.props.onTryFetchItems(this.state.searchTerm, this.props.brunches)
+            this.props.onTryFetchItems(value, this.props.brunches)
 
-        }
+        // }
 
     }
     quantityChangedHandler = (event) => {
