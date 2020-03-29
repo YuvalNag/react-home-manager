@@ -6,19 +6,16 @@ export const reqToServerFail = (error) => {
         error: error
     }
 }
-export const reqToServerStart = () => {
+export const reqToServerStart = (loadingType) => {
     return {
-        type: actionTypes.REQ_TO_SERVER_START
+        type: actionTypes.REQ_TO_SERVER_START,
+        loadingType: loadingType
     }
 }
-const reqToServerSuccess = () => {
+export const reqToServerSuccess = (loadingType) => {
     return {
-        type: actionTypes.REQ_TO_SERVER_SUCCESS
-    }
-}
-export const reqToServer = (nextAction) => {
-    return dispatch => {
-        dispatch(reqToServerSuccess())
-        dispatch(nextAction)
+        type: actionTypes.REQ_TO_SERVER_SUCCESS,
+        loadingType: loadingType
+
     }
 }

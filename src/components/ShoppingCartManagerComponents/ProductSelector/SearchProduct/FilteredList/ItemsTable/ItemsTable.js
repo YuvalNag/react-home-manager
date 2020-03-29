@@ -1,20 +1,23 @@
 import React from 'react'
 import ItemRow from './ItemRow/ItemRow'
+import ListGroup from 'react-bootstrap/ListGroup'
 
 const ItemsTable = (props) => {
     return (
-        <div className="table table-bordered table-striped" style={{ backgroundColor: 'white', zIndex: '200' }}>
+        <ListGroup variant="flush">
+            {props.items.map((item, i) =>
+                <ListGroup.Item key={item.code}>
+                    <ItemRow clicked={props.itemClicked} >
+                        {item}
+                    </ItemRow>
+                </ListGroup.Item >)}
 
-            {props.items.map((item, i) => <ItemRow clicked={props.itemClicked} key={item.code}>{item}</ItemRow>)}
+        </ListGroup >
 
-        </div>
+
+
+
     )
 }
 
 export default ItemsTable
-
-// <table className="table table-bordered table-striped" style={{backgroundColor:'white',zIndex:'200'}}>
-//             <tbody >
-//                {props.items.map((item,i)=><ItemRow clicked={()=>props.itemClicked(i)} key={i}>{item}</ItemRow>)}
-//             </tbody>
-//         </table>

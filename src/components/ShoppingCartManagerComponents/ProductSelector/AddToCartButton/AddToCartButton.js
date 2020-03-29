@@ -1,14 +1,14 @@
 import React from 'react'
 import Button from 'react-bootstrap/Button'
-// import { FaOpencart } from "react-icons/fa";
+import { IoIosCart } from "react-icons/io";
 
 const addToCartButton = props => (
 
-    <Button onClick={props.addToCartClicked} style={{fontSize:'15px'}}
-     className='ml-1 w-100 '
-    value="Input" 
-    disabled={!props.valid} >
-        Add To Cart</Button>
+    <Button onClick={props.addToCartClicked} style={{ fontSize: '15px' }}
+        className='ml-1 w-100 '
+        value="Input"
+        disabled={!props.valid} >
+        <IoIosCart size='18px' className='m-2'/>          הוסף לעגלה   </Button>
 
 )
 

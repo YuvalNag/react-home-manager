@@ -1,9 +1,25 @@
 import * as actionTypes from './actionTypes'
 import axios from '../../axios/axios-shoppingCart'
-import { reqToServerStart, reqToServerFail, reqToServer } from './reqToServer'
-import ShoppingCartManager from '../../containers/ShoppingCartManager/ShoppingCartManager'
+import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToServer'
+import { groupBy, deepClone } from '../utility'
+import Chain from '../../classes/Chain/Chain'
+import Branch from '../../classes/Branch/Branch'
+import Product from '../../classes/Product/Product'
+import Cart from '../../classes/Cart/Cart'
 
-
+export const loadingTypes = {
+    INIT: undefined,
+    FETCH_BRANCHES: 'FETCH_BRANCHES',
+    // FETCH_BRANCHES: 'FETCH_BRANCHES_DONE',
+    FETCH_ITEMS: 'FETCH_ITEMS',
+    // FETCH_ITEMS: 'FETCH_ITEMS_DONE',
+    ADD_TO_CART: 'ADD_TO_CART',
+    // ADD_TO_CART: 'ADD_TO_CART_DONE',
+    FETCH_CART: 'FETCH_CART',
+    // FETCH_CART: 'FETCH_CART_DONE',
+    DELETE_FROM_CART: 'DELETE_FROM_CART',
+    // DELETE_FROM_CART: 'DELETE_FROM_CART_DONE',
+}
 
 // const setItems = (items) => {
 //     return {
@@ -23,29 +39,68 @@ const saveLocation = (location) => {
         location: location
     }
 }
-const fetchBrunchesSuccess = (brunches) => {
-    // brunches.map(brunch => console.log(brunch.Chain.ChainId, brunch.Chain.ChainName));
 
-    return {
-        type: actionTypes.FETCH_BRUNCHES_SUCCESS,
-        brunches: brunches
+const buildChainAndBranches = (branches) => {
+    const chains = []
+    const branchesGroupByChainid = groupBy(branches, 'ChainId')
+    for (const chainId in branchesGroupByChainid) {
+        const chainName = branchesGroupByChainid[chainId][0].Chain.ChainName;
+        const chainEnglishName = branchesGroupByChainid[chainId][0].Chain.UserName;
+        let branches = branchesGroupByChainid[chainId].map(branch => new Branch(
+            branch.id,
+            branch.StoreId,
+            branch.StoreName,
+            branch.Address,
+            branch.City,
+            branch.lat,
+            branch.lng,
+            branch.SubChainName,
+            chainEnglishName,
+        ));
+
+
+        chains.push(new Chain(chainName, chainEnglishName, branches, chainId));
+    }
+    return chains;
+}
+const fetchBranchesSuccess = (branches, isFavorite) => {
+    const chains = buildChainAndBranches(branches);
+    if (isFavorite) {
+        return {
+            type: actionTypes.FETCH_BRANCHES_SUCCESS,
+            chains: chains,
+            favoriteBranches: branches
+        }
+    }
+    else {
+        return {
+            type: actionTypes.FETCH_BRANCHES_SUCCESS,
+            chains: chains,
+            closeBranches: branches
+        }
     }
 }
-export const tryFetchBrunches = (location) => {
+export const tryFetchBranches = (location, branches) => {
     return dispatch => {
-        dispatch(reqToServerStart())
+        dispatch(reqToServerStart(loadingTypes.FETCH_BRANCHES))
         dispatch(saveLocation(location))
-        let queryParams;
-        if (location.lat && location.lon) {
-            queryParams = '?coordinates=' + location.lat + ',' + location.lon;
-        }
-        else if (location.city && location.street) {
-            queryParams = '?address=' + location.street + ',' + location.city;
-        }
+        let queryParams = '';
 
-        axios.get('/supermarket/branch' + queryParams + '&limit=' + 10)
+        if (location) {
+            if (location.lat && location.lon) {
+                queryParams = 'coordinates=' + location.lat + ',' + location.lon;
+            }
+            else if (location.city && location.street) {
+                queryParams = 'address=' + location.street + ',' + location.city;
+            }
+        }
+        if (branches) {
+            queryParams += (branches).map(branch => ('branchIds=' + branch.id)).join('&');
+        }
+        axios.get('/supermarket/branch?' + queryParams + '&limit=' + 10)
             .then(response => {
-                dispatch(reqToServer(fetchBrunchesSuccess(response.data.branches)))
+                dispatch(fetchBranchesSuccess(response.data.branches, branches ? true : false));
+                dispatch(reqToServerSuccess(actionTypes.FETCH_BRANCHES_SUCCESS))
             })
             .catch(error => { dispatch(reqToServerFail(error.message)) })
     }
@@ -64,31 +119,46 @@ const fetchItemsSuccess = (items, filteredItems) => {
         filteredItems: filteredItems
     }
 }
+const resetItems = () => {
+    return {
+        type: actionTypes.FETCH_ITEMS_SUCCESS,
+        items: [],
+        filteredItems: []
+    }
+}
+const filterItemsSuccess = (items, searchTerm) => {
+    // const chains = {
+    //     '7290027600007': 'https://res.cloudinary.com/shufersal/image/upload/f_auto,q_auto/v1551800918/prod/product_images/products_medium/WFN50_M_P_' + item.ItemCode + '_1.png',
+    //     '7290172900007': 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg',
+    //     '7290803800003': 'https://yochananof.co.il/wp-content/uploads/2016/07/logo.png',
+    //     '7290058140886': 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+    // }
+    return {
+        type: actionTypes.FETCH_ITEMS_SUCCESS,
+        filteredItems: filterItems(items, searchTerm),
+        items: items
+    }
+}
 const filterItems = (items, searchText) => {
     let filteredItems = []
     if (searchText.trim() !== '' && items) {
 
-        filteredItems = items.filter((item) => item.ItemName.search(new RegExp(searchText, 'gi')) > -1);
+        filteredItems = items.filter((item) => item.name.search(new RegExp(searchText, 'gi')) > -1);
     }
     return filteredItems
 }
-export const tryFetchItems = (searchTerm, brunches) => {
-    if (searchTerm.trim() === '') {
-        return {
-            type: actionTypes.FETCH_ITEMS_SUCCESS,
-            items: [],
-            filteredItems: []
+export const tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
+
+    return (dispatch, getState) => {
+        if (searchTerm.trim() === '') {
+            dispatch(resetItems())
         }
-    }
-    else if (searchTerm.length === 1) {
-        return dispatch => {
+        else if (searchTerm.length >= 1 || getState().shoppingCart.filteredItems.length === 0) {
             console.log(searchTerm);
-            dispatch(reqToServerStart())
-            const queryParams = '?searchTerm=' + searchTerm + brunches.map(brunch => ('&branchIds=' + brunch.id)).join('');
+            dispatch(reqToServerStart(loadingTypes.FETCH_ITEMS))
+            const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
-
-
-            axios.get('/supermarket/item' + queryParams)// + '&limit=' + 15)
+            axios.get('/supermarket/item' + queryParams + '&limit=' + 10 + '&price=' + withPrices)
                 .then(response => {
                     const items = response.data.items.map(item => {
                         return {
@@ -101,23 +171,18 @@ export const tryFetchItems = (searchTerm, brunches) => {
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                     });
-                    const filteredItems=filterItems(items,searchTerm)
-                    dispatch(reqToServer(fetchItemsSuccess(items,filteredItems)))
+                    const filteredItems = filterItems(items, searchTerm)
+                    dispatch(fetchItemsSuccess(items, filteredItems))
+                    dispatch(reqToServerSuccess(actionTypes.FETCH_ITEMS_SUCCESS))
                 })
                 .catch(error => { dispatch(reqToServerFail(error.message)) })
-        }
-    }
 
-    else {
-        return (dispatch, getState) => {
-            dispatch(() => {
-                return {
-                    type: actionTypes.FETCH_ITEMS_SUCCESS,
-                    filteredItems: filterItems(getState().shoppingCart.items, searchTerm),
-                    items: getState().shoppingCart.items
-                }
-            });
         }
+        else {
+            dispatch(filterItemsSuccess(getState().shoppingCart.items, searchTerm))
+        }
+
+
     }
 
 }
@@ -133,12 +198,14 @@ export const tryAddItemToCart = (product) => {
     return dispatch => {
         console.log(product);
 
-        dispatch(reqToServerStart())
+        dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
         axios.put('/list/default/item/' + product.item.code, { quantity: product.quantity, category: product.category })
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
-                    dispatch(reqToServer(addItemToCartSuccess(product)))
+                    dispatch(addItemToCartSuccess(product))
+                    dispatch(reqToServerSuccess(actionTypes.ADD_ITEM_TO_CART_SUCCESS))
+
                 }
                 else {
                     dispatch(reqToServerFail(response.data.message))
@@ -148,30 +215,56 @@ export const tryAddItemToCart = (product) => {
 
     }
 }
+const buildCartAndProducts = (products, branches) => {
+    let carts = {};
+    const branchIds = [];
+    for (const branch of branches) {
+        carts[branch.id] = { chainName: branch.chainName, products: [], lacking: [], branchId: branch.id }
+        branchIds.push(branch.id)
+    }
 
-const fetchCartProductsSuccess = (products) => {
+    for (const product of products) {
+        const newProduct = new Product(product.ItemCode, product.ItemName, product.ListItem.quantity, product.ListItem.category, product.ManufacturerName);
+        const temp = [...branchIds];
+        for (const branch of product.ItemBranches) {
+            newProduct.price = branch.ItemPrice;
+            carts[branch.BranchId].products.push(newProduct)
+            temp[temp.findIndex(branchId => branchId === branch.BranchId)] = 0
+        }
+        const branchesWithLack = temp.filter(branchId => branchId !== 0);
+        for (const branchId of branchesWithLack) {
+            carts[branchId].lacking.push(newProduct)
+        }
+    }
+    const cartByChainName = {}
+    for (const cart of Object.values(carts)) {
+        cartByChainName[cart.chainName] = { cart: new Cart(cart.products, cart.lacking), branchId: cart.branchId }
+
+    }
+    return cartByChainName;
+}
+const fetchCartProductsSuccess = (products, chains, branches) => {
+    const carts = buildCartAndProducts(products, branches);
+    for (const chain of chains) {
+        const cart = carts[chain.chainEnglishName]
+        chain.branches[cart.branchId].cart = cart.cart
+    }
     return {
         type: actionTypes.FETCH_CART_PRODUCTS_SUCCESS,
-        products: products.map(item => {
-            return {
-                code: item.ItemCode,
-                name: item.ItemName,
-                quantity: item.ListItem.quantity,
-                category: item.ListItem.category,
-                avgPrice: item.ItemBranches.reduce((avg, cur) => avg + cur.ItemPrice / item.ItemBranches.length, 0).toFixed(2)
-            };
-        })
+        chains: chains.map(chain => deepClone(chain))
     };
 }
-export const tryFetchCartProducts = (brunches) => {
-    return dispatch => {
-        dispatch(reqToServerStart())
-        const queryParams = '?price=' + true + brunches.map(brunch => ('&branchIds=' + brunch.id)).join('');
+export const tryFetchCartProducts = (branches) => {
+    return (dispatch, getState) => {
+        dispatch(reqToServerStart(loadingTypes.FETCH_CART))
+        const queryParams = '?price=' + true + Object.keys(branches).map(branch => ('&branchIds=' + branch.id)).join('');
 
         axios.get('/list/default/item' + queryParams)
             .then(response => {
                 console.log(response.data);
-                dispatch(reqToServer(fetchCartProductsSuccess(response.data.items)))
+                dispatch(fetchCartProductsSuccess(response.data.items, getState().shoppingCart.chains, branches));
+                dispatch(reqToServerSuccess(actionTypes.FETCH_CART_PRODUCTS_SUCCESS))
+
             })
             .catch(error => { dispatch(reqToServerFail(error.message)) })
     };
@@ -188,12 +281,15 @@ const deleteItemFromCartSuccess = (product) => {
 export const tryDeleteItemFromCart = (product) => {
     return dispatch => {
 
-        dispatch(reqToServerStart())
+        dispatch(reqToServerStart(loadingTypes.DELETE_FROM_CART))
         axios.delete('/list/default/item/' + product.code)
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
-                    dispatch(reqToServer(deleteItemFromCartSuccess(product)))
+                    dispatch(deleteItemFromCartSuccess(product))
+                    dispatch(reqToServerSuccess(actionTypes.DELETE_ITEM_FROM_CART_SUCCESS))
+
+
                 }
                 else {
                     dispatch(reqToServerFail(response.data.message))

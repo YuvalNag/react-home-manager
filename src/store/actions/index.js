@@ -1,5 +1,5 @@
 export {
-    tryFetchBrunches,
+    tryFetchBranches,
     tryFetchItems,
     tryAddItemToCart,
     tryFetchCartProducts,

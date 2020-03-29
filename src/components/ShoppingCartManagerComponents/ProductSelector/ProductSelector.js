@@ -6,12 +6,14 @@ import Col from 'react-bootstrap/Col'
 import SearchProduct from './SearchProduct/SearchProduct'
 import AddToCartButton from './AddToCartButton/AddToCartButton'
 import Dropdown from 'react-bootstrap/Dropdown'
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 
 const productSelector = props => (
     <Form >
         <Form.Row>
             <Col className='m-1 p-0' >
-                <SearchProduct changed={props.searchChanged} searchTerm={props.searchTerm} itemClicked={props.itemClicked} items={props.items} />
+                <SearchProduct searchClicked={props.searchClicked} changed={props.searchChanged} searchTerm={props.searchTerm} itemClicked={props.itemClicked} items={props.items} />
             </Col>
             <Col sm={2} className='m-1'>
 
@@ -19,24 +21,26 @@ const productSelector = props => (
 
             </Col>
             <Col className='m-1 p-0' xs="auto" >
-                <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                        Chose Category
-                </Dropdown.Toggle>
+                <DropdownButton
+                    as={ButtonGroup}
+                    key='down'
+                    id='dropdown-button-drop-down'
+                    drop='down'
+                    variant="secondary"
+                    title='מחלקה'
+                >
+                    {props.categories && props.categories.map(category => [
+                        <Dropdown.Item eventKey="1" onClick={props.categoryClicked} key={category}>{category}</Dropdown.Item>,
+                        <Dropdown.Divider key={category.id + '_divider'} />]
+                    )}
+                </DropdownButton>
 
-                    <Dropdown.Menu>
-                        {props.categories && props.categories.map(category => [
-                            <Dropdown.Item eventKey="1" onClick={props.categoryClicked} key={category}>{category}</Dropdown.Item>,
-                            <Dropdown.Divider key={category.id + '_divider'} />]
-                        )}
-                    </Dropdown.Menu>
-                </Dropdown>
                 {!props.categoryChosen ? <p style={{
                     width: '100 %',
                     marginTop: '.25rem',
                     fontSize: '80%',
                     color: '#dc3545'
-                }}>Please, choose category!</p> : null}
+                }}>בחר מחלקה</p> : null}
             </Col>
 
             <Col className='m-1 p-0'>

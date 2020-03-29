@@ -2,26 +2,30 @@ import * as actionTypes from '../actions/actionTypes'
 import { updateObject } from '../utility'
 
 const initialState = {
-    loading: false,
-    error: false
+    loading: true,
+    error: false,
+    loadingType:'INIT'
 }
 
 const reqToServerStart = (state, action) => {
     return updateObject(state, {
         loading: true,
-        error: false
+        error: false,
+        loadingType:action.loadingType
     });
 }
 const reqToServerFail = (state, action) => {
     return updateObject(state, {
         error: action.error,
-        loading: false
+        loading: false,
+        loadingType:null
     });
 }
 const reqToServerSuccess = (state, action) => {
     return updateObject(state, {
         error: false,
-        loading: false
+        loading: false,
+        loadingType:action.loadingType
     });
 }
 const reducer = (state = initialState, action) => {

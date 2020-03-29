@@ -1,106 +1,114 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import Form from 'react-bootstrap/Form'
-import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Badge from 'react-bootstrap/Badge'
 import Dropdown from 'react-bootstrap/Dropdown'
-import ListGroup from 'react-bootstrap/ListGroup'
-import Tab from 'react-bootstrap/Tab'
 import Button from 'react-bootstrap/Button'
-import { FiMapPin } from 'react-icons/fi'
+import { IoIosSettings, IoIosPin } from 'react-icons/io'
+import ChainSection from './ChainSection/ChainSection'
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import InputGroup from 'react-bootstrap/InputGroup'
+import Spinner from 'react-bootstrap/Spinner'
+import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
 
 
-const summeryBar = props => (
-    <Form className='w-100'>
-        <Form.Row className='m-1' >
-            <Col className='m-0 p-0' >
-                <Dropdown>
-                    <Dropdown.Toggle
-                        variant="secondary"
-                        id="dropdown-basic">
-                        {/* {props.brunches.reduce((min, current) => current.cartPrice < min.cartPrice ? current : min, props.brunches[0])} */}
-                        Choose your preferred supermarkets
-                </Dropdown.Toggle>
+const summeryBar = props => {
+    return (
+        <Fragment>
+            <VerticallyCenteredModal
+                show={props.locationModalMessage !== null}
+                onHide={props.hide}
+                title={props.locationModalMessage} >
+                <Form
+                    noValidate
+                    validated={props.validatedLocation}
+                    onSubmit={props.submit} >
 
-                    <Dropdown.Menu>
-                        {props.brunches && props.brunches.map(brunch => [
-                            <Dropdown.Item
-                                eventKey="1"
-                                key={brunch.id}>
-                                <input type='checkbox' />
-                                {brunch.Chain.ChainName}
-                                <Badge variant="success">
-                                    {500.3}
-                                </Badge>
-                            </Dropdown.Item>,
-                            <Dropdown.Divider
-                                key={brunch.id + '_divider'} />]
-                        )}
-                    </Dropdown.Menu>
-                </Dropdown>
-            </Col>
+                    <Form.Group
+                        controlId="formCity">
+                        <Form.Label>עיר</Form.Label>
+                        <Form.Control
+                            placeholder="עיר"
+                            required />
+                        <Form.Control.Feedback
+                            type="invalid">
+                            הכנס עיר
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group
+                        controlId="formAddress">
+                        <Form.Label>רחוב ומספר</Form.Label>
+                        <Form.Control
+                            placeholder="רחוב ומספר"
+                            required />
+                        <Form.Control.Feedback type="invalid">
+                            הכנס רחוב ומספר
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-            <Col  >
-                <Col
-                    xs="auto"
-                    className='p-0'>
                     <Button
-                        onClick={props.locationClicked}>
-                        <FiMapPin />
-                    </Button>
-                </Col>
-            </Col>
+                        variant="primary"
+                        type="submit">
+                        שלח
+                        </Button>
 
-            <h6
-                style={{/* backgroundColor: '#007bff', borderRadius: '.25rem',*/
-                    color: 'white'
-                }}>
-                Cheapest cart:
-                 {props.brunches && props.brunches[0].Chain.ChainName}
-                <Badge
-                    variant="success">
-                    {props.price}
-                    <span
-                        style={{ fontSize: '18px' }}
-                    >₪
-                        </span>
-                </Badge>
-            </h6>
-        </Form.Row>
+                </Form>
+            </VerticallyCenteredModal >
 
-        <Col
-            className='mt-1'>
-            <Tab.Container
-                id="list-group-tabs-example"
-                defaultActiveKey="#link1">
-                <Row>
-                    <Col >
-                        <ListGroup horizontal>
-                            <ListGroup.Item action href="#link1">
-                                Link 1
-                                </ListGroup.Item>
-                            <ListGroup.Item action href="#link2">
-                                Link 2
-                                </ListGroup.Item>
-                        </ListGroup>
+            <Form className='w-100'>
+                <Form.Row className=' d-inline-flex'>
+                    <Col className=' d-inline-flex' >
+                        <DropdownButton className='w-100'
+                            as={InputGroup}
+                            key='down'
+                            id='dropdown-button-drop-down'
+                            drop='down'
+                            variant="secondary"
+                            title='המועדפים שלך'
+                        >
+                            {Object.keys(props.favoriteBranches).map(chainName => [
+                                <Dropdown.Item className='p-1'
+                                    key={chainName}>
+                                    <ChainSection name={chainName.toLowerCase()}  >
+                                    {props.favoriteBranches[chainName]}
+                                    </ChainSection>
+                                </Dropdown.Item>,
+                                <Dropdown.Divider
+                                    key={chainName + '_divider'} />])}
+                        </DropdownButton>
+                        <Button>
+                            <IoIosSettings size='18px' />
+                        </Button>
                     </Col>
-                </Row>
-                <Row>
-                    <Col >
-                        <Tab.Content style={{ color: 'white' }}>
-                            <Tab.Pane eventKey="#link1">
-                                <h6>can be fount at:</h6>
-                            </Tab.Pane>
-                            <Tab.Pane eventKey="#link2">
-                                <h6>can be fount at:</h6>
-                            </Tab.Pane>
-                        </Tab.Content>
+                    <Col className=' d-inline-flex' >
+
+                        {props.located &&
+                            <DropdownButton className='w-100'
+                                as={InputGroup}
+                                key='down'
+                                id='dropdown-button-drop-down'
+                                drop='down'
+                                variant="secondary"
+                                title={props.loading ? <Spinner size="sm" animation="border" /> : 'קרוב אליך'}
+                            >
+                                {(props.chains).map(chain => [
+                                    <Dropdown.Item className='p-1'
+                                        key={chain.id}>
+                                        <ChainSection name={chain.chainEnglishName.toLowerCase()} price={chain.cart && chain.cart.price} >
+                                            {props.closeBranches}
+                                        </ChainSection>
+                                    </Dropdown.Item>,
+                                    <Dropdown.Divider
+                                        key={chain.id + '_divider'} />])}
+                            </DropdownButton>}
+                        <Button
+                            onClick={props.locationClicked}>
+                            <IoIosPin size='18px' />
+                        </Button>
                     </Col>
-                </Row>
-            </Tab.Container>
-        </Col>
 
-    </Form>
-
-)
+                </Form.Row>
+            </Form>
+        </Fragment>
+    )
+}
 export default summeryBar

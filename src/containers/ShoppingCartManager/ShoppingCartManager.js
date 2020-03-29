@@ -1,12 +1,10 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Spinner from 'react-bootstrap/Spinner'
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
 
 import ProductSelector from '../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
 import CategoriesCards from '../../components/ShoppingCartManagerComponents/CategoriesCards/CategoriesCards'
@@ -14,10 +12,16 @@ import SummeryBar from '../../components/ShoppingCartManagerComponents/SummeryBa
 
 
 import * as actions from '../../store/actions/index'
-import VerticallyCenteredModal from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
+import * as actionTypes from '../../store/actions/actionTypes'
+
+import { loadingTypes } from '../../store/actions/shoppingCart'
+
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-
+import { groupBy } from '../../store/utility'
+import { FaCartArrowDown } from 'react-icons/fa'
+import Image from 'react-bootstrap/Image'
+import Badge from 'react-bootstrap/Badge'
 
 class ShoppingCartManager extends Component {
 
@@ -42,18 +46,24 @@ class ShoppingCartManager extends Component {
                         resolve({ lat: latitude, lon: longitude })
                     }
                     else {
-                        reject(new Error("Low Accuracy\nManually choose your location"))
+                        // reject(new Error("Low Accuracy\nManually choose your location"))
+                        reject(new Error("רמת דיוק נמוכה אנא כנס מיקום ידנית"))
+
                     }
-                }, error => reject(new Error('Enable your GPS position feature \nor manually choose your location')), { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                }, error =>
+                    // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
+                    reject(new Error('אפשר מיקום או הכנס ידנית')),
+                    { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
             } else {
                 //Geolocation is not supported by this browser
-                reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
+                // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
+                reject(new Error("מיקום אינו נתמך במכשירך אנא הכנס ידנית"))
             }
         })
     }
     locationClickedHandler = () => {
         this.getLocation()
-            .then(location => this.props.onTryFetchBrunches(location))
+            .then(location => this.props.onTryFetchBranches(location))
             .catch(error => {
                 console.error(error.message);
                 this.setState({ locationModalMessage: error.message })
@@ -70,21 +80,22 @@ class ShoppingCartManager extends Component {
         }
         const city = form.elements.formCity.value;
         const street = form.elements.formAddress.value;
-        this.props.onTryFetchBrunches({ city: city, street: street })
+        this.props.onTryFetchBranches({ city: city, street: street })
         this.setState({ validatedLocation: true, locationModalMessage: null });
     };
+    searchClickedHandler = () => {
+        this.props.onTryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
+    }
     searchChangedHandler = (event) => {
         const value = event.target.value;
-        const key = value.charAt(value.length - 1)
+
         this.setState({ searchTerm: value })
-
-        // if (key === ' ') {
-            console.log(this.state.searchTerm);
-
-            this.props.onTryFetchItems(value, this.props.brunches)
-
-        // }
-
+        // console.log(this.state.searchTerm);
+        setTimeout(() => {
+            if (this.state.searchTerm === value) {
+                this.props.onTryFetchItems(value, this.props.favoriteBranches, false)
+            }
+        }, 50);
     }
     quantityChangedHandler = (event) => {
         const quantity = parseInt(event.target.value);
@@ -115,7 +126,7 @@ class ShoppingCartManager extends Component {
             this.setState({
                 quantity: 1,
                 chosenItem: null,
-                searchTerm: ' ',
+                searchTerm: '',
                 category: null,
                 categoryChosen: false
             })
@@ -125,127 +136,123 @@ class ShoppingCartManager extends Component {
         this.props.onTryDeleteItemFromCart(product)
     }
 
-    findIntersections = (object, arr) => {
-        const res = {};
-        for (const key in object) {
-            if (object.hasOwnProperty(key)) {
-                res[key] = {};
-                res[key].products = object[key];
-            }
+    buildCategoriesArray = (products) => {
+        const productsGroupByCategory = groupBy(products, 'category');
+        const categoriesArray = [];
+        for (const category in productsGroupByCategory) {
+            productsGroupByCategory[category].imageName = this.props.categoriesInfo[category].imageName
+            categoriesArray.push({ name: category, imageName: this.props.categoriesInfo[category].imageName, products: productsGroupByCategory[category] })
         }
-        arr.forEach(element => {
-            if (res.hasOwnProperty(element.title)) {
-                res[element.title].imageName = element.imageName
-            }
-        });
-        console.log(res);
 
-        return res;
+        return categoriesArray
     }
     componentDidMount() {
-        if (!this.props.locationInfo) {
-            this.locationClickedHandler()
-        }
+        // if (!this.props.locationInfo) {
+        //     this.locationClickedHandler()
+        // }
+        this.props.onTryFetchBranches(this.props.locationInfo, this.props.favoriteBranches)
     }
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.brunches && (prevProps.brunches !== this.props.brunches)) {
-            this.props.onTryFetchCartProducts(this.props.brunches)
+        if (this.props.favoriteBranches && (prevProps.favoriteBranches !== this.props.favoriteBranches)) {
+            this.props.onTryFetchCartProducts(this.props.favoriteBranches)
         }
     }
 
 
     render() {
+        console.log(this.props.loadingType);
+
+
+        const loadingBranches = ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
+        const loadingSearch = this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
+        // const loadingSearch = ((this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
+        const loadingCart = this.props.currentBranch.cart === undefined //|| this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
+        // const loadingCart = this.props.currentBranch.cart === undefined || ((this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
+        console.log('branches', loadingBranches);
+        console.log('search', loadingSearch);
+        console.log('cart', loadingCart);
+        let imageSrc;
+        if (!loadingCart) {
+            imageSrc = require(`../../assets/images/${this.props.currentBranch.chainName.toLowerCase()}.png`);
+        }
+
+
+
+
         return (
-            <Fragment>
-                {/* <VerticallyCenteredModal
-                    show={this.state.locationModalMessage != null}
-                    onHide={() => this.setState({ locationModalMessage: null })}
-                    title={this.state.locationModalMessage}> */}
 
-                {this.state.locationModalMessage != null ?
-                    <Fragment>
-                        <h3>{this.state.locationModalMessage}</h3>
 
-                        <Form
-                            noValidate
-                            validated={this.state.validatedLocation}
-                            onSubmit={this.submitLocationHandler} >
 
-                            <Form.Group
-                                controlId="formCity">
-                                <Form.Label>City</Form.Label>
-                                <Form.Control
-                                    placeholder="Enter your city."
-                                    required />
-                                <Form.Control.Feedback
-                                    type="invalid">
-                                    Please provide a city.
-                        </Form.Control.Feedback>
-                            </Form.Group>
-                            <Form.Group
-                                controlId="formAddress">
-                                <Form.Label>Address</Form.Label>
-                                <Form.Control
-                                    placeholder="Enter your address."
-                                    required />
-                                <Form.Control.Feedback type="invalid">
-                                    Please provide a address.
-                        </Form.Control.Feedback>
-                            </Form.Group>
+            <Container className='mw-100' style={{ backgroundColor: 'currentColor' }} >
+                <Row  >
+                    <Col>
+                        <ProductSelector
+                            categories={Object.keys(this.props.categoriesInfo)}
+                            searchTerm={this.state.searchTerm}
+                            quantity={this.state.quantity}
+                            items={this.props.filteredItems}
+                            searchChanged={this.searchChangedHandler}
+                            searchClicked={this.searchClickedHandler}
+                            quantityChanged={this.quantityChangedHandler}
+                            categoryClicked={this.categoryClickedHandler}
+                            itemClicked={this.itemClickedHandler}
+                            productIsValid={this.state.quantity && this.state.chosenItem}
+                            addToCartClicked={this.addToCartClickedHandler}
+                            categoryChosen={this.state.categoryChosen}
+                        />
+                    </Col>
+                </Row>
 
-                            <Button
-                                variant="primary"
-                                type="submit">
-                                SUBMIT
-                        </Button>
-
-                        </Form>
-                        <br />
-                        <Spinner animation="border" />
-                    </Fragment>
-                    :
-
-                    < Container className='mw-100'>
-                        <Row
-                            style={{ backgroundColor: 'currentColor' }}  >
-                            <Col>
-                                <ProductSelector
-                                    categories={this.props.categoriesInfo.map(category => category.title)}
-                                    searchTerm={this.state.searchTerm}
-                                    quantity={this.state.quantity}
-                                    items={this.props.filteredItems}
-                                    searchChanged={this.searchChangedHandler}
-                                    quantityChanged={this.quantityChangedHandler}
-                                    categoryClicked={this.categoryClickedHandler}
-                                    itemClicked={this.itemClickedHandler}
-                                    productIsValid={this.state.quantity && this.state.chosenItem}
-                                    addToCartClicked={this.addToCartClickedHandler}
-                                    categoryChosen={this.state.categoryChosen}
-                                />
+                <Row
+                    style={{ backgroundColor: 'currentColor' }}
+                    className="h-25 ">
+                    <SummeryBar
+                        loading={loadingBranches}
+                        chains={this.props.chains}
+                        favoriteBranches={groupBy(this.props.favoriteBranches, 'chainName')}
+                        closeBranches={groupBy(this.props.closeBranches, 'chainName')}
+                        locationClicked={this.locationClickedHandler}
+                        located={this.props.locationInfo || true}
+                        locationModalMessage={this.state.locationModalMessage}
+                        submit={this.submitLocationHandler}
+                        validatedLocation={this.state.validatedLocation}
+                        hide={() => this.setState({ locationModalMessage: null })}
+                    />
+                </Row>
+                {loadingCart ? <Spinner animation="border" >
+                    <FaCartArrowDown />
+                </Spinner> :
+                    <div >
+                        <Row >
+                            <Col >
+                                <div style={{
+                                    boxSizing: 'content-box',
+                                    width: '100px',
+                                    display: 'flex',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    <Image src={imageSrc} fluid className='float-right w-100' />
+                                    <Badge className='float-left' style={{ color: 'white' }}>{loadingCart ? 'loading..' : this.props.currentBranch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>
+                                </div>
                             </Col>
                         </Row>
                         <Row
-                            style={{ backgroundColor: 'currentColor' }}
-                            className="h-25 ">
-                            <SummeryBar
-                                brunches={this.props.brunches}
-                                price={this.props.cart.totalPrice}
-                                locationClicked={this.locationClickedHandler}
-                            />
-                        </Row>
-                        <Row
-                            style={{ backgroundColor: 'lightgray' }}
+
                             className="h-75 ">
+
                             <Col className='p-0'>
-                                {this.props.categoriesInfo ? <CategoriesCards
-                                    categories={this.findIntersections(this.props.cart.products, this.props.categoriesInfo)}
+
+                                <CategoriesCards
+                                    categories={this.buildCategoriesArray(this.props.currentBranch.cart.products)}
                                     deleteItemClicked={this.deleteItemClickedHandler} />
-                                    :
-                                    <Spinner animation="border" />}
                             </Col>
                         </Row>
-                    </Container>
-                }</Fragment>
+
+                    </div>
+
+                }
+            </Container>
+
         )
     }
 }
@@ -256,8 +263,17 @@ const mapStateToProps = state => {
         filteredItems: state.shoppingCart.filteredItems,
         chosenProduct: state.shoppingCart.chosenProduct,
         locationInfo: state.shoppingCart.location,
-        brunches: state.shoppingCart.brunches,
-        cart: state.shoppingCart.cart
+        favoriteBranches: state.shoppingCart.favoriteBranches,
+        closeBranches: state.shoppingCart.closeBranches,
+
+        cart: state.shoppingCart.cart,
+        chains: state.shoppingCart.chains,
+        currentBranch: state.shoppingCart.currentBranch,
+
+
+        loading: state.reqToServer.loading,
+        loadingType: state.reqToServer.loadingType,
+
     }
 }
 
@@ -268,11 +284,11 @@ const mapDispatchToProps = dispatch => {
         // onAmountInputChanged: (event) => dispatch({ type: actionType.AMOUNT_INPUT, amount: event.target.value }),
         // onAddToCartClicked: (index) => dispatch({ type: actionType.ADD_TO_CART, itemIndex: index }),
         // onLoadItems: () => dispatch(actions.loadItems()),
-        onTryFetchBrunches: (location) => dispatch(actions.tryFetchBrunches(location)),
-        onTryFetchItems: (searchTerm, brunches) => dispatch(actions.tryFetchItems(searchTerm, brunches)),
+        onTryFetchBranches: (location, branches) => dispatch(actions.tryFetchBranches(location, branches)),
+        onTryFetchItems: (searchTerm, branches, withPrices) => dispatch(actions.tryFetchItems(searchTerm, branches, withPrices)),
         onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
-        onTryFetchCartProducts: (brunches) => dispatch(actions.tryFetchCartProducts(brunches)),
+        onTryFetchCartProducts: (branches) => dispatch(actions.tryFetchCartProducts(branches)),
 
     };
 };

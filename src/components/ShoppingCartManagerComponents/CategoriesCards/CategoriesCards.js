@@ -3,7 +3,7 @@ import CategoryCard from './CategoryCard/CategoryCard'
 
 
 const categoriesCards = props => {
-    const categoriesCards =Object.keys(props.categories).map(title=><CategoryCard key={title} title={title} imageName={props.categories[title].imageName} products={props.categories[title].products} deleteItemClicked={props.deleteItemClicked}/>)
+    const categoriesCards =props.categories.map(category=><CategoryCard key={category.name} title={category.name} imageName={category.imageName} products={category.products} deleteItemClicked={props.deleteItemClicked}/>)
     return (
         <div>
             {categoriesCards}
