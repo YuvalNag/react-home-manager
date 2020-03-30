@@ -68,8 +68,8 @@ const summeryBar = props => {
                             {Object.keys(props.favoriteBranches).map(chainName => [
                                 <Dropdown.Item className='p-1'
                                     key={chainName}>
-                                    <ChainSection name={chainName.toLowerCase()}  >
-                                    {props.favoriteBranches[chainName]}
+                                    <ChainSection name={chainName.toLowerCase()} favorite >
+                                        {props.favoriteBranches[chainName]}
                                     </ChainSection>
                                 </Dropdown.Item>,
                                 <Dropdown.Divider
@@ -90,15 +90,15 @@ const summeryBar = props => {
                                 variant="secondary"
                                 title={props.loading ? <Spinner size="sm" animation="border" /> : 'קרוב אליך'}
                             >
-                                {(props.chains).map(chain => [
+                                {Object.keys(props.closeBranches).map(chainName => [
                                     <Dropdown.Item className='p-1'
-                                        key={chain.id}>
-                                        <ChainSection name={chain.chainEnglishName.toLowerCase()} price={chain.cart && chain.cart.price} >
-                                            {props.closeBranches}
+                                        key={chainName}>
+                                        <ChainSection name={chainName.toLowerCase()}  >
+                                            {props.closeBranches[chainName]}
                                         </ChainSection>
                                     </Dropdown.Item>,
                                     <Dropdown.Divider
-                                        key={chain.id + '_divider'} />])}
+                                        key={chainName + '_divider'} />])}
                             </DropdownButton>}
                         <Button
                             onClick={props.locationClicked}>

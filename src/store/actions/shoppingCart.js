@@ -42,6 +42,8 @@ const saveLocation = (location) => {
 
 const buildChainAndBranches = (branches) => {
     const chains = []
+    const branchesArray = []
+
     const branchesGroupByChainid = groupBy(branches, 'ChainId')
     for (const chainId in branchesGroupByChainid) {
         const chainName = branchesGroupByChainid[chainId][0].Chain.ChainName;
@@ -58,25 +60,25 @@ const buildChainAndBranches = (branches) => {
             chainEnglishName,
         ));
 
-
+        branchesArray.push(...branches)
         chains.push(new Chain(chainName, chainEnglishName, branches, chainId));
     }
-    return chains;
+    return [chains,branchesArray];
 }
 const fetchBranchesSuccess = (branches, isFavorite) => {
-    const chains = buildChainAndBranches(branches);
+    const [chains,branchesArray] = buildChainAndBranches(branches);
     if (isFavorite) {
         return {
             type: actionTypes.FETCH_BRANCHES_SUCCESS,
             chains: chains,
-            favoriteBranches: branches
+            favoriteBranches: branchesArray
         }
     }
     else {
         return {
             type: actionTypes.FETCH_BRANCHES_SUCCESS,
             chains: chains,
-            closeBranches: branches
+            closeBranches: branchesArray
         }
     }
 }
