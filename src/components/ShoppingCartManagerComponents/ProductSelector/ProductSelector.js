@@ -15,9 +15,9 @@ const productSelector = props => (
     <Fragment>
         <Col className='m-1 p-0' sm={2} >
             <SearchProduct searchClicked={props.searchClicked} changed={props.searchChanged} searchTerm={props.searchTerm} itemClicked={props.itemClicked}
-
-                items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} />
-            {props.loadingSearch && <Spinner animation="border" variant='secondary'/>}
+                items={props.item ? [props.item] : props.items} />
+            {/* items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} /> */}
+            {props.loadingSearch && <Spinner animation="border" variant='secondary' />}
         </Col>
         <Col className='mx-1 p-0'>
             <AddToCartButton addToCartClicked={props.addToCartClicked}
@@ -48,7 +48,7 @@ const productSelector = props => (
             }}>בחר מחלקה</p> : null}
         </Col>
         <Col className='p-0'>
-            <Form.Control type="number" onChange={props.quantityChanged} placeholder="#Quantity" value={props.quantity} />
+            <Form.Control type="number" className='text-right' onChange={props.quantityChanged} placeholder="כמות" value={props.quantity} />
         </Col>
         <Form.Label className='text-white p-0' column >:כמות</Form.Label>
     </Fragment>

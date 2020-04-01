@@ -6,8 +6,8 @@ const ItemsTable = (props) => {
     return (
         <ListGroup variant="flush">
             {props.items.map((item, i) =>
-                <ListGroup.Item key={item.code}>
-                    <ItemRow clicked={props.itemClicked} >
+                <ListGroup.Item key={item.code} onClick={() => props.itemClicked(item)}>
+                    <ItemRow >
                         {item}
                     </ItemRow>
                 </ListGroup.Item >)}

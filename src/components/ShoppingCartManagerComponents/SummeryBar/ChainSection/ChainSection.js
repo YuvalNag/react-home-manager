@@ -10,7 +10,7 @@ const ChainSection = props => {
         <div>
             <div style={{
                 boxSizing: 'content-box',
-                width: '100px',
+                width: '80px',
                 display: 'flex',
                 justifyContent: 'space-between'
             }}>

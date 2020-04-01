@@ -14,6 +14,7 @@ import * as actions from '../../store/actions/index'
 import * as actionTypes from '../../store/actions/actionTypes'
 
 import { loadingTypes } from '../../store/actions/shoppingCart'
+import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
@@ -32,7 +33,9 @@ class ShoppingCartManager extends Component {
         categoryChosen: false,
         chosenItem: null,
         timerId: null,
-        showLackingModel: false
+        showLackingModel: false,
+        items: [],
+        loadingSearch: false
     }
 
     getLocation = () => {
@@ -84,7 +87,7 @@ class ShoppingCartManager extends Component {
         this.setState({ validatedLocation: true, locationModalMessage: null });
     };
     searchClickedHandler = () => {
-        this.props.onTryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
+        this.tryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
     }
     searchChangedHandler = (event) => {
         const value = event.target.value;
@@ -93,7 +96,7 @@ class ShoppingCartManager extends Component {
         clearInterval(this.state.timerId)
         const timerId = setTimeout(() => {
             if (this.state.searchTerm === value) {
-                this.props.onTryFetchItems(value, this.props.favoriteBranches, false)
+                this.tryFetchItems(value, this.props.favoriteBranches, false)
             }
         }, 500);
         this.setState({ searchTerm: value, timerId: timerId })
@@ -108,10 +111,17 @@ class ShoppingCartManager extends Component {
         })
     }
     itemClickedHandler = (item) => {
-        this.props.onTryFetchItems()
-        this.setState({
-            chosenItem: item
-        });
+        if (!item.isClicked) {
+            const chosenItem = { ...item, isClicked: true };
+            this.setState({
+                chosenItem: chosenItem
+            });
+        }
+        else {
+            this.setState({
+                chosenItem: null
+            });
+        }
 
     }
     categoryClickedHandler = (event) => {
@@ -131,7 +141,8 @@ class ShoppingCartManager extends Component {
                 chosenItem: null,
                 searchTerm: '',
                 category: null,
-                categoryChosen: false
+                categoryChosen: false,
+                items: []
             })
         }
     }
@@ -140,6 +151,49 @@ class ShoppingCartManager extends Component {
     }
     branchClickedHandler = (branchId) => {
         this.props.onCurrentBranchChanged(branchId);
+    }
+    tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
+
+        let cancel;
+        if (searchTerm.trim() === '') {
+            this.setState({ items: [], loadingSearch: false })
+        }
+        else {
+            this.setState({ items: [], loadingSearch: true })
+
+            console.log(searchTerm);
+            cancel && cancel()
+            const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
+            // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
+            axios.get('/supermarket/item' + queryParams + '&limit=' + 10 + '&price=' + withPrices, {
+                cancelToken: new CancelToken(function executor(c) {
+                    // An executor function receives a cancel function as a parameter
+                    cancel = c;
+                })
+            })
+                .then(response => {
+                    console.log(response);
+                    const products = (response && response.data.items) && response.data.items.map(item => {
+                        return {
+                            code: item.ItemCode,
+                            name: item.ItemName,
+                            ManufacturerName: item.ManufacturerName,
+                            Branches: item.ItemBranches,
+                            isWeighted: item.bIsWeighted && true,
+                            price: item.mean,
+                            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+                            // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
+                        }
+                    });
+                    this.setState({ items: products, loadingSearch: false })
+                })
+                .catch(error => {
+
+                    this.setState({ items: [], loadingSearch: false })
+
+                })
+
+        }
     }
 
     buildCategoriesArray = (products) => {
@@ -170,7 +224,7 @@ class ShoppingCartManager extends Component {
 
 
         const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
-        const loadingSearch = this.props.loading && this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
+        const loadingSearch = this.state.loadingSearch//this.props.loading && this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
         // const loadingSearch = ((this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
         const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
         // const loadingCart = this.props.currentBranch.cart === undefined || ((this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
@@ -193,7 +247,7 @@ class ShoppingCartManager extends Component {
                         categories={Object.keys(this.props.categoriesInfo)}
                         searchTerm={this.state.searchTerm}
                         quantity={this.state.quantity}
-                        items={this.props.filteredItems}
+                        items={this.state.items}
                         searchChanged={this.searchChangedHandler}
                         searchClicked={this.searchClickedHandler}
                         quantityChanged={this.quantityChangedHandler}
@@ -229,7 +283,7 @@ class ShoppingCartManager extends Component {
                     this.props.currentBranch.cart
                     &&
                     <Fragment >
-                        <Row >
+                        <Row className='m-1' >
                             <BranchSummery loadingCart={loadingCart}
                                 branch={this.props.currentBranch}
                                 deleteItemClicked={this.deleteItemClickedHandler}
