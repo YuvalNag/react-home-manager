@@ -1,7 +1,8 @@
 class Cart {
     constructor(products, lacking) {
-        this.products = products;
-        this.lacking = lacking;
+        
+        this.products = products || [];
+        this.lacking = lacking || [];
         this.price = this.calculatePrice()
     }
     calculatePrice = () => {

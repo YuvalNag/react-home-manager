@@ -3,5 +3,6 @@ export {
     tryFetchItems,
     tryAddItemToCart,
     tryFetchCartProducts,
-    tryDeleteItemFromCart
+    tryDeleteItemFromCart,
+    currentBranchChanged
 } from './shoppingCart'

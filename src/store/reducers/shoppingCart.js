@@ -1,5 +1,5 @@
 import * as actionType from '../actions/actionTypes'
-import { updateObject, insertItem, removeItem, margeTwoArraysWithImportantProp } from '../utility'
+import { updateObject, insertItem } from '../utility'
 
 const initialState = {
     categoriesInfo: {
@@ -39,7 +39,9 @@ const reducer = (state = initialState, action) => {
         case actionType.FETCH_BRANCHES_SUCCESS: return fetchBranchesSuccess(state, action)
         case actionType.FETCH_ITEMS_SUCCESS: return fetchItemsSuccess(state, action)
         case actionType.FETCH_CART_PRODUCTS_SUCCESS: return fetchCartProductsSuccess(state, action)
-        case actionType.DELETE_ITEM_FROM_CART_SUCCESS: return deleteItemFromCartSuccess(state, action)
+        // case actionType.DELETE_ITEM_FROM_CART_SUCCESS: return deleteItemFromCartSuccess(state, action)
+        case actionType.CURRENT_BRANCH_CHANGED: return currentBranchChanged(state, action)
+
 
 
         default:
@@ -53,7 +55,7 @@ const fetchBranchesSuccess = (state, action) => {
     if (action.favoriteBranches) {
         return updateObject(state, { chains: action.chains, favoriteBranches: action.favoriteBranches })
     }
-    else { 
+    else {
         return updateObject(state, { chains: action.chains, closeBranches: action.closeBranches })
     }
 }
@@ -69,6 +71,7 @@ const addItemToCartSuccess = (state, action) => {
         totalPrice: updatedPrice,
         products: updatedProducts
     });
+
     return updateObject(state, { cart: updatedCart });
 }
 const fetchCartProductsSuccess = (state, action) => {
@@ -93,33 +96,38 @@ const fetchCartProductsSuccess = (state, action) => {
     //     products: products
     // });
     const currentBranch = state.favoriteBranches.find(branch => branch.id === state.currentBranch.id)
-    return updateObject(state, { chains: action.chains, currentBranch: currentBranch });
+    return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
 
 }
-const deleteItemFromCartSuccess = (state, action) => {
-    const categoryArray = state.cart.products[action.category];
-    console.log(categoryArray);
-    const [indexOfProduct, price] = categoryArray.filter((product, index) => { if (product.code === action.productCode) return [index, product.avgPrice] })
-    console.log(indexOfProduct);
+// const deleteItemFromCartSuccess = (state, action) => {
+//     const categoryArray = state.cart.products[action.category];
+//     console.log(categoryArray);
+//     const [indexOfProduct, price] = categoryArray.filter((product, index) => { if (product.code === action.productCode) return [index, product.avgPrice] })
+//     console.log(indexOfProduct);
 
-    const updatedCategoryArray = removeItem(categoryArray, indexOfProduct);
-    console.log(updatedCategoryArray);
-    const updatedProducts = updateObject(state.cart.products, { [action.category]: updatedCategoryArray });
-    console.log(updatedProducts);
-    if (updatedCategoryArray.length <= 0) {
-        delete updatedProducts[action.category]
-    }
-    const updatedPrice = state.cart.totalPrice - action.quantity * price;
-    const updatedCart = updateObject(state.cart, {
-        totalPrice: updatedPrice,
-        products: updatedProducts
-    });
-    console.log(updatedCart);
+//     const updatedCategoryArray = removeItem(categoryArray, indexOfProduct);
+//     console.log(updatedCategoryArray);
+//     const updatedProducts = updateObject(state.cart.products, { [action.category]: updatedCategoryArray });
+//     console.log(updatedProducts);
+//     if (updatedCategoryArray.length <= 0) {
+//         delete updatedProducts[action.category]
+//     }
+//     const updatedPrice = state.cart.totalPrice - action.quantity * price;
+//     const updatedCart = updateObject(state.cart, {
+//         totalPrice: updatedPrice,
+//         products: updatedProducts
+//     });
+//     console.log(updatedCart);
 
-    if (updatedCategoryArray.length <= 0) {
+//     if (updatedCategoryArray.length <= 0) {
 
-    }
-    return updateObject(state, { cart: updatedCart });
+//     }
+//     return updateObject(state, { cart: updatedCart });
+// }
+
+const currentBranchChanged = (state, action) => {
+    const currentBranch = state.favoriteBranches.find(branch => branch.id === action.id)
+    return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
 }
 // const onAddToCartClicked = (product, cart) => {
 //     const updatedProducts = [...cart.products].concat([product.productInfo + ' ' + product.amount])

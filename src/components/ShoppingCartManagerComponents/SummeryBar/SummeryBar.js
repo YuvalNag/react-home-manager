@@ -63,14 +63,15 @@ const summeryBar = props => {
                             id='dropdown-button-drop-down'
                             drop='down'
                             variant="secondary"
-                            title='המועדפים שלך'
+                            title={props.loading && !props.located ? <Spinner size="sm" animation="border" /> : 'המועדפים שלך'}
                         >
                             {Object.keys(props.favoriteBranches).map(chainName => [
                                 <Dropdown.Item className='p-1'
                                     key={chainName}>
-                                    <ChainSection name={chainName.toLowerCase()} favorite >
-                                        {props.favoriteBranches[chainName]}
-                                    </ChainSection>
+                                    {chainName !== 'undefined' &&
+                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
+                                            {props.favoriteBranches[chainName]}
+                                        </ChainSection>}
                                 </Dropdown.Item>,
                                 <Dropdown.Divider
                                     key={chainName + '_divider'} />])}

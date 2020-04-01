@@ -1,5 +1,6 @@
 import React, { Fragment, Component } from 'react'
 import Model from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
+import { isCancel } from 'axios'
 
 
 const withErrorHandler = (WrappedComponent, axios) => {
@@ -13,6 +14,8 @@ const withErrorHandler = (WrappedComponent, axios) => {
                 this.setState({ error: null })
                 return request
             })
+            console.log(this.state.error);
+
             this.resInterceptor = axios.interceptors.response.use(response => response, error => this.setState({ error: error }))
         }
         componentWillUnmount() {
@@ -22,13 +25,18 @@ const withErrorHandler = (WrappedComponent, axios) => {
         }
         modelConfirmedHandler = () => this.setState({ error: null })
         render() {
+            console.log(this.state.error);
+
             return (
+
                 <Fragment>
-                    <Model show={this.state.error != null} onHide={this.modelConfirmedHandler}>
-                        {this.state.error ? this.state.error.message : null}
-                    </Model>
+                    {this.state.error && !isCancel(this.state.error) &&
+                        <Model show={this.state.error != null} onHide={this.modelConfirmedHandler}>
+                            {this.state.error.message}
+                        </Model>}
                     <WrappedComponent {...this.props} />
                 </Fragment>
+
             )
         }
     }

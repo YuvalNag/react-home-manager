@@ -1,3 +1,5 @@
+import { CancelToken } from 'axios'
+
 import * as actionTypes from './actionTypes'
 import axios from '../../axios/axios-shoppingCart'
 import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToServer'
@@ -63,10 +65,10 @@ const buildChainAndBranches = (branches) => {
         branchesArray.push(...branches)
         chains.push(new Chain(chainName, chainEnglishName, branches, chainId));
     }
-    return [chains,branchesArray];
+    return [chains, branchesArray];
 }
 const fetchBranchesSuccess = (branches, isFavorite) => {
-    const [chains,branchesArray] = buildChainAndBranches(branches);
+    const [chains, branchesArray] = buildChainAndBranches(branches);
     if (isFavorite) {
         return {
             type: actionTypes.FETCH_BRANCHES_SUCCESS,
@@ -108,17 +110,23 @@ export const tryFetchBranches = (location, branches) => {
     }
 }
 
-const fetchItemsSuccess = (items, filteredItems) => {
-    // const chains = {
-    //     '7290027600007': 'https://res.cloudinary.com/shufersal/image/upload/f_auto,q_auto/v1551800918/prod/product_images/products_medium/WFN50_M_P_' + item.ItemCode + '_1.png',
-    //     '7290172900007': 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg',
-    //     '7290803800003': 'https://yochananof.co.il/wp-content/uploads/2016/07/logo.png',
-    //     '7290058140886': 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
-    // }
+const fetchItemsSuccess = (items) => {
+    const products = items.map(item => {
+        return {
+            code: item.ItemCode,
+            name: item.ItemName,
+            ManufacturerName: item.ManufacturerName,
+            Branches: item.ItemBranches,
+            isWeighted: item.bIsWeighted && true,
+            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+            // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
+        }
+    });
+
     return {
         type: actionTypes.FETCH_ITEMS_SUCCESS,
-        items: items,
-        filteredItems: filteredItems
+        items: products,
+        filteredItems: products
     }
 }
 const resetItems = () => {
@@ -149,6 +157,8 @@ const filterItems = (items, searchText) => {
     }
     return filteredItems
 }
+const cancelToken = CancelToken;
+let cancel;
 export const tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
 
     return (dispatch, getState) => {
@@ -157,27 +167,28 @@ export const tryFetchItems = (searchTerm = '', branches = [], withPrices = false
         }
         else if (searchTerm.length >= 1 || getState().shoppingCart.filteredItems.length === 0) {
             console.log(searchTerm);
+            cancel && cancel()
             dispatch(reqToServerStart(loadingTypes.FETCH_ITEMS))
             const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
-            axios.get('/supermarket/item' + queryParams + '&limit=' + 10 + '&price=' + withPrices)
+            axios.get('/supermarket/item' + queryParams + '&limit=' + 10 + '&price=' + withPrices, {
+                cancelToken: new cancelToken(function executor(c) {
+                    // An executor function receives a cancel function as a parameter
+                    cancel = c;
+                })
+            })
                 .then(response => {
-                    const items = response.data.items.map(item => {
-                        return {
-                            code: item.ItemCode,
-                            name: item.ItemName,
-                            ManufacturerName: item.ManufacturerName,
-                            Branches: item.ItemBranches,
-                            isWeighted: item.bIsWeighted && true,
-                            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
-                            // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
-                        }
-                    });
-                    const filteredItems = filterItems(items, searchTerm)
-                    dispatch(fetchItemsSuccess(items, filteredItems))
+                    console.log(response);
+
+                    const products = (response && response.data.items) || []
+                    dispatch(fetchItemsSuccess(products));
                     dispatch(reqToServerSuccess(actionTypes.FETCH_ITEMS_SUCCESS))
                 })
-                .catch(error => { dispatch(reqToServerFail(error.message)) })
+                .catch(error => {
+
+                    dispatch(reqToServerFail(error.message))
+
+                })
 
         }
         else {
@@ -189,15 +200,15 @@ export const tryFetchItems = (searchTerm = '', branches = [], withPrices = false
 
 }
 
-const addItemToCartSuccess = (product) => {
-    return {
-        type: actionTypes.ADD_ITEM_TO_CART_SUCCESS,
-        product: { code: product.item.code, name: product.item.name, quantity: product.quantity },
-        category: product.category
-    }
-}
+// const addItemToCartSuccess = (product) => {
+//     const newProduct = new Product(product.item.code, product.item.name, product.quantity, product.category, product.item.ManufacturerName)
+//     return {
+//         type: actionTypes.ADD_ITEM_TO_CART_SUCCESS,
+//         product: newProduct
+//     }
+// }
 export const tryAddItemToCart = (product) => {
-    return dispatch => {
+    return (dispatch, getState) => {
         console.log(product);
 
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
@@ -205,8 +216,9 @@ export const tryAddItemToCart = (product) => {
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
-                    dispatch(addItemToCartSuccess(product))
-                    dispatch(reqToServerSuccess(actionTypes.ADD_ITEM_TO_CART_SUCCESS))
+                    // dispatch(addItemToCartSuccess(product))
+                    // dispatch(reqToServerSuccess(actionTypes.ADD_ITEM_TO_CART_SUCCESS))
+                    dispatch(tryFetchCartProducts(getState().shoppingCart.favoriteBranches))
 
                 }
                 else {
@@ -241,7 +253,6 @@ const buildCartAndProducts = (products, branches) => {
     const cartByChainName = {}
     for (const cart of Object.values(carts)) {
         cartByChainName[cart.chainName] = { cart: new Cart(cart.products, cart.lacking), branchId: cart.branchId }
-
     }
     return cartByChainName;
 }
@@ -259,7 +270,7 @@ const fetchCartProductsSuccess = (products, chains, branches) => {
 export const tryFetchCartProducts = (branches) => {
     return (dispatch, getState) => {
         dispatch(reqToServerStart(loadingTypes.FETCH_CART))
-        const queryParams = '?price=' + true + Object.keys(branches).map(branch => ('&branchIds=' + branch.id)).join('');
+        const queryParams = '?price=' + true + (branches).map(branch => ('&branchIds=' + branch.id)).join('');
 
         axios.get('/list/default/item' + queryParams)
             .then(response => {
@@ -272,23 +283,23 @@ export const tryFetchCartProducts = (branches) => {
     };
 }
 
-const deleteItemFromCartSuccess = (product) => {
-    return {
-        type: actionTypes.DELETE_ITEM_FROM_CART_SUCCESS,
-        productCode: product.code,
-        category: product.category,
-        quantity: product.quantity
-    }
-}
+// const deleteItemFromCartSuccess = (product) => {
+//     return {
+//         type: actionTypes.DELETE_ITEM_FROM_CART_SUCCESS,
+//         productCode: product.code,
+//         category: product.category,
+//         quantity: product.quantity
+//     }
+// }
 export const tryDeleteItemFromCart = (product) => {
-    return dispatch => {
+    return (dispatch, getState) => {
 
         dispatch(reqToServerStart(loadingTypes.DELETE_FROM_CART))
         axios.delete('/list/default/item/' + product.code)
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
-                    dispatch(deleteItemFromCartSuccess(product))
+                    dispatch(tryFetchCartProducts(getState().shoppingCart.favoriteBranches))
                     dispatch(reqToServerSuccess(actionTypes.DELETE_ITEM_FROM_CART_SUCCESS))
 
 
@@ -300,4 +311,12 @@ export const tryDeleteItemFromCart = (product) => {
             .catch(error => { dispatch(reqToServerFail(error.message)) })
 
     }
+}
+
+export const currentBranchChanged = (branchId) => {
+    return {
+        type: actionTypes.CURRENT_BRANCH_CHANGED,
+        id: branchId
+    }
+
 }

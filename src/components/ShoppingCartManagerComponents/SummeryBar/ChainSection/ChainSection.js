@@ -18,17 +18,16 @@ const ChainSection = props => {
             </div>
 
             {props.children.map(branch => (
-                <div key={branch.id}>
+                <div key={branch.id} onClick={() => props.branchClicked(branch.id)} >
                     {!props.favorite && <input type='checkbox' />}
                     {branch.storeName}
                     {branch.cart && <Badge className='float-left'>{branch.cart && branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>}
-
-
                 </div>
 
 
 
-            ))}
+            ))
+            }
 
         </div >
     )

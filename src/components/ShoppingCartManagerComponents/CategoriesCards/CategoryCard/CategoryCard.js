@@ -28,7 +28,7 @@ const CategoryCard = (props) => {
                     props.products.map(product =>
                         <ListGroup.Item key={product.code}> {product.name}
                             <Badge>
-                                {product.avgPrice}
+                                {product.price}
                                 <span style={{ fontSize: '18px' }}>₪</span>
                             </Badge>
                             <div style={{

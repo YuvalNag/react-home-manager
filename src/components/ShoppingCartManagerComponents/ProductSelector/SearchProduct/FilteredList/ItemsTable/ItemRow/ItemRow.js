@@ -28,24 +28,24 @@ const ItemRow = (props) => {
 
 
     return (
-        <div style={{ display: 'flex' }}>
-            {withPrices &&
-                <Figure className='m-1 float-left' onClick={() => props.clicked(props.children)}>
-                    <Figure.Image
-                        width={100}
-                        height={75}
-                        alt={props.children.name}
-                        src={src}
-                        onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
-                    />
-                    <Figure.Caption>
-                        <ListGroup.Item>{priceBadges}</ListGroup.Item>
-                    </Figure.Caption>
-                </Figure>
-            }
+        <div style={{ display: 'flex' }} onClick={() => props.clicked(props.children)}>
+            {/* {withPrices && */}
+            <Figure className='m-1 float-left' >
+                <Figure.Image
+                    width={100}
+                    height={75}
+                    alt={props.children.name}
+                    src={src}
+                    onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
+                />
+                <Figure.Caption>
+                    <ListGroup.Item>{priceBadges}</ListGroup.Item>
+                </Figure.Caption>
+            </Figure>
+            {/* } */}
             <ListGroup variant="flush" className='float-right'>
                 <ListGroup.Item>{props.children.name}</ListGroup.Item>
-                {withPrices && <ListGroup.Item> {props.children.ManufacturerName !== 'לא ידוע' ? props.children.ManufacturerName : null}</ListGroup.Item>}
+                {withPrices && <ListGroup.Item> {props.children.ManufacturerName !== 'לא ידוע' && props.children.ManufacturerName.length > 1 ? props.children.ManufacturerName : null}</ListGroup.Item>}
             </ListGroup>
         </div>
     )

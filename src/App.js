@@ -7,7 +7,6 @@ import './App.css';
 import Layout from './components/UI/Layout/Layout';
 import ShoppingCartManager from './containers/ShoppingCartManager/ShoppingCartManager'
 import TaskManager from './containers/TaskManager/TaskManager'
-
 function App() {
   return (
 
