@@ -126,7 +126,8 @@ const fetchCartProductsSuccess = (state, action) => {
 // }
 
 const currentBranchChanged = (state, action) => {
-    const currentBranch = state.favoriteBranches.find(branch => branch.id === action.id)
+    const allChosenBranches = state.favoriteBranches.concat(state.closeBranches.filter(branch => branch.isChosen))
+    const currentBranch = allChosenBranches.find(branch => branch.id === action.id)
     return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
 }
 // const onAddToCartClicked = (product, cart) => {

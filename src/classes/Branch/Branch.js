@@ -1,5 +1,5 @@
 class Branch {
-    constructor(id, storeId, storeName, address, city, lat, lng, subChainName, chainId) {
+    constructor(id, storeId, storeName, address, city, lat, lng, subChainName, chainId,isChosen) {
         this.id = id;
         this.storeId = storeId;
         this.storeName = storeName;
@@ -9,6 +9,7 @@ class Branch {
         this.lng = lng;
         this.subChainName = subChainName;
         this.chainName = chainId;
+        this.isChosen = isChosen;
     }
 }
 export default Branch

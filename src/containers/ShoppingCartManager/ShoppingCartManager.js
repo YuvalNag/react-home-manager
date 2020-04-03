@@ -18,7 +18,7 @@ import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-import { groupBy } from '../../store/utility'
+import { groupBy, distanceOfStrings } from '../../store/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 
 
@@ -35,7 +35,8 @@ class ShoppingCartManager extends Component {
         timerId: null,
         showLackingModel: false,
         items: [],
-        loadingSearch: false
+        loadingSearch: false,
+        validatedBranchesByLocation: false
     }
 
     getLocation = () => {
@@ -81,10 +82,39 @@ class ShoppingCartManager extends Component {
         if (form.checkValidity() === false) {
             event.stopPropagation();
         }
-        const city = form.elements.formCity.value;
-        const street = form.elements.formAddress.value;
-        this.props.onTryFetchBranches({ city: city, street: street })
-        this.setState({ validatedLocation: true, locationModalMessage: null });
+        else {
+
+            const city = form.elements.formCity.value;
+            const street = form.elements.formAddress.value;
+            this.props.onTryFetchBranches({ city: city, street: street })
+            this.setState({ validatedLocation: true, locationModalMessage: null });
+        }
+    };
+    submitBranchesByLocation = event => {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const checkedBranches = Array.from(form.elements).filter(a => { if (a.checked) return a.id })
+
+        if (checkedBranches.length > 5) {
+            event.stopPropagation();
+            // this.setState({ validatedBranchesByLocation: false });
+        }
+        else {
+            this.setState({ validatedBranchesByLocation: true });
+            const branchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
+            const branches = []
+            this.props.closeBranches.forEach(branch => {
+                if (branchesIdSet.has(branch.id + '')) {
+                    branch.isChosen = true;
+                    branches.push(branch)
+                }
+                else {
+                    branch.isChosen = false;
+                }
+            });
+            this.props.onTryFetchCartProducts(branches)
+        }
     };
     searchClickedHandler = () => {
         this.tryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
@@ -165,7 +195,7 @@ class ShoppingCartManager extends Component {
             cancel && cancel()
             const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
-            axios.get('/supermarket/item' + queryParams + '&limit=' + 10 + '&price=' + withPrices, {
+            axios.get('/supermarket/item' + queryParams + '&limit=' + 50 + '&price=' + withPrices, {
                 cancelToken: new CancelToken(function executor(c) {
                     // An executor function receives a cancel function as a parameter
                     cancel = c;
@@ -175,6 +205,7 @@ class ShoppingCartManager extends Component {
                     console.log(response);
                     const products = (response && response.data.items) && response.data.items.map(item => {
                         return {
+                            match: distanceOfStrings(searchTerm, item.ItemName),
                             code: item.ItemCode,
                             name: item.ItemName,
                             ManufacturerName: item.ManufacturerName,
@@ -185,7 +216,8 @@ class ShoppingCartManager extends Component {
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                     });
-                    this.setState({ items: products, loadingSearch: false })
+
+                    this.setState({ items: products.sort((a, b) => b.match - a.match), loadingSearch: false })
                 })
                 .catch(error => {
 
@@ -265,16 +297,19 @@ class ShoppingCartManager extends Component {
                     className="h-25 ">
                     <SummeryBar
                         loading={loadingBranches}
-                        chains={this.props.chains}
                         favoriteBranches={groupBy(this.props.favoriteBranches, 'chainName')}
                         closeBranches={groupBy(this.props.closeBranches, 'chainName')}
+                        chosenBranches={groupBy(this.props.closeBranches.filter(branch => branch.isChosen), 'chainName')}
                         locationClicked={this.locationClickedHandler}
                         located={this.props.locationInfo}
                         locationModalMessage={this.state.locationModalMessage}
-                        submit={this.submitLocationHandler}
+                        submitLocation={this.submitLocationHandler}
                         validatedLocation={this.state.validatedLocation}
                         hide={() => this.setState({ locationModalMessage: null })}
                         branchClicked={this.branchClickedHandler}
+                        submitBranchesByLocation={this.submitBranchesByLocation}
+                        validatedBranchesByLocation={this.state.validatedBranchesByLocation}
+
                     />
                 </Row>
                 {loadingCart ? <Spinner animation="border" variant='secondary' >

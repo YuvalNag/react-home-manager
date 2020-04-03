@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -9,9 +9,11 @@ import DropdownButton from 'react-bootstrap/DropdownButton'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
+import ListGroup from 'react-bootstrap/ListGroup'
 
 
-const summeryBar = props => {
+const SummeryBar = props => {
+    const [showCloseBranchesModel, setCloseBranchesModel] = useState(false)
     return (
         <Fragment>
             <VerticallyCenteredModal
@@ -21,7 +23,7 @@ const summeryBar = props => {
                 <Form
                     noValidate
                     validated={props.validatedLocation}
-                    onSubmit={props.submit} >
+                    onSubmit={props.submitLocation} >
 
                     <Form.Group
                         controlId="formCity">
@@ -55,8 +57,11 @@ const summeryBar = props => {
             </VerticallyCenteredModal >
 
             <Form className='w-100'>
+
                 <Form.Row className=' d-inline-flex'>
+
                     <Col className=' d-inline-flex' >
+
                         <DropdownButton className='w-100'
                             as={InputGroup}
                             key='down'
@@ -81,28 +86,55 @@ const summeryBar = props => {
                         </Button>
                     </Col>
                     <Col className=' d-inline-flex' >
-
                         {props.located &&
-                            <DropdownButton className='w-100'
-                                as={InputGroup}
-                                key='down'
-                                id='dropdown-button-drop-down'
-                                drop='down'
-                                variant="secondary"
-                                title={props.loading ? <Spinner size="sm" animation="border" /> : 'קרוב אליך'}
-                            >
-                                {Object.keys(props.closeBranches).map(chainName => [
-                                    <Dropdown.Item className='p-1'
-                                        key={chainName}>
-                                        <ChainSection name={chainName.toLowerCase()}  >
+                            <VerticallyCenteredModal
+                                show={showCloseBranchesModel}
+                                onHide={() => setCloseBranchesModel(false)}
+                                title='קרוב אליך'>
+                                <Form noValidate
+                                    validated={props.validatedBranchesByLocation}
+                                    onSubmit={props.submitBranchesByLocation} >
+
+                                    {Object.keys(props.closeBranches).map(chainName =>
+                                        <ChainSection key={chainName} name={chainName.toLowerCase()}  >
                                             {props.closeBranches[chainName]}
                                         </ChainSection>
-                                    </Dropdown.Item>,
-                                    <Dropdown.Divider
-                                        key={chainName + '_divider'} />])}
-                            </DropdownButton>}
+
+                                    )}
+
+                                    <Button
+                                        variant="primary"
+                                        type="submit" onClick={() => setCloseBranchesModel(false)}>
+                                        שלח
+                                    </Button>
+                                </Form>
+                            </VerticallyCenteredModal>
+                        }
+                        <DropdownButton className='w-100'
+                            as={InputGroup}
+                            key='down'
+                            id='dropdown-button-drop-down'
+                            drop='down'
+                            alignRight
+                            variant="secondary"
+                            title={props.located && props.loading ? <Spinner size="sm" animation="border" /> : 'קרוב אליך'}
+                        >
+                            {Object.keys(props.chosenBranches).map(chainName => [
+                                <Dropdown.Item className='p-1'
+                                    key={chainName} >
+                                    {chainName !== 'undefined' &&
+                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
+                                            {props.chosenBranches[chainName]}
+                                        </ChainSection>}
+                                </Dropdown.Item>,
+                                <Dropdown.Divider
+                                    key={chainName + '_divider'} />])}
+                        </DropdownButton>
                         <Button
-                            onClick={props.locationClicked}>
+                            onClick={() => {
+                                props.locationClicked();
+                                setCloseBranchesModel(true);
+                            }}>
                             <IoIosPin size='18px' />
                         </Button>
                     </Col>
@@ -112,4 +144,4 @@ const summeryBar = props => {
         </Fragment>
     )
 }
-export default summeryBar
+export default SummeryBar

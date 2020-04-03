@@ -42,7 +42,7 @@ const saveLocation = (location) => {
     }
 }
 
-const buildChainAndBranches = (branches) => {
+const buildChainAndBranches = (branches,isFavorite) => {
     const chains = []
     const branchesArray = []
 
@@ -60,6 +60,7 @@ const buildChainAndBranches = (branches) => {
             branch.lng,
             branch.SubChainName,
             chainEnglishName,
+            isFavorite
         ));
 
         branchesArray.push(...branches)
@@ -68,7 +69,7 @@ const buildChainAndBranches = (branches) => {
     return [chains, branchesArray];
 }
 const fetchBranchesSuccess = (branches, isFavorite) => {
-    const [chains, branchesArray] = buildChainAndBranches(branches);
+    const [chains, branchesArray] = buildChainAndBranches(branches,isFavorite);
     if (isFavorite) {
         return {
             type: actionTypes.FETCH_BRANCHES_SUCCESS,
@@ -252,15 +253,21 @@ const buildCartAndProducts = (products, branches) => {
     }
     const cartByChainName = {}
     for (const cart of Object.values(carts)) {
-        cartByChainName[cart.chainName] = { cart: new Cart(cart.products, cart.lacking), branchId: cart.branchId }
+        if (!cartByChainName[cart.chainName]) {
+            cartByChainName[cart.chainName] = []
+        }
+        cartByChainName[cart.chainName].push({ cart: new Cart(cart.products, cart.lacking), branchId: cart.branchId })
     }
     return cartByChainName;
 }
 const fetchCartProductsSuccess = (products, chains, branches) => {
     const carts = buildCartAndProducts(products, branches);
     for (const chain of chains) {
-        const cart = carts[chain.chainEnglishName]
-        chain.branches[cart.branchId].cart = cart.cart
+        if (carts[chain.chainEnglishName]) {
+            for (const cart of carts[chain.chainEnglishName]) {
+                chain.branches[cart.branchId].cart = cart.cart
+            }
+        }
     }
     return {
         type: actionTypes.FETCH_CART_PRODUCTS_SUCCESS,

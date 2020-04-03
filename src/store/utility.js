@@ -64,3 +64,14 @@ export const margeTwoArraysWithImportantProp = (arr1, arr2, prop) => {
     }
     return Object.values(object);
 }
+export const distanceOfStrings = (substr, str) => {
+    const substrSet = new Set(substr);
+    let dis = 0;
+    for (const char of str) {
+        if (!substrSet.has(char)) {
+            dis++
+        }
+    }
+    return 1 - dis / str.length
+
+}
