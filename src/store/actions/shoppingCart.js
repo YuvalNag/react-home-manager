@@ -42,7 +42,7 @@ const saveLocation = (location) => {
     }
 }
 
-const buildChainAndBranches = (branches,isFavorite) => {
+const buildChainAndBranches = (branches, isFavorite) => {
     const chains = []
     const branchesArray = []
 
@@ -69,7 +69,7 @@ const buildChainAndBranches = (branches,isFavorite) => {
     return [chains, branchesArray];
 }
 const fetchBranchesSuccess = (branches, isFavorite) => {
-    const [chains, branchesArray] = buildChainAndBranches(branches,isFavorite);
+    const [chains, branchesArray] = buildChainAndBranches(branches, isFavorite);
     if (isFavorite) {
         return {
             type: actionTypes.FETCH_BRANCHES_SUCCESS,
@@ -219,7 +219,8 @@ export const tryAddItemToCart = (product) => {
                 if (response.data.message === "OK") {
                     // dispatch(addItemToCartSuccess(product))
                     // dispatch(reqToServerSuccess(actionTypes.ADD_ITEM_TO_CART_SUCCESS))
-                    dispatch(tryFetchCartProducts(getState().shoppingCart.favoriteBranches))
+                    const allChosenBranches = getState().shoppingCart.favoriteBranches.concat(getState().shoppingCart.closeBranches.filter(branch => branch.isChosen))
+                    dispatch(tryFetchCartProducts(allChosenBranches))
 
                 }
                 else {
@@ -306,7 +307,9 @@ export const tryDeleteItemFromCart = (product) => {
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
-                    dispatch(tryFetchCartProducts(getState().shoppingCart.favoriteBranches))
+                    const allChosenBranches = getState().shoppingCart.favoriteBranches.concat(getState().shoppingCart.closeBranches.filter(branch => branch.isChosen))
+
+                    dispatch(tryFetchCartProducts(allChosenBranches))
                     dispatch(reqToServerSuccess(actionTypes.DELETE_ITEM_FROM_CART_SUCCESS))
 
 

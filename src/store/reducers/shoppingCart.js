@@ -75,27 +75,9 @@ const addItemToCartSuccess = (state, action) => {
     return updateObject(state, { cart: updatedCart });
 }
 const fetchCartProductsSuccess = (state, action) => {
-    // const products = {};
-    // let price = 0;
-    // for (const element of action.products) {
-    //     price += element.quantity * element.avgPrice;
-    //     if (products.hasOwnProperty(element.category)) {
-    //         let product = { ...element };
-    //         delete product.category;
-    //         products[element.category].push(product)
-    //     }
-    //     else {
-    //         products[element.category] = [];
-    //         let product = { ...element };
-    //         delete product.category;
-    //         products[element.category].push(product)
-    //     }
-    // };
-    // const cart = updateObject(state.cart, {
-    //     totalPrice: price,
-    //     products: products
-    // });
-    const currentBranch = state.favoriteBranches.find(branch => branch.id === state.currentBranch.id)
+    const allChosenBranches = state.favoriteBranches.concat(state.closeBranches.filter(branch => branch.isChosen))
+    const currentBranch = allChosenBranches.find(branch => branch.id === action.id)
+
     return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
 
 }

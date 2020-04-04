@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 
 const ChainSection = props => {
     console.log(props);
-    
+
     const imageSrc = require(`../../../../assets/images/${props.name}.png`);
     return (
         props.children.length > 0 &&
@@ -26,6 +26,7 @@ const ChainSection = props => {
                         !props.favorite &&
                         <Form.Check
                             type="switch"
+                            // checked={branch.isChosen}
                             id={branch.id}
                             label={branch.storeName}
                             onChange={() => { }}
