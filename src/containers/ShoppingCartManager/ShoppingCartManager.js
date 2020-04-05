@@ -1,14 +1,12 @@
 import React, { Component, Fragment } from 'react'
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+
+
 import { connect } from 'react-redux'
 
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Spinner from 'react-bootstrap/Spinner'
-
-import ProductSelector from '../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
-import CategoriesCards from '../../components/ShoppingCartManagerComponents/CategoriesCards/CategoriesCards'
-import SummeryBar from '../../components/ShoppingCartManagerComponents/SummeryBar/SummeryBar'
-import BranchSummery from '../../components/ShoppingCartManagerComponents/BranchSummery/BranchSummery'
 
 import * as actions from '../../store/actions/index'
 import * as actionTypes from '../../store/actions/actionTypes'
@@ -19,12 +17,14 @@ import { CancelToken } from 'axios'
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
 import { groupBy, distanceOfStrings } from '../../store/utility'
-import { FaCartArrowDown } from 'react-icons/fa'
+
 
 
 class ShoppingCartManager extends Component {
 
     state = {
+        visibleTab: 0,
+
         locationModalMessage: null,
         validatedLocation: false,
         searchTerm: '',
@@ -252,87 +252,27 @@ class ShoppingCartManager extends Component {
 
 
     render() {
-        console.log(this.props.loadingType);
-
-
-        const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
-        const loadingSearch = this.state.loadingSearch//this.props.loading && this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
-        // const loadingSearch = ((this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
-        const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
-        // const loadingCart = this.props.currentBranch.cart === undefined || ((this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
-        console.log('branches', loadingBranches);
-        console.log('search', loadingSearch);
-        console.log('cart', loadingCart);
-
-
-
-
-
         return (
+            <Paper>
+                <Tabs
+                    value={this.state.visibleTab}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    onChange={() => this.setState(prevState => ({ visibleTab: (prevState.visibleTab + 1) % 2 }))}
+                    aria-label="disabled tabs example"
+                    variant="fullWidth"
 
+                >
+                    <Tab label="חיפוש" variant="fullWidth" />
+                    <Tab label="העגלה שלי" variant="fullWidth" />
+                </Tabs>
+                <ExpansionPanel value={this.state.visibleTab} index={0} id='full-width-tab-0'>
+                    component
+                </ExpansionPanel >
+                <ExpansionPanel value={this.state.visibleTab} index={1} id='full-width-tab-1'>
 
-
-            <Container className='mw-100' style={{ backgroundColor: 'currentColor' }} >
-                <Row  >
-                    <ProductSelector
-                        item={this.state.chosenItem}
-                        categories={Object.keys(this.props.categoriesInfo)}
-                        searchTerm={this.state.searchTerm}
-                        quantity={this.state.quantity}
-                        items={this.state.items}
-                        searchChanged={this.searchChangedHandler}
-                        searchClicked={this.searchClickedHandler}
-                        quantityChanged={this.quantityChangedHandler}
-                        categoryClicked={this.categoryClickedHandler}
-                        itemClicked={this.itemClickedHandler}
-                        productIsValid={this.state.quantity && this.state.chosenItem}
-                        addToCartClicked={this.addToCartClickedHandler}
-                        categoryChosen={this.state.categoryChosen}
-                        loadingSearch={loadingSearch}
-                    />
-                </Row>
-
-                <Row
-                    style={{ backgroundColor: 'currentColor' }}
-                    className="h-25 ">
-                    <SummeryBar
-                        loading={loadingBranches}
-                        favoriteBranches={groupBy(this.props.favoriteBranches, 'chainName')}
-                        closeBranches={groupBy(this.props.closeBranches, 'chainName')}
-                        chosenBranches={groupBy(this.props.closeBranches.filter(branch => branch.isChosen), 'chainName')}
-                        locationClicked={this.locationClickedHandler}
-                        located={this.props.locationInfo}
-                        locationModalMessage={this.state.locationModalMessage}
-                        submitLocation={this.submitLocationHandler}
-                        validatedLocation={this.state.validatedLocation}
-                        hide={() => this.setState({ locationModalMessage: null })}
-                        branchClicked={this.branchClickedHandler}
-                        submitBranchesByLocation={this.submitBranchesByLocation}
-                        validatedBranchesByLocation={this.state.validatedBranchesByLocation}
-
-                    />
-                </Row>
-                {loadingCart ? <Spinner animation="border" variant='secondary' >
-                    <FaCartArrowDown />
-                </Spinner> :
-                    this.props.currentBranch.cart
-                    &&
-                    <Fragment >
-                        <Row className='m-1' >
-                            <BranchSummery loadingCart={loadingCart}
-                                branch={this.props.currentBranch}
-                                deleteItemClicked={this.deleteItemClickedHandler}
-                            />
-                        </Row>
-                        <Row className="h-75 ">
-                            <CategoriesCards
-                                categories={this.buildCategoriesArray(this.props.currentBranch.cart.products)}
-                                deleteItemClicked={this.deleteItemClickedHandler} />
-                        </Row>
-                    </Fragment>
-
-                }
-            </Container>
+                </ExpansionPanel>
+            </Paper >
 
         )
     }
