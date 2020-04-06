@@ -1,8 +1,8 @@
 import * as actionTypes from '../actions/actionTypes'
-import { updateObject } from '../utility'
+import { updateObject } from '../../shared/utility'
 
 const initialState = {
-    loading: true,
+    loading: false,
     error: false,
     loadingType:'INIT'
 }

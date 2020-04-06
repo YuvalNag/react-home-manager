@@ -18,7 +18,7 @@ import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-import { groupBy, distanceOfStrings, deepClone } from '../../store/utility'
+import { groupBy, distanceOfStrings, deepClone } from '../../shared/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 
 
@@ -37,11 +37,11 @@ class ShoppingCartManager extends Component {
         items: [],
         loadingSearch: false,
         validatedBranchesByLocation: false,
-        
+
     }
 
     changeFavoritesClickedHandler = () => {
-       this.props.onTryFetchBranches()
+        this.props.onTryFetchBranches()
     }
     locationClickedHandler = () => {
         const getLocation = () => {
@@ -242,9 +242,9 @@ class ShoppingCartManager extends Component {
         return categoriesArray
     }
     componentDidMount() {
-        // if (!this.props.locationInfo) {
-        //     this.locationClickedHandler()
-        // }
+        if (!this.props.isAuth) {
+            this.props.history.push('/auth')
+        }
         this.props.onTryFetchBranches(this.props.locationInfo, this.props.chosenBranches)
     }
     componentDidUpdate(prevProps, prevState) {
@@ -255,7 +255,6 @@ class ShoppingCartManager extends Component {
 
 
     render() {
-        console.log(this.props.loadingType);
 
         const initialLoading = this.props.loadingType === 'INIT'
         const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
@@ -349,6 +348,8 @@ const mapStateToProps = state => {
 
         loading: state.reqToServer.loading,
         loadingType: state.reqToServer.loadingType,
+
+        isAuth: state.auth.token !== null
 
     }
 }

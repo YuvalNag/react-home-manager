@@ -7,3 +7,5 @@ export {
     currentBranchChanged,
     updateChosenBranchesAndCart
 } from './shoppingCart'
+
+export {tryAuth, logout,autoLogin} from './auth'

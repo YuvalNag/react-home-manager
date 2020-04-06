@@ -2,7 +2,7 @@
 import * as actionTypes from './actionTypes'
 import axios from '../../axios/axios-shoppingCart'
 import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToServer'
-import { groupBy, deepClone } from '../utility'
+import { groupBy, deepClone } from '../../shared/utility'
 import Branch from '../../classes/Branch/Branch'
 import Product from '../../classes/Product/Product'
 import Cart from '../../classes/Cart/Cart'

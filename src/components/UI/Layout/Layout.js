@@ -1,9 +1,15 @@
 import React, { Fragment } from 'react'
 
-import  Navbar from 'react-bootstrap/Navbar'
+import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 
 const Layout = (props) => {
+    let links = <Nav.Link href="/">Sign-In</Nav.Link>
+    if (props.isAuth) {
+        links = [<Nav.Link key='supermarket' href="/supermarket">Supermarket</Nav.Link>,
+        <Nav.Link key='tasks' href="/tasks">Tasks</Nav.Link>,
+        <span onClick={props.logout}><Nav.Link key='logout' href="/logout">Logout</Nav.Link></span>]
+    }
     return (
         <Fragment>
             <Navbar bg="dark" variant="dark" expand="sm" collapseOnSelect >
@@ -11,9 +17,7 @@ const Layout = (props) => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto">
-                        <Nav.Link href="/">Home</Nav.Link>
-                        <Nav.Link href="/supermarket">Supermarket</Nav.Link>
-                        <Nav.Link href="/tasks">Tasks</Nav.Link>
+                        {links}
                     </Nav>
                     {/* <Form inline>
                         <FormControl type="text" placeholder="Search" className="mr-sm-2" />

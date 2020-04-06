@@ -1,5 +1,5 @@
 import * as actionType from '../actions/actionTypes'
-import { updateObject, insertItem } from '../utility'
+import { updateObject, insertItem } from '../../shared/utility'
 
 const initialState = {
     categoriesInfo: {
