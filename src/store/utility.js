@@ -23,7 +23,7 @@ export const insertItem = (array, item, index = 0) => {
 }
 
 export const groupBy = (arr, key) => {
-    return arr.reduce((rv, x) => {
+    return arr[0] && arr.reduce((rv, x) => {
         (rv[x[key]] = rv[x[key]] || []).push(x);
         return rv;
     }, {});

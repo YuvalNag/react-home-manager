@@ -10,10 +10,13 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
 import ListGroup from 'react-bootstrap/ListGroup'
-
+import './SummeryBar.css';
+import { FaRegBuilding } from 'react-icons/fa'
 
 const SummeryBar = props => {
     const [showCloseBranchesModel, setCloseBranchesModel] = useState(false)
+    const [showAllBranchesModel, setAllBranchesModel] = useState(false)
+
     return (
         <Fragment>
             <VerticallyCenteredModal
@@ -60,32 +63,41 @@ const SummeryBar = props => {
 
                 <Form.Row className=' d-inline-flex'>
 
-                    <Col className=' d-inline-flex' >
 
-                        <DropdownButton className='w-100'
-                            as={InputGroup}
-                            key='down'
-                            id='dropdown-button-drop-down'
-                            drop='down'
-                            variant="secondary"
-                            title={props.loading && !props.located ? <Spinner size="sm" animation="border" /> : 'המועדפים שלך'}
-                        >
-                            {Object.keys(props.favoriteBranches).map(chainName => [
-                                <Dropdown.Item className='p-1'
-                                    key={chainName}>
-                                    {chainName !== 'undefined' &&
-                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
-                                            {props.favoriteBranches[chainName]}
-                                        </ChainSection>}
-                                </Dropdown.Item>,
-                                <Dropdown.Divider
-                                    key={chainName + '_divider'} />])}
-                        </DropdownButton>
-                        <Button>
-                            <IoIosSettings size='18px' />
+                    <Col>
+
+                        <VerticallyCenteredModal
+                            show={showAllBranchesModel}
+                            onHide={() => setAllBranchesModel(false)}
+                            title=':בחר שלושה סניפים מועדפים'>
+                            <Form noValidate
+                            // validated={props.validatedBranchesByLocation}
+                            // onSubmit={props.submitBranchesByLocation} 
+                            >
+
+                                {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
+                                    <ChainSection key={chainName} name={chainName.toLowerCase()}  >
+                                        {props.closeBranches[chainName]}
+                                    </ChainSection>
+
+                                )}
+
+                                <Button
+                                    variant="primary"
+                                    type="submit" onClick={() => setAllBranchesModel(false)}>
+                                    שלח
+                                    </Button>
+                            </Form>
+                        </VerticallyCenteredModal>
+
+                        <Button onClick={() => {
+                            props.changeFavoritesClicked();
+                            setAllBranchesModel(true);
+                        }}>
+                            <FaRegBuilding size='18px' />
                         </Button>
                     </Col>
-                    <Col className=' d-inline-flex' >
+                    <Col className=' d-inline-flex p-0' >
                         {props.located &&
                             <VerticallyCenteredModal
                                 show={showCloseBranchesModel}
@@ -95,7 +107,7 @@ const SummeryBar = props => {
                                     validated={props.validatedBranchesByLocation}
                                     onSubmit={props.submitBranchesByLocation} >
 
-                                    {Object.keys(props.closeBranches).map(chainName =>
+                                    {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
                                         <ChainSection key={chainName} name={chainName.toLowerCase()}  >
                                             {props.closeBranches[chainName]}
                                         </ChainSection>
@@ -110,26 +122,6 @@ const SummeryBar = props => {
                                 </Form>
                             </VerticallyCenteredModal>
                         }
-                        <DropdownButton className='w-100'
-                            as={InputGroup}
-                            key='down'
-                            id='dropdown-button-drop-down'
-                            drop='down'
-                            alignRight
-                            variant="secondary"
-                            title={props.located && props.loading ? <Spinner size="sm" animation="border" /> : 'קרוב אליך'}
-                        >
-                            {Object.keys(props.chosenBranches).map(chainName => [
-                                <Dropdown.Item className='p-1'
-                                    key={chainName} >
-                                    {chainName !== 'undefined' &&
-                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
-                                            {props.chosenBranches[chainName]}
-                                        </ChainSection>}
-                                </Dropdown.Item>,
-                                <Dropdown.Divider
-                                    key={chainName + '_divider'} />])}
-                        </DropdownButton>
                         <Button
                             onClick={() => {
                                 props.locationClicked();
@@ -138,7 +130,30 @@ const SummeryBar = props => {
                             <IoIosPin size='18px' />
                         </Button>
                     </Col>
+                    <Col className=' d-inline-flex' >
 
+                        <DropdownButton className='dropdown-width float-right'
+                            style={{ width: '250px' }}
+                            as={InputGroup}
+
+                            key='down'
+                            id='dropdown-button-drop-down'
+                            drop='down'
+                            variant="secondary"
+                            title={props.loading && !props.located ? <Spinner size="sm" animation="border" /> : 'המועדפים שלך'}
+                        >
+                            {props.chosenBranches && Object.keys(props.chosenBranches).map(chainName => [
+                                <Dropdown.Item className='p-1'
+                                    key={chainName}>
+                                    {chainName !== 'undefined' &&
+                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
+                                            {props.chosenBranches[chainName]}
+                                        </ChainSection>}
+                                </Dropdown.Item>,
+                                <Dropdown.Divider
+                                    key={chainName + '_divider'} />])}
+                        </DropdownButton>
+                    </Col>
                 </Form.Row>
             </Form>
         </Fragment>

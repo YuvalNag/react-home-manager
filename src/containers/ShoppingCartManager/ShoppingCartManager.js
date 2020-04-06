@@ -18,7 +18,7 @@ import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-import { groupBy, distanceOfStrings } from '../../store/utility'
+import { groupBy, distanceOfStrings, deepClone } from '../../store/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 
 
@@ -36,37 +36,41 @@ class ShoppingCartManager extends Component {
         showLackingModel: false,
         items: [],
         loadingSearch: false,
-        validatedBranchesByLocation: false
+        validatedBranchesByLocation: false,
+        
     }
 
-    getLocation = () => {
-        return new Promise((resolve, reject) => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    if (accuracy <= 1000) {
-                        resolve({ lat: latitude, lon: longitude })
-                    }
-                    else {
-                        // reject(new Error("Low Accuracy\nManually choose your location"))
-                        reject(new Error("רמת דיוק נמוכה אנא כנס מיקום ידנית"))
-
-                    }
-                }, error =>
-                    // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
-                    reject(new Error('אפשר מיקום או הכנס ידנית')),
-                    { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
-            } else {
-                //Geolocation is not supported by this browser
-                // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
-                reject(new Error("מיקום אינו נתמך במכשירך אנא הכנס ידנית"))
-            }
-        })
+    changeFavoritesClickedHandler = () => {
+       this.props.onTryFetchBranches()
     }
     locationClickedHandler = () => {
-        this.getLocation()
+        const getLocation = () => {
+            return new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+                        if (accuracy <= 1000) {
+                            resolve({ lat: latitude, lon: longitude })
+                        }
+                        else {
+                            // reject(new Error("Low Accuracy\nManually choose your location"))
+                            reject(new Error("רמת דיוק נמוכה אנא כנס מיקום ידנית"))
+
+                        }
+                    }, error =>
+                        // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
+                        reject(new Error('אפשר מיקום או הכנס ידנית')),
+                        { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                } else {
+                    //Geolocation is not supported by this browser
+                    // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
+                    reject(new Error("מיקום אינו נתמך במכשירך אנא הכנס ידנית"))
+                }
+            })
+        }
+        getLocation()
             .then(location => this.props.onTryFetchBranches(location))
             .catch(error => {
                 console.error(error.message);
@@ -102,22 +106,21 @@ class ShoppingCartManager extends Component {
         }
         else {
             this.setState({ validatedBranchesByLocation: true });
+
             const branchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
-            const branches = []
-            this.props.closeBranches.forEach(branch => {
-                if (branchesIdSet.has(branch.id + '')) {
-                    branch.isChosen = true;
-                    branches.push(branch)
+            const updatedChosenBranches = { ...this.props.chosenBranches }
+            for (const key in this.props.closeBranches) {
+                if (branchesIdSet.has(key)) {
+                    const newBranch = deepClone(this.props.closeBranches[key])
+                    newBranch.isChosen = true;
+                    updatedChosenBranches[key] = newBranch;
                 }
-                else {
-                    branch.isChosen = false;
-                }
-            });
-            this.props.onTryFetchCartProducts(branches)
+            }
+            this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
         }
     };
     searchClickedHandler = () => {
-        this.tryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
+        this.tryFetchItems(this.state.searchTerm, this.props.chosenBranches, true)
     }
     searchChangedHandler = (event) => {
         const value = event.target.value;
@@ -126,7 +129,7 @@ class ShoppingCartManager extends Component {
         clearInterval(this.state.timerId)
         const timerId = setTimeout(() => {
             if (this.state.searchTerm === value) {
-                this.tryFetchItems(value, this.props.favoriteBranches, false)
+                this.tryFetchItems(value, this.props.chosenBranches, false)
             }
         }, 500);
         this.setState({ searchTerm: value, timerId: timerId })
@@ -180,7 +183,7 @@ class ShoppingCartManager extends Component {
         this.props.onTryDeleteItemFromCart(product)
     }
     branchClickedHandler = (branchId) => {
-        this.props.onCurrentBranchChanged(branchId);
+        this.props.onCurrentBranchChanged([branchId + '']);
     }
     tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
 
@@ -193,7 +196,7 @@ class ShoppingCartManager extends Component {
 
             console.log(searchTerm);
             cancel && cancel()
-            const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
+            const queryParams = '?searchTerm=' + searchTerm + (branches && Object.keys(branches).map(branchId => ('&branchIds=' + branchId)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
             axios.get('/supermarket/item' + queryParams + '&limit=' + 50 + '&price=' + withPrices, {
                 cancelToken: new CancelToken(function executor(c) {
@@ -242,97 +245,96 @@ class ShoppingCartManager extends Component {
         // if (!this.props.locationInfo) {
         //     this.locationClickedHandler()
         // }
-        this.props.onTryFetchBranches(this.props.locationInfo, this.props.favoriteBranches)
+        this.props.onTryFetchBranches(this.props.locationInfo, this.props.chosenBranches)
     }
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.favoriteBranches && (prevProps.favoriteBranches !== this.props.favoriteBranches)) {
-            this.props.onTryFetchCartProducts(this.props.favoriteBranches)
-        }
+        // if (this.props.chosenBranches && (prevProps.chosenBranches !== this.props.chosenBranches)) {
+        //     this.props.onTryFetchCartProducts()
+        // }
     }
 
 
     render() {
         console.log(this.props.loadingType);
 
-
+        const initialLoading = this.props.loadingType === 'INIT'
         const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
         const loadingSearch = this.state.loadingSearch//this.props.loading && this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
         // const loadingSearch = ((this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
         const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
         // const loadingCart = this.props.currentBranch.cart === undefined || ((this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
+        console.log('init', initialLoading);
         console.log('branches', loadingBranches);
         console.log('search', loadingSearch);
         console.log('cart', loadingCart);
-
-
-
-
-
+        const currentBranch = Object.values(this.props.currentBranch)[0]
         return (
 
 
+            initialLoading
+                ? <Spinner animation="border" variant='secondary' />
+                :
+                <Container className='mw-100' style={{ backgroundColor: 'currentColor' }} >
+                    <Row  >
+                        <ProductSelector
+                            item={this.state.chosenItem}
+                            categories={Object.keys(this.props.categoriesInfo)}
+                            searchTerm={this.state.searchTerm}
+                            quantity={this.state.quantity}
+                            items={this.state.items}
+                            searchChanged={this.searchChangedHandler}
+                            searchClicked={this.searchClickedHandler}
+                            quantityChanged={this.quantityChangedHandler}
+                            categoryClicked={this.categoryClickedHandler}
+                            itemClicked={this.itemClickedHandler}
+                            productIsValid={this.state.quantity && this.state.chosenItem}
+                            addToCartClicked={this.addToCartClickedHandler}
+                            categoryChosen={this.state.categoryChosen}
+                            loadingSearch={loadingSearch}
+                        />
+                    </Row>
 
-            <Container className='mw-100' style={{ backgroundColor: 'currentColor' }} >
-                <Row  >
-                    <ProductSelector
-                        item={this.state.chosenItem}
-                        categories={Object.keys(this.props.categoriesInfo)}
-                        searchTerm={this.state.searchTerm}
-                        quantity={this.state.quantity}
-                        items={this.state.items}
-                        searchChanged={this.searchChangedHandler}
-                        searchClicked={this.searchClickedHandler}
-                        quantityChanged={this.quantityChangedHandler}
-                        categoryClicked={this.categoryClickedHandler}
-                        itemClicked={this.itemClickedHandler}
-                        productIsValid={this.state.quantity && this.state.chosenItem}
-                        addToCartClicked={this.addToCartClickedHandler}
-                        categoryChosen={this.state.categoryChosen}
-                        loadingSearch={loadingSearch}
-                    />
-                </Row>
+                    <Row
+                        style={{ backgroundColor: 'currentColor' }}
+                        className="h-25 ">
+                        <SummeryBar
+                            changeFavoritesClicked={this.changeFavoritesClickedHandler}
+                            loading={loadingBranches}
+                            chosenBranches={groupBy(Object.values(this.props.chosenBranches), 'chainName')}
+                            closeBranches={groupBy(Object.values(this.props.closeBranches), 'chainName')}
+                            locationClicked={this.locationClickedHandler}
+                            located={this.props.locationInfo}
+                            locationModalMessage={this.state.locationModalMessage}
+                            submitLocation={this.submitLocationHandler}
+                            validatedLocation={this.state.validatedLocation}
+                            hide={() => this.setState({ locationModalMessage: null })}
+                            branchClicked={this.branchClickedHandler}
+                            submitBranchesByLocation={this.submitBranchesByLocation}
+                            validatedBranchesByLocation={this.state.validatedBranchesByLocation}
 
-                <Row
-                    style={{ backgroundColor: 'currentColor' }}
-                    className="h-25 ">
-                    <SummeryBar
-                        loading={loadingBranches}
-                        favoriteBranches={groupBy(this.props.favoriteBranches, 'chainName')}
-                        closeBranches={groupBy(this.props.closeBranches, 'chainName')}
-                        chosenBranches={groupBy(this.props.closeBranches.filter(branch => branch.isChosen), 'chainName')}
-                        locationClicked={this.locationClickedHandler}
-                        located={this.props.locationInfo}
-                        locationModalMessage={this.state.locationModalMessage}
-                        submitLocation={this.submitLocationHandler}
-                        validatedLocation={this.state.validatedLocation}
-                        hide={() => this.setState({ locationModalMessage: null })}
-                        branchClicked={this.branchClickedHandler}
-                        submitBranchesByLocation={this.submitBranchesByLocation}
-                        validatedBranchesByLocation={this.state.validatedBranchesByLocation}
+                        />
+                    </Row>
+                    {loadingCart ? <Spinner animation="border" variant='secondary' >
+                        <FaCartArrowDown />
+                    </Spinner> :
+                        currentBranch && currentBranch.cart
+                        &&
+                        <Fragment >
+                            <Row className='m-1' >
+                                <BranchSummery loadingCart={loadingCart}
+                                    branch={currentBranch}
+                                    deleteItemClicked={this.deleteItemClickedHandler}
+                                />
+                            </Row>
+                            <Row className="h-75 ">
+                                <CategoriesCards
+                                    categories={this.buildCategoriesArray(currentBranch.cart.products)}
+                                    deleteItemClicked={this.deleteItemClickedHandler} />
+                            </Row>
+                        </Fragment>
 
-                    />
-                </Row>
-                {loadingCart ? <Spinner animation="border" variant='secondary' >
-                    <FaCartArrowDown />
-                </Spinner> :
-                    this.props.currentBranch.cart
-                    &&
-                    <Fragment >
-                        <Row className='m-1' >
-                            <BranchSummery loadingCart={loadingCart}
-                                branch={this.props.currentBranch}
-                                deleteItemClicked={this.deleteItemClickedHandler}
-                            />
-                        </Row>
-                        <Row className="h-75 ">
-                            <CategoriesCards
-                                categories={this.buildCategoriesArray(this.props.currentBranch.cart.products)}
-                                deleteItemClicked={this.deleteItemClickedHandler} />
-                        </Row>
-                    </Fragment>
-
-                }
-            </Container>
+                    }
+                </Container>
 
         )
     }
@@ -340,17 +342,10 @@ class ShoppingCartManager extends Component {
 const mapStateToProps = state => {
     return {
         categoriesInfo: state.shoppingCart.categoriesInfo,
-        items: state.shoppingCart.items,
-        filteredItems: state.shoppingCart.filteredItems,
-        chosenProduct: state.shoppingCart.chosenProduct,
         locationInfo: state.shoppingCart.location,
-        favoriteBranches: state.shoppingCart.favoriteBranches,
+        chosenBranches: state.shoppingCart.chosenBranches,
         closeBranches: state.shoppingCart.closeBranches,
-
-        cart: state.shoppingCart.cart,
-        chains: state.shoppingCart.chains,
         currentBranch: state.shoppingCart.currentBranch,
-
 
         loading: state.reqToServer.loading,
         loadingType: state.reqToServer.loadingType,
@@ -366,11 +361,12 @@ const mapDispatchToProps = dispatch => {
         // onAddToCartClicked: (index) => dispatch({ type: actionType.ADD_TO_CART, itemIndex: index }),
         // onLoadItems: () => dispatch(actions.loadItems()),
         onTryFetchBranches: (location, branches) => dispatch(actions.tryFetchBranches(location, branches)),
-        onTryFetchItems: (searchTerm, branches, withPrices) => dispatch(actions.tryFetchItems(searchTerm, branches, withPrices)),
+        // onTryFetchItems: (searchTerm, branches, withPrices) => dispatch(actions.tryFetchItems(searchTerm, branches, withPrices)),
         onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
-        onTryFetchCartProducts: (branches) => dispatch(actions.tryFetchCartProducts(branches)),
-        onCurrentBranchChanged: (branchId) => dispatch(actions.currentBranchChanged(branchId))
+        onTryFetchCartProducts: () => dispatch(actions.tryFetchCartProducts()),
+        onCurrentBranchChanged: (branchId) => dispatch(actions.currentBranchChanged(branchId)),
+        onUpdateChosenBranchesAndCart: (newChosenBranches) => dispatch(actions.updateChosenBranchesAndCart(newChosenBranches))
 
     };
 };

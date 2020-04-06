@@ -17,30 +17,22 @@ const initialState = {
         "טיפוח ותינוקות": { imageName: 'grooming.jpg' },
         "לחם ומאפים": { imageName: 'bakery.jpg' }
     },
-    items: [],
-    filteredItems: [],
-    currentBranch: { id: 18 },
-    cart: {
-        totalPrice: 0,
-        products: []
-    },
+    currentBranch: { '26': null },
     location: null,
-    chains: [],
-    favoriteBranches: [{ id: 145 }, { id: 463 }, { id: 18 }],
-    closeBranches: []
+    chosenBranches: { '232': null, '463': null, '26': null },
+    closeBranches: {}
 }
 
 
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case actionType.ADD_ITEM_TO_CART_SUCCESS: return addItemToCartSuccess(state, action)
         case actionType.SAVE_LOCATION: return saveLocation(state, action)
         case actionType.FETCH_BRANCHES_SUCCESS: return fetchBranchesSuccess(state, action)
-        case actionType.FETCH_ITEMS_SUCCESS: return fetchItemsSuccess(state, action)
         case actionType.FETCH_CART_PRODUCTS_SUCCESS: return fetchCartProductsSuccess(state, action)
-        // case actionType.DELETE_ITEM_FROM_CART_SUCCESS: return deleteItemFromCartSuccess(state, action)
         case actionType.CURRENT_BRANCH_CHANGED: return currentBranchChanged(state, action)
+        case actionType.UPDATE_CHOSEN_BRANCHES: return updateChosenBranches(state, action)
+
 
 
 
@@ -48,99 +40,60 @@ const reducer = (state = initialState, action) => {
             return state;
     }
 }
-const fetchItemsSuccess = (state, action) => {
-    return updateObject(state, { items: action.items, filteredItems: action.filteredItems })
-}
+
 const fetchBranchesSuccess = (state, action) => {
     if (action.favoriteBranches) {
-        return updateObject(state, { chains: action.chains, favoriteBranches: action.favoriteBranches })
+        const newChosenBranches = action.favoriteBranches//{ ...action.favoriteBranches }
+        for (const key in state.chosenBranches) {
+            if (state.chosenBranches.hasOwnProperty(key)) {
+                const branch = state.chosenBranches[key];
+                const isInitial = branch === null
+                if (!isInitial && !branch.isFavorite) {
+                    newChosenBranches[key] = branch;
+                }
+            }
+        }
+        return updateObject(state, { chosenBranches: newChosenBranches })
     }
     else {
-        return updateObject(state, { chains: action.chains, closeBranches: action.closeBranches })
+        const newChosenBranches = { ...state.chosenBranches }
+        const newCloseBranches = action.closeBranches//{ ...action.closeBranches }
+        for (const key in state.chosenBranches) {
+            if (state.chosenBranches.hasOwnProperty(key)) {
+                const branch = state.chosenBranches[key];
+                if (branch.isFavorite || branch.isChosen) {//remove duplicate in close branches and favorites branches
+                    delete newCloseBranches[key];
+                }
+                if (branch.isChosen && !branch.isFavorite) {//remove old close and chosen branches
+                    delete newChosenBranches[key];
+                }
+            }
+        }
+        return updateObject(state, { closeBranches: newCloseBranches, chosenBranches: newChosenBranches })
     }
 }
 const saveLocation = (state, action) => {
     return updateObject(state, { location: action.location })
 }
-const addItemToCartSuccess = (state, action) => {
-    const categoryArray = state.cart.products[action.category] ? state.cart.products[action.category] : [];
-    const updatedCategoryArray = insertItem(categoryArray, action.product);
-    const updatedProducts = updateObject(state.cart.products, { [action.category]: updatedCategoryArray });
-    const updatedPrice = state.cart.totalPrice + action.product.quantity * 4;
-    const updatedCart = updateObject(state.cart, {
-        totalPrice: updatedPrice,
-        products: updatedProducts
-    });
-
-    return updateObject(state, { cart: updatedCart });
-}
 const fetchCartProductsSuccess = (state, action) => {
-    const allChosenBranches = state.favoriteBranches.concat(state.closeBranches.filter(branch => branch.isChosen))
-    const currentBranch = allChosenBranches.find(branch => branch.id === action.id)
 
-    return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
+    const branchesWithCarts = { ...state.chosenBranches }
 
+    for (const key in branchesWithCarts) {
+        if (action.carts.hasOwnProperty(key)) {
+            const cart = action.carts[key];
+            branchesWithCarts[key].cart = cart;
+        }
+    }
+    return updateObject(state, { chosenBranches: branchesWithCarts });
 }
-// const deleteItemFromCartSuccess = (state, action) => {
-//     const categoryArray = state.cart.products[action.category];
-//     console.log(categoryArray);
-//     const [indexOfProduct, price] = categoryArray.filter((product, index) => { if (product.code === action.productCode) return [index, product.avgPrice] })
-//     console.log(indexOfProduct);
-
-//     const updatedCategoryArray = removeItem(categoryArray, indexOfProduct);
-//     console.log(updatedCategoryArray);
-//     const updatedProducts = updateObject(state.cart.products, { [action.category]: updatedCategoryArray });
-//     console.log(updatedProducts);
-//     if (updatedCategoryArray.length <= 0) {
-//         delete updatedProducts[action.category]
-//     }
-//     const updatedPrice = state.cart.totalPrice - action.quantity * price;
-//     const updatedCart = updateObject(state.cart, {
-//         totalPrice: updatedPrice,
-//         products: updatedProducts
-//     });
-//     console.log(updatedCart);
-
-//     if (updatedCategoryArray.length <= 0) {
-
-//     }
-//     return updateObject(state, { cart: updatedCart });
-// }
 
 const currentBranchChanged = (state, action) => {
-    const allChosenBranches = state.favoriteBranches.concat(state.closeBranches.filter(branch => branch.isChosen))
-    const currentBranch = allChosenBranches.find(branch => branch.id === action.id)
-    return updateObject(state, { chains: action.chains, currentBranch: currentBranch, cart: currentBranch.cart });
+    const allChosenBranches = state.chosenBranches;
+    const currentBranch = { [action.branchId]: allChosenBranches[action.branchId] };
+    return updateObject(state, { currentBranch: currentBranch });
 }
-// const onAddToCartClicked = (product, cart) => {
-//     const updatedProducts = [...cart.products].concat([product.productInfo + ' ' + product.amount])
-//     return {
-
-//     }
-// }
-// const onItemClicked = (product, items, index) => {
-//     const newChosenProduct = items[index].replace(/_/g, ' ')
-//     return {
-//         ...product,
-//         productInfo: newChosenProduct
-//     }
-// }
-// const onAmountInputChanged = (product, amount) => {
-//     return {
-//         ...product,
-//         amount: amount
-//     }
-// }
-// const onSearchInputChanged = (items, product, searchText) => {
-//     let filteredItems = []
-//     if (searchText.trim() !== '') {
-
-//         filteredItems = items.filter((item) => item.ItemName.search(new RegExp(searchText, 'gi')) > -1);
-//     }
-
-//     return {
-//         filteredItems: filteredItems,
-//         product: { ...product, productInfo: searchText }
-//     }
-// }
+const updateChosenBranches = (state, action) => {
+    return updateObject(state, { chosenBranches: action.chosenBranches });
+}
 export default reducer

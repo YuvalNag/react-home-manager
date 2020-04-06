@@ -1,8 +1,9 @@
 export {
     tryFetchBranches,
-    tryFetchItems,
+    // tryFetchItems,
     tryAddItemToCart,
     tryFetchCartProducts,
     tryDeleteItemFromCart,
-    currentBranchChanged
+    currentBranchChanged,
+    updateChosenBranchesAndCart
 } from './shoppingCart'

@@ -32,8 +32,14 @@ const ChainSection = props => {
                             onChange={() => { }}
                         />
                     }
-                    {branch.storeName}
-                    {branch.cart && <Badge className='float-left'>{branch.cart && branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>}
+                    {(branch.isFavorite || branch.isChosen)
+                        ?
+                        <p>
+                            {branch.cart && <Badge className='float-left'>{branch.cart && branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>}
+                            {branch.storeName}
+                        </p>
+                        :
+                        null}
                 </div>
 
 
