@@ -122,7 +122,7 @@ class Auth extends Component {
                             <Form.Control type="password" placeholder="Password" onChange={(event) => { this.inputChangedHandler(event, 'password') }} />
                         </Form.Group>
 
-                        <Button variant="primary" type="submit">
+                        <Button variant="outline-success" type="submit">
                             שלח
                     </Button>
                     </Form>}

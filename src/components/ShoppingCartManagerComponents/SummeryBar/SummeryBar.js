@@ -71,8 +71,8 @@ const SummeryBar = props => {
                             onHide={() => setAllBranchesModel(false)}
                             title=':בחר שלושה סניפים מועדפים'>
                             <Form noValidate
-                            // validated={props.validatedBranchesByLocation}
-                             onSubmit={props.submitBranchesByLocation} 
+                                // validated={props.validatedBranchesByLocation}
+                                onSubmit={props.submitBranchesByLocation}
                             >
 
                                 {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
@@ -83,17 +83,19 @@ const SummeryBar = props => {
                                 )}
 
                                 <Button
-                                    variant="primary"
+                                    variant="outline-success"
                                     type="submit" onClick={() => setAllBranchesModel(false)}>
                                     שלח
                                     </Button>
                             </Form>
                         </VerticallyCenteredModal>
 
-                        <Button onClick={() => {
-                            props.changeFavoritesClicked();
-                            setAllBranchesModel(true);
-                        }}>
+                        <Button className='rounded-circle px-2 h-100 w-100'
+                            variant={showAllBranchesModel ? 'primary' : 'outline-primary'}
+                            onClick={() => {
+                                props.changeFavoritesClicked();
+                                setAllBranchesModel(true);
+                            }}>
                             <FaRegBuilding size='18px' />
                         </Button>
                     </Col>
@@ -115,14 +117,16 @@ const SummeryBar = props => {
                                     )}
 
                                     <Button
-                                        variant="primary"
+                                        variant="outline-success"
                                         type="submit" onClick={() => setCloseBranchesModel(false)}>
                                         שלח
                                     </Button>
                                 </Form>
                             </VerticallyCenteredModal>
                         }
-                        <Button
+                        <Button className='rounded-circle px-2 h-100 w-100'
+                            variant={showCloseBranchesModel ? 'primary' : 'outline-primary'}
+
                             onClick={() => {
                                 props.locationClicked();
                                 setCloseBranchesModel(true);
