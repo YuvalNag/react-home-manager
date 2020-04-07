@@ -5,4 +5,5 @@ const instance = axios.create({
     // baseURL: 'https://cheapest.duckdns.org/'
 })
 
+
 export default instance

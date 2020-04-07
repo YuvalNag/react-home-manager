@@ -186,7 +186,22 @@ class ShoppingCartManager extends Component {
         this.props.onCurrentBranchChanged([branchId + '']);
     }
     tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
+        const findUrl = (code) => {
+            const urls = [`https://static.rami-levy.co.il/storage/images/${code}/small.jpg`,
+            `https://m.pricez.co.il/ProductPictures/s/${code}.jpg`
+            ]
+            axios.all(urls).then(axios.spread((...responses) => {
+                for (const response of responses) {
+                    console.log(response);
 
+                }
+                // use/access the results 
+            })).catch(errors => {
+                // react on errors.
+                console.log(errors);
+
+            })
+        }
         let cancel;
         if (searchTerm.trim() === '') {
             this.setState({ items: [], loadingSearch: false })
@@ -215,7 +230,7 @@ class ShoppingCartManager extends Component {
                             Branches: item.ItemBranches,
                             isWeighted: item.bIsWeighted && true,
                             price: item.mean,
-                            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+                            url: findUrl(item.ItemCode)
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                     });
@@ -245,7 +260,9 @@ class ShoppingCartManager extends Component {
         if (!this.props.isAuth) {
             this.props.history.push('/auth')
         }
-        this.props.onTryFetchBranches(this.props.locationInfo, this.props.chosenBranches)
+        else {
+            this.props.onTryFetchBranches(this.props.locationInfo, this.props.chosenBranches)
+        }
     }
     componentDidUpdate(prevProps, prevState) {
         // if (this.props.chosenBranches && (prevProps.chosenBranches !== this.props.chosenBranches)) {
@@ -349,7 +366,8 @@ const mapStateToProps = state => {
         loading: state.reqToServer.loading,
         loadingType: state.reqToServer.loadingType,
 
-        isAuth: state.auth.token !== null
+        isAuth: state.auth.token !== null,
+        token: state.auth.token
 
     }
 }

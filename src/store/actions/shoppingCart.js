@@ -97,7 +97,10 @@ export const tryFetchBranches = (location, branches) => {
                 dispatch(reqToServerSuccess(actionTypes.FETCH_BRANCHES_SUCCESS))
                 dispatch(tryFetchCartProducts())
             })
-            .catch(error => { dispatch(reqToServerFail(error.message)) })
+            .catch(error => { 
+                console.log(error.response);
+
+                dispatch(reqToServerFail(error.message)) })
     }
 }
 
@@ -217,7 +220,9 @@ export const tryAddItemToCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
-            .catch(error => { dispatch(reqToServerFail(error.message)) })
+            .catch(error => {
+                console.log(error.response);
+                 dispatch(reqToServerFail(error.message)) })
 
     }
 }
@@ -273,7 +278,9 @@ export const tryFetchCartProducts = (chosenBranches) => {
                 dispatch(currentBranchChanged(Object.keys(getState().shoppingCart.currentBranch)))
 
             })
-            .catch(error => { dispatch(reqToServerFail(error.message)) })
+            .catch(error => { 
+                console.log(error.response);
+                dispatch(reqToServerFail(error.message)) })
     };
 }
 
@@ -304,7 +311,9 @@ export const tryDeleteItemFromCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
-            .catch(error => { dispatch(reqToServerFail(error.message)) })
+            .catch(error => { 
+                console.log(error.response);
+                dispatch(reqToServerFail(error.message)) })
 
     }
 }

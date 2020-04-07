@@ -2,6 +2,12 @@ import * as actionTypes from './actionTypes'
 import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToServer'
 import axios from 'axios'
 
+export const loadingTypes = {
+    INIT: undefined,
+    SIGNUP: 'SIGNUP',
+    LOGIN: 'LOGIN'
+}
+
 export const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('expirationDate');
@@ -10,9 +16,10 @@ export const logout = () => {
     return { type: actionTypes.LOGOUT }
 }
 const authSuccess = (authData) => {
+    setToken(authData.token);
     const expiresIn = authData.expiresIn || 3600
     localStorage.setItem('token', authData.token);
-    localStorage.setItem('userId', authData.id);
+    localStorage.setItem('userId', authData.userId);
     localStorage.setItem('expirationDate', new Date(new Date().getTime() + expiresIn * 1000));
     return {
         type: actionTypes.AUTH_SUCCESS,
@@ -29,16 +36,20 @@ const checkAuthTimeout = (expirationTime) => {
 
 export const tryAuth = (email, password, username = '', isSignIn) => {
     return dispatch => {
-        dispatch(reqToServerStart())
         const authData = {
             email: email,
             password: password,
             name: username
             // returnSecureToken: true
         }
-        let url = 'https://heifetz.duckdns.org/user'
+        let url;
         if (isSignIn) {
+            dispatch(reqToServerStart(loadingTypes.LOGIN))
             url = 'https://heifetz.duckdns.org/user/token'
+        }
+        else {
+            dispatch(reqToServerStart(loadingTypes.SIGNUP))
+            url = 'https://heifetz.duckdns.org/user'
         }
         axios.post(url, authData)
             .then(response => {
@@ -53,7 +64,8 @@ export const tryAuth = (email, password, username = '', isSignIn) => {
                 }
             })
             .catch(error => {
-                console.log(error);
+                console.log(error.response.data);
+            
 
                 dispatch(reqToServerFail(error.response ? error.response.data.message : error.message))
             })
@@ -75,4 +87,9 @@ export const autoLogin = () => {
             dispatch(logout())
         }
     }
+}
+
+const setToken = (token) => {
+    axios.defaults.headers.common['Authorization'] =
+        `Bearer ${token}`;
 }
