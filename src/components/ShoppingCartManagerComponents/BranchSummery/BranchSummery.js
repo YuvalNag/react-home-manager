@@ -3,6 +3,7 @@ import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
 import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal';
+
 import ListGroup from 'react-bootstrap/ListGroup';
 import { IoMdCloseCircleOutline } from 'react-icons/io';
 import Button from 'react-bootstrap/Button';
@@ -51,6 +52,7 @@ const BranchSummery = (props) => {
                                                 cursor: 'pointer',
                                                 float: 'right'
                                             }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
+                               
                                         </div>
                                     </ListGroup.Item>)
 

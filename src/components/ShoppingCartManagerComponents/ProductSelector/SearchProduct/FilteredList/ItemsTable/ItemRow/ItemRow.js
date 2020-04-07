@@ -29,14 +29,16 @@ const ItemRow = (props) => {
 
     return (
         <div style={{ display: 'flex' }} >
-            {props.children.isClicked && <IoIosArrowDropright size='1.3em' color='red' style={{
-                color: '#aaa',
-                cursor: 'pointer',
-                position: 'absolute',
-                right: '2%',
-                zIndex: '1'
-            }}
-                 />}
+            {props.children.isClicked &&
+                <IoIosArrowDropright size='1.3em' color='red' style={{
+                    color: '#aaa',
+                    cursor: 'pointer',
+                    position: 'absolute',
+                    right: '2%',
+                    zIndex: '1'
+                }}
+                />
+            }
             <Figure className='m-1 float-left' >
                 <Figure.Image
                     width={100}

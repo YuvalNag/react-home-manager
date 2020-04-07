@@ -98,7 +98,7 @@ export const tryFetchBranches = (location, branches) => {
                 dispatch(tryFetchCartProducts())
             })
             .catch(error => { 
-                console.log(error.response);
+                console.log(error.response.data);
 
                 dispatch(reqToServerFail(error.message)) })
     }
@@ -221,7 +221,7 @@ export const tryAddItemToCart = (product) => {
                 }
             })
             .catch(error => {
-                console.log(error.response);
+                console.log(error.response.data);
                  dispatch(reqToServerFail(error.message)) })
 
     }
@@ -279,7 +279,7 @@ export const tryFetchCartProducts = (chosenBranches) => {
 
             })
             .catch(error => { 
-                console.log(error.response);
+                console.log(error.response.data);
                 dispatch(reqToServerFail(error.message)) })
     };
 }
@@ -312,7 +312,7 @@ export const tryDeleteItemFromCart = (product) => {
                 }
             })
             .catch(error => { 
-                console.log(error.response);
+                console.log(error.response.data);
                 dispatch(reqToServerFail(error.message)) })
 
     }

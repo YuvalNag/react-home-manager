@@ -1,0 +1,17 @@
+
+.span  {
+    color: #D8E2DC;
+    transition: all 0.5s ease;
+    cursor: pointer;
+  border-radius: 45%;
+  border: 1px solid #D8E2DC;
+  color: #D8E2DC;
+  transition: all 0.5s ease;
+  width:20px ;
+  height: 20px;
+  }
+.span:hover {
+    border: 5px solid #00aced;
+    box-shadow:  15px #00aced;
+    transition: all 0.5s ease;
+  }

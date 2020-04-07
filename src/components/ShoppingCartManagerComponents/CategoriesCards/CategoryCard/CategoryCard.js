@@ -37,15 +37,15 @@ const CategoryCard = (props) => {
                                 justifyContent: 'space-between',
                                 width: '50px'
                             }}>
-                                <IoMdCheckmarkCircleOutline style={{
-                                    cursor: 'pointer',
-                                    float: 'left'
-                                }}
-                                    color='green' size='1.2em' />
-                                <IoMdCloseCircleOutline size='1.2em' color='red' style={{
-                                    cursor: 'pointer',
-                                    float: 'right'
-                                }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
+                                    <IoMdCheckmarkCircleOutline style={{
+                                        cursor: 'pointer',
+                                        float: 'left'
+                                    }}
+                                        color='green' size='1.2em' />
+                                    <IoMdCloseCircleOutline size='1.2em' color='red' style={{
+                                        cursor: 'pointer',
+                                        float: 'right'
+                                    }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
                             </div>
                         </ListGroup.Item>)
 
@@ -57,7 +57,7 @@ const CategoryCard = (props) => {
                     backgroundColor: 'rgba(47,79,79 ,0.7)',
                     color: 'white'
                 }}  >
-                    <Card.Img src={image} alt="Card image" />
+                    <Card.Img src={`https://heifetz.duckdns.org/img/category/${imageName}`} alt="Card image" />
                     <Card.ImgOverlay >
                         <Card.Title style={{
                             marginTop: '30%',

@@ -8,7 +8,7 @@ const addToCartButton = props => (
         className='ml-1 w-100 '
         value="Input"
         disabled={!props.valid} >
-        <IoIosCart size='18px'  />
+        <IoIosCart size='18px' />
     </Button>
 
 )

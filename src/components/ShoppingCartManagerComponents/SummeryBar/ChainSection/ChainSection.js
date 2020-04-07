@@ -17,7 +17,7 @@ const ChainSection = props => {
                 display: 'flex',
                 justifyContent: 'space-between'
             }}>
-                <Image src={imageSrc} fluid className='float-right w-100' />
+                <Image src={`https://heifetz.duckdns.org/img/chain/${props.name}.png`} fluid className='float-right w-100' />
             </div>
 
             {props.children.map(branch => (

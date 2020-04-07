@@ -105,32 +105,32 @@ class Auth extends Component {
                     </Form>} */}
                 {this.props.isLoading ? <Spinner animation="border" variant='secondary' /> :
                     <Form onSubmit={this.submitHandler}>
-                        <h3>Welcome <br></br> {this.state.isSignIn ? 'Sign in' : 'Sing up'} please</h3>
+                        <h3>{this.state.isSignIn ? 'כניסה' : 'הרשמה'}</h3>
                         <Form.Group controlId="formBasicEmail">
-                            <Form.Label>Email address</Form.Label>
+                            <Form.Label>אימייל</Form.Label>
                             <Form.Control type="email" placeholder="Enter email" onChange={(event) => { this.inputChangedHandler(event, 'email') }} />
                             <Form.Text className="text-muted">
                                 We'll never share your email with anyone else.
                       </Form.Text>
                         </Form.Group>
                         {!this.state.isSignIn && <Form.Group controlId="formBasicName">
-                            <Form.Label>Name</Form.Label>
+                            <Form.Label>שם משתמש</Form.Label>
                             <Form.Control type="text" placeholder="Enter your name" onChange={(event) => { this.inputChangedHandler(event, 'name') }} />
                         </Form.Group>}
                         <Form.Group controlId="formBasicPassword">
-                            <Form.Label>Password</Form.Label>
+                            <Form.Label>סיסמא</Form.Label>
                             <Form.Control type="password" placeholder="Password" onChange={(event) => { this.inputChangedHandler(event, 'password') }} />
                         </Form.Group>
 
                         <Button variant="primary" type="submit">
-                            Submit
+                            שלח
                     </Button>
                     </Form>}
 
                 <Button className='m-2'
                     variant='danger'
                     onClick={this.switchModeHandler}>
-                    SWITCH TO {this.state.isSignIn ? 'SIGN UP' : 'SIGN IN'}
+                    {this.state.isSignIn ? 'להרשמה' : 'לכניסה'}
                 </Button>
                 {this.props.isAuth ? <Redirect to='/supermarket' /> : null}
             </div>

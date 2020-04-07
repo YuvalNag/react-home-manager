@@ -4,11 +4,11 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 
 const Layout = (props) => {
-    let links = <Nav.Link href="/">Sign-In</Nav.Link>
+    let links = <Nav.Link href="/">כניסה</Nav.Link>
     if (props.isAuth) {
-        links = [<Nav.Link key='supermarket' href="/supermarket">Supermarket</Nav.Link>,
-        <Nav.Link key='tasks' href="/tasks">Tasks</Nav.Link>,
-        <span key='logout' onClick={props.logout}><Nav.Link  href="/logout">Logout</Nav.Link></span>]
+        links = [<Nav.Link key='supermarket' href="/supermarket">קניות</Nav.Link>,
+        <Nav.Link key='tasks' href="/tasks">משימות</Nav.Link>,
+        <span key='logout' onClick={props.logout}><Nav.Link  href="/logout">התנתק</Nav.Link></span>]
     }
     return (
         <Fragment>
