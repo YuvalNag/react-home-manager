@@ -95,22 +95,36 @@ class ShoppingCartManager extends Component {
         }
     };
     submitBranchesByLocation = event => {
+        const getFavoritesBranches = (chosenBranches) => {
+            const favoritesBranches = {}
+            for (const key in chosenBranches) {
+                if (chosenBranches.hasOwnProperty(key)) {
+                    const branch = chosenBranches[key];
+                    if (branch.isFavorite) {
+                        favoritesBranches[key] = branch
+                    }
+
+                }
+            }
+            return favoritesBranches
+        }
         event.preventDefault();
 
         const form = event.currentTarget;
         const checkedBranches = Array.from(form.elements).filter(a => { if (a.checked) return a.id })
 
-        if (checkedBranches.length > 5) {
+        if (checkedBranches.length > 5 || checkedBranches.length === 0) {
             event.stopPropagation();
             // this.setState({ validatedBranchesByLocation: false });
         }
         else {
             this.setState({ validatedBranchesByLocation: true });
 
-            const branchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
-            const updatedChosenBranches = { ...this.props.chosenBranches }
+            const checkedBranchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
+            const updatedChosenBranches = getFavoritesBranches(this.props.chosenBranches)
+
             for (const key in this.props.closeBranches) {
-                if (branchesIdSet.has(key)) {
+                if (checkedBranchesIdSet.has(key)) {
                     const newBranch = deepClone(this.props.closeBranches[key])
                     newBranch.isChosen = true;
                     updatedChosenBranches[key] = newBranch;

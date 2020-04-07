@@ -72,7 +72,7 @@ const SummeryBar = props => {
                             title=':בחר שלושה סניפים מועדפים'>
                             <Form noValidate
                             // validated={props.validatedBranchesByLocation}
-                            // onSubmit={props.submitBranchesByLocation} 
+                             onSubmit={props.submitBranchesByLocation} 
                             >
 
                                 {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>

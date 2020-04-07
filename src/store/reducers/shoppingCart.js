@@ -64,9 +64,9 @@ const fetchBranchesSuccess = (state, action) => {
                 if (branch.isFavorite || branch.isChosen) {//remove duplicate in close branches and favorites branches
                     delete newCloseBranches[key];
                 }
-                if (branch.isChosen && !branch.isFavorite) {//remove old close and chosen branches
-                    delete newChosenBranches[key];
-                }
+                // if (branch.isChosen && !branch.isFavorite) {//remove old close and chosen branches
+                //     delete newChosenBranches[key];
+                // }
             }
         }
         return updateObject(state, { closeBranches: newCloseBranches, chosenBranches: newChosenBranches })

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import VerticallyCenteredModal from '../../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
@@ -9,15 +9,18 @@ import Badge from 'react-bootstrap/Badge'
 // import classes from './CategoryCard.module.css'
 
 const CategoryCard = (props) => {
-    const [modalShow, setModalShow] = React.useState(false);
+    const [modalShow, setModalShow] = useState(false);
+
+    const imageName = props.imageName;
+    const [src, setSrc] = useState()
+    useEffect(() => {
+        setSrc(`https://heifetz.duckdns.org/img/category/${imageName}`);
+    }, [imageName])
+    const errorImage = require(`../../../../assets/images/no-image-available.png`);
+
 
     const wideScreen = window.matchMedia("(min-width: 700px)").matches
 
-    let imageName = 'no-image-available.png'
-    if (props.imageName) {
-        imageName = props.imageName
-    }
-    const image = require(`../../../../assets/images/${imageName}`);
     return (
         <Fragment>
             <VerticallyCenteredModal
@@ -37,15 +40,15 @@ const CategoryCard = (props) => {
                                 justifyContent: 'space-between',
                                 width: '50px'
                             }}>
-                                    <IoMdCheckmarkCircleOutline style={{
-                                        cursor: 'pointer',
-                                        float: 'left'
-                                    }}
-                                        color='green' size='1.2em' />
-                                    <IoMdCloseCircleOutline size='1.2em' color='red' style={{
-                                        cursor: 'pointer',
-                                        float: 'right'
-                                    }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
+                                <IoMdCheckmarkCircleOutline style={{
+                                    cursor: 'pointer',
+                                    float: 'left'
+                                }}
+                                    color='green' size='1.2em' />
+                                <IoMdCloseCircleOutline size='1.2em' color='red' style={{
+                                    cursor: 'pointer',
+                                    float: 'right'
+                                }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
                             </div>
                         </ListGroup.Item>)
 
@@ -57,7 +60,9 @@ const CategoryCard = (props) => {
                     backgroundColor: 'rgba(47,79,79 ,0.7)',
                     color: 'white'
                 }}  >
-                    <Card.Img src={`https://heifetz.duckdns.org/img/category/${imageName}`} alt="Card image" />
+                    <Card.Img src={src}
+                        onError={() => { setSrc(errorImage) }}
+                        alt="Card image" />
                     <Card.ImgOverlay >
                         <Card.Title style={{
                             marginTop: '30%',
