@@ -45,7 +45,7 @@ const ItemRow = (props) => {
                     height={75}
                     alt={props.children.name}
                     src={src}
-                    onError={() => { setSrc(errorImage) }}
+                    onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
                 />
                 <Figure.Caption>
                     <ListGroup.Item>

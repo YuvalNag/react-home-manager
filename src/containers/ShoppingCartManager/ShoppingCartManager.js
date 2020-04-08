@@ -227,7 +227,13 @@ class ShoppingCartManager extends Component {
             cancel && cancel()
             const queryParams = '?searchTerm=' + searchTerm + (branches && Object.keys(branches).map(branchId => ('&branchIds=' + branchId)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.props.token}`
+            }
             axios.get('/supermarket/item' + queryParams + '&limit=' + 50 + '&price=' + withPrices, {
+                headers: headers,
+
                 cancelToken: new CancelToken(function executor(c) {
                     // An executor function receives a cancel function as a parameter
                     cancel = c;
@@ -244,7 +250,7 @@ class ShoppingCartManager extends Component {
                             Branches: item.ItemBranches,
                             isWeighted: item.bIsWeighted && true,
                             price: item.mean,
-                            url: findUrl(item.ItemCode)
+                            url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                     });

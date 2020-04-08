@@ -75,7 +75,7 @@ const fetchBranchesSuccess = (branches, isFavorite) => {
     }
 }
 export const tryFetchBranches = (location, branches) => {
-    return dispatch => {
+    return (dispatch,getState) => {
         dispatch(reqToServerStart(loadingTypes.FETCH_BRANCHES))
         dispatch(saveLocation(location))
         let queryParams = '';
@@ -91,16 +91,23 @@ export const tryFetchBranches = (location, branches) => {
         if (branches) {
             queryParams += (Object.keys(branches)).map(branchId => ('branchIds=' + branchId)).join('&');
         }
-        axios.get('/supermarket/branch?' + queryParams + '&limit=' + 15)
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization':  `Bearer ${getState().auth.token}`
+        }
+        axios.get('/supermarket/branch?' + queryParams + '&limit=' + 15, {
+            headers: headers
+        })
             .then(response => {
                 dispatch(fetchBranchesSuccess(response.data.branches, branches ? true : false));
                 dispatch(reqToServerSuccess(actionTypes.FETCH_BRANCHES_SUCCESS))
                 dispatch(tryFetchCartProducts())
             })
-            .catch(error => { 
+            .catch(error => {
                 console.log(error.response.data);
 
-                dispatch(reqToServerFail(error.message)) })
+                dispatch(reqToServerFail(error.message))
+            })
     }
 }
 
@@ -206,7 +213,13 @@ export const tryAddItemToCart = (product) => {
         console.log(product);
 
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
-        axios.put('/list/default/item/' + product.item.code, { quantity: product.quantity, category: product.category })
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization':  `Bearer ${getState().auth.token}`
+        }
+        axios.put('/list/default/item/' + product.item.code, { quantity: product.quantity, category: product.category }, {
+            headers: headers
+        })
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
@@ -222,7 +235,8 @@ export const tryAddItemToCart = (product) => {
             })
             .catch(error => {
                 console.log(error.response.data);
-                 dispatch(reqToServerFail(error.message)) })
+                dispatch(reqToServerFail(error.message))
+            })
 
     }
 }
@@ -266,10 +280,15 @@ export const tryFetchCartProducts = (chosenBranches) => {
         else {
             chosenBranchesIds = Object.keys(getState().shoppingCart.chosenBranches)
         }
-
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization':  `Bearer ${getState().auth.token}`
+        }
         const queryParams = '?price=' + true + (chosenBranchesIds).map(branchId => ('&branchIds=' + branchId)).join('');
 
-        axios.get('/list/default/item' + queryParams)
+        axios.get('/list/default/item' + queryParams, {
+            headers: headers
+        })
             .then(response => {
                 console.log(response.data);
 
@@ -278,9 +297,10 @@ export const tryFetchCartProducts = (chosenBranches) => {
                 dispatch(currentBranchChanged(Object.keys(getState().shoppingCart.currentBranch)))
 
             })
-            .catch(error => { 
+            .catch(error => {
                 console.log(error.response.data);
-                dispatch(reqToServerFail(error.message)) })
+                dispatch(reqToServerFail(error.message))
+            })
     };
 }
 
@@ -296,7 +316,13 @@ export const tryDeleteItemFromCart = (product) => {
     return (dispatch, getState) => {
 
         dispatch(reqToServerStart(loadingTypes.DELETE_FROM_CART))
-        axios.delete('/list/default/item/' + product.code)
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization':  `Bearer ${getState().auth.token}`
+        }
+        axios.delete('/list/default/item/' + product.code, {
+            headers: headers
+        })
             .then(response => {
                 console.log(response.data);
                 if (response.data.message === "OK") {
@@ -311,9 +337,10 @@ export const tryDeleteItemFromCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
-            .catch(error => { 
+            .catch(error => {
                 console.log(error.response.data);
-                dispatch(reqToServerFail(error.message)) })
+                dispatch(reqToServerFail(error.message))
+            })
 
     }
 }
