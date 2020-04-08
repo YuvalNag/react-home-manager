@@ -64,10 +64,7 @@ export const tryAuth = (email, password, username = '', isSignIn) => {
                 }
             })
             .catch(error => {
-                console.log(error.response.data);
-            
-
-                dispatch(reqToServerFail(error.response ? error.response.data.message : error.message))
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
 
     }

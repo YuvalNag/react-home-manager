@@ -91,7 +91,7 @@ const SummeryBar = props => {
                         </VerticallyCenteredModal>
 
                         <Button className='rounded-circle px-2 h-100 w-100'
-                            variant={showAllBranchesModel ? 'primary' : 'outline-primary'}
+                            variant='outline-primary'
                             onClick={() => {
                                 props.changeFavoritesClicked();
                                 setAllBranchesModel(true);
@@ -125,7 +125,7 @@ const SummeryBar = props => {
                             </VerticallyCenteredModal>
                         }
                         <Button className='rounded-circle px-2 h-100 w-100'
-                            variant={showCloseBranchesModel ? 'primary' : 'outline-primary'}
+                            variant='outline-primary'//{showCloseBranchesModel ? 'primary' : 'outline-primary'}
 
                             onClick={() => {
                                 props.locationClicked();

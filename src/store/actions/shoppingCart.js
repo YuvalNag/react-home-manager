@@ -103,10 +103,9 @@ export const tryFetchBranches = (location, branches) => {
                 dispatch(reqToServerSuccess(actionTypes.FETCH_BRANCHES_SUCCESS))
                 dispatch(tryFetchCartProducts())
             })
+          
             .catch(error => {
-                console.log(error.response.data);
-
-                dispatch(reqToServerFail(error.message))
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
     }
 }
@@ -185,13 +184,11 @@ export const tryFetchBranches = (location, branches) => {
 //                     dispatch(fetchItemsSuccess(products));
 //                     dispatch(reqToServerSuccess(actionTypes.FETCH_ITEMS_SUCCESS))
 //                 })
-//                 .catch(error => {
-
-//                     dispatch(reqToServerFail(error.message))
-
-//                 })
-
-//         }
+//                 
+//             .catch(error => {
+//                 dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+//             })
+// //         }
 //         else {
 //             dispatch(filterItemsSuccess(getState().shoppingCart.items, searchTerm))
 //         }
@@ -233,9 +230,9 @@ export const tryAddItemToCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
+           
             .catch(error => {
-                console.log(error.response.data);
-                dispatch(reqToServerFail(error.message))
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
 
     }
@@ -297,9 +294,9 @@ export const tryFetchCartProducts = (chosenBranches) => {
                 dispatch(currentBranchChanged(Object.keys(getState().shoppingCart.currentBranch)))
 
             })
+           
             .catch(error => {
-                console.log(error.response.data);
-                dispatch(reqToServerFail(error.message))
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
     };
 }
@@ -337,9 +334,9 @@ export const tryDeleteItemFromCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
+            
             .catch(error => {
-                console.log(error.response.data);
-                dispatch(reqToServerFail(error.message))
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
 
     }
