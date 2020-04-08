@@ -123,7 +123,7 @@ class Auth extends Component {
                         </Form.Group>
 
                         <Button variant="outline-success" type="submit">
-                            שלח
+                            התחבר
                     </Button>
                     </Form>}
 
