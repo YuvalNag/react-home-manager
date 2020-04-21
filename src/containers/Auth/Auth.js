@@ -176,24 +176,24 @@ function Auth(props) {
     const [emailError, setEmailError] = useState();
     const [passwordError, setPasswordError] = useState();
     const [nameError, setNameError] = useState();
-    const [validtionErrorMsg, setValidtionErrorMsg] = useState();
+    const [validationErrorMsg, setValidationErrorMsg] = useState(false);
 
 
 
     const serverEmailError = props.errors && props.errors.errors && props.errors.errors.email && props.errors.errors.email.msg
     const serverPasswordError = props.errors && props.errors.errors && props.errors.errors.password && props.errors.errors.password.msg
     const serverNameError = props.errors && props.errors.errors && props.errors.errors.name && props.errors.errors.name.msg
-    const serverValidtionErrorMsg = props.errors && props.errors.message
+    const serverValidationErrorMsg = props.errors && props.errors.message
 
     useEffect(() => {
         setEmailError(serverEmailError)
         setPasswordError(serverPasswordError)
         setNameError(serverNameError)
-        setValidtionErrorMsg(serverValidtionErrorMsg)
+        setValidationErrorMsg(serverValidationErrorMsg)
         return () => {
             'cleanup'
         }
-    }, [serverEmailError, serverPasswordError, serverNameError, serverValidtionErrorMsg])
+    }, [serverEmailError, serverPasswordError, serverNameError, serverValidationErrorMsg])
     const handleSubmit = (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -240,8 +240,9 @@ function Auth(props) {
                 </Form.Group>}
                 <Form.Group controlId="formPassword">
                     <Form.Label>סיסמא</Form.Label>
-                    <Form.Control type="password" placeholder="Password" minLength={8} required pattern='/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$.!%*#?&])[a-zA-Z\d@$.!%*#?&]*$/
-' />
+                    <Form.Control type="password" placeholder="Password" minLength={8} required 
+                    // pattern='/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$.!%*#?&])[a-zA-Z\d@$.!%*#?&]*$/' 
+/>
                     <Form.Control.Feedback type="invalid">
                         {passwordError}
                     </Form.Control.Feedback>
@@ -259,8 +260,8 @@ function Auth(props) {
                 {isSignIn ? 'להרשמה' : 'לכניסה'}
             </Button >
             {props.isAuth ? <Redirect to='/supermarket' /> : null}
-            <Alert key='validtionError' variant='danger' show={validtionErrorMsg !== undefined} onClose={() => setValidtionErrorMsg(undefined)} dismissible>
-                {validtionErrorMsg}
+            <Alert key='validationError' variant='danger' show={validationErrorMsg} onClose={() => setValidationErrorMsg(undefined)} dismissible>
+                {validationErrorMsg}
             </Alert>
         </div>
     )

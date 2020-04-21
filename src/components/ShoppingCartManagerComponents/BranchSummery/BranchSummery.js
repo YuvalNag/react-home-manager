@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
@@ -10,8 +10,12 @@ import Button from 'react-bootstrap/Button';
 
 const BranchSummery = (props) => {
     const [showLackingModel, setLackingModel] = useState(false)
-    const imageSrc = !props.loadingCart && require(`../../../assets/images/${props.branch.chainName.toLowerCase()}.png`);
-
+    const chainName = props.branch.chainName.toLowerCase();
+    const [src, setSrc] = useState()
+    useEffect(() => {
+        setSrc(`https://heifetz.duckdns.org/img/chain/${chainName}.png`);
+    }, [chainName])
+    const errorImage = require(`../../../assets/images/no-image-available.png`);
     return (
         <Fragment>
             <Col>
@@ -21,7 +25,9 @@ const BranchSummery = (props) => {
                     // display: 'flex',
                     // justifyContent: 'space-between'
                 }}>
-                    <Image src={imageSrc} fluid className='float-right w-100' />
+                    <Image
+                        src={src}
+                        onError={() => { setSrc(errorImage) }} fluid className='float-right w-100' />
 
                     <Badge className='float-left' style={{ color: 'white' }}>{props.branch.storeName} {props.branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>
                 </div>
@@ -52,7 +58,7 @@ const BranchSummery = (props) => {
                                                 cursor: 'pointer',
                                                 float: 'right'
                                             }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
-                               
+
                                         </div>
                                     </ListGroup.Item>)
 

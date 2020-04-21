@@ -17,9 +17,9 @@ const initialState = {
         "טיפוח ותינוקות": { imageName: 'grooming.jpg' },
         "לחם ומאפים": { imageName: 'bakery.jpg' }
     },
-    currentBranch: { '26': null },
+    currentBranch: {},
     location: null,
-    chosenBranches: { '232': null, '463': null, '26': null },
+    chosenBranches: { },
     closeBranches: {}
 }
 

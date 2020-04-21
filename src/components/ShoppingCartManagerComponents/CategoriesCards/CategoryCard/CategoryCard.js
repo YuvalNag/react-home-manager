@@ -3,8 +3,9 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import VerticallyCenteredModal from '../../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline } from "react-icons/io";
+import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages } from "react-icons/io";
 import Badge from 'react-bootstrap/Badge'
+import CategoryList from '../CategoryList/CategoryList'
 
 // import classes from './CategoryCard.module.css'
 
@@ -23,38 +24,12 @@ const CategoryCard = (props) => {
 
     return (
         <Fragment>
-            <VerticallyCenteredModal
-                show={modalShow}
-                onHide={() => setModalShow(false)}
-                title={props.title.toUpperCase()}>
-                <ListGroup variant="flush">{
-                    props.products.map(product =>
-                        <ListGroup.Item key={product.code}> {product.name}
-                            <Badge>
-                                {product.price}
-                                <span style={{ fontSize: '18px' }}>₪</span>
-                            </Badge>
-                            <div style={{
-                                display: 'inline - flex',
-                                float: 'right',
-                                justifyContent: 'space-between',
-                                width: '50px'
-                            }}>
-                                <IoMdCheckmarkCircleOutline style={{
-                                    cursor: 'pointer',
-                                    float: 'left'
-                                }}
-                                    color='green' size='1.2em' />
-                                <IoMdCloseCircleOutline size='1.2em' color='red' style={{
-                                    cursor: 'pointer',
-                                    float: 'right'
-                                }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
-                            </div>
-                        </ListGroup.Item>)
-
-                }
-                </ListGroup>
-            </VerticallyCenteredModal>
+            <CategoryList
+                title={props.title}
+                products={props.products}
+                modalShow={modalShow}
+                setModalShow={setModalShow}
+                deleteItemClicked={props.deleteItemClicked} />
             <Button variant="secondary" className={wideScreen ? "w-25" : "w-50"} onClick={() => setModalShow(true)}>
                 <Card className="img-thumbnail" style={{
                     backgroundColor: 'rgba(47,79,79 ,0.7)',
@@ -76,7 +51,7 @@ const CategoryCard = (props) => {
                     </Card.ImgOverlay>
                 </Card>
             </Button>
-        </Fragment >
+        </Fragment>
     )
 }
 export default CategoryCard

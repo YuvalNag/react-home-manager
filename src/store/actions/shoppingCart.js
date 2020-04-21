@@ -19,6 +19,8 @@ export const loadingTypes = {
     // FETCH_CART: 'FETCH_CART_DONE',
     DELETE_FROM_CART: 'DELETE_FROM_CART',
     // DELETE_FROM_CART: 'DELETE_FROM_CART_DONE',
+    UPDATE_CHOSEN_BRANCHES: 'UPDATE_CHOSEN_BRANCHES',
+    UPDATE_CURRENT_BRANCH: 'UPDATE_CURRENT_BRANCH'
 }
 
 // const setItems = (items) => {
@@ -75,7 +77,7 @@ const fetchBranchesSuccess = (branches, isFavorite) => {
     }
 }
 export const tryFetchBranches = (location, branches) => {
-    return (dispatch,getState) => {
+    return (dispatch, getState) => {
         dispatch(reqToServerStart(loadingTypes.FETCH_BRANCHES))
         dispatch(saveLocation(location))
         let queryParams = '';
@@ -93,7 +95,7 @@ export const tryFetchBranches = (location, branches) => {
         }
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization':  `Bearer ${getState().auth.token}`
+            'Authorization': `Bearer ${getState().auth.token}`
         }
         axios.get('/supermarket/branch?' + queryParams + '&limit=' + 15, {
             headers: headers
@@ -103,7 +105,7 @@ export const tryFetchBranches = (location, branches) => {
                 dispatch(reqToServerSuccess(actionTypes.FETCH_BRANCHES_SUCCESS))
                 dispatch(tryFetchCartProducts())
             })
-          
+
             .catch(error => {
                 dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
@@ -212,7 +214,7 @@ export const tryAddItemToCart = (product) => {
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization':  `Bearer ${getState().auth.token}`
+            'Authorization': `Bearer ${getState().auth.token}`
         }
         axios.put('/list/default/item/' + product.item.code, { quantity: product.quantity, category: product.category }, {
             headers: headers
@@ -230,7 +232,7 @@ export const tryAddItemToCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
-           
+
             .catch(error => {
                 dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
@@ -279,7 +281,7 @@ export const tryFetchCartProducts = (chosenBranches) => {
         }
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization':  `Bearer ${getState().auth.token}`
+            'Authorization': `Bearer ${getState().auth.token}`
         }
         const queryParams = '?price=' + true + (chosenBranchesIds).map(branchId => ('&branchIds=' + branchId)).join('');
 
@@ -291,10 +293,12 @@ export const tryFetchCartProducts = (chosenBranches) => {
 
                 dispatch(fetchCartProductsSuccess(response.data.items, chosenBranchesIds));
                 dispatch(reqToServerSuccess(actionTypes.FETCH_CART_PRODUCTS_SUCCESS))
-                dispatch(currentBranchChanged(Object.keys(getState().shoppingCart.currentBranch)))
-
+                const branchId = Object.keys(getState().shoppingCart.currentBranch)[0]
+                if (branchId) {
+                    dispatch(updateCurrentBranchAndCart(branchId))
+                }
             })
-           
+
             .catch(error => {
                 dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
@@ -315,7 +319,7 @@ export const tryDeleteItemFromCart = (product) => {
         dispatch(reqToServerStart(loadingTypes.DELETE_FROM_CART))
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization':  `Bearer ${getState().auth.token}`
+            'Authorization': `Bearer ${getState().auth.token}`
         }
         axios.delete('/list/default/item/' + product.code, {
             headers: headers
@@ -334,7 +338,7 @@ export const tryDeleteItemFromCart = (product) => {
                     dispatch(reqToServerFail(response.data.message))
                 }
             })
-            
+
             .catch(error => {
                 dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
             })
@@ -342,10 +346,10 @@ export const tryDeleteItemFromCart = (product) => {
     }
 }
 
-export const currentBranchChanged = (branchId) => {
+const currentBranchChanged = (branchId) => {
     return {
         type: actionTypes.CURRENT_BRANCH_CHANGED,
-        branchId: branchId[0]
+        branchId: branchId
     }
 
 }
@@ -357,10 +361,98 @@ const updateChosenBranches = (newChosenBranches) => {
 
 }
 export const updateChosenBranchesAndCart = (newChosenBranches) => {
-    return dispatch => {
-        dispatch(updateChosenBranches(newChosenBranches))
-        dispatch(tryFetchCartProducts(newChosenBranches))
 
+    return (dispatch, getState) => {
+        dispatch(reqToServerStart(loadingTypes.UPDATE_CHOSEN_BRANCHES))
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getState().auth.token}`
+        }
+        axios.put(`/user/${getState().auth.userId}/branch`, { branchIds: Object.keys(newChosenBranches) }, {
+            headers: headers
+        })
+            .then(response => {
+                console.log(response.data);
 
+                dispatch(updateChosenBranches(newChosenBranches))
+                dispatch(tryFetchCartProducts(newChosenBranches))
+
+            })
+
+            .catch(error => {
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+            })
+    }
+}
+
+export const getChosenBranchesAndCart = () => {
+
+    return (dispatch, getState) => {
+        dispatch(reqToServerStart(loadingTypes.UPDATE_CHOSEN_BRANCHES))
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getState().auth.token}`
+        }
+        axios.get(`/user/${getState().auth.userId}/branch`, {
+            headers: headers
+        })
+            .then(response => {
+                console.log(response.data);
+                const branchIdsObj = {}
+                response.data.value.forEach(branchId => branchIdsObj[branchId] = null)
+                dispatch(tryFetchBranches(null, branchIdsObj))
+                dispatch(getCurrentBranchAndCart())
+
+            })
+
+            .catch(error => {
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+            })
+    }
+}
+
+export const updateCurrentBranchAndCart = (branchId) => {
+    // const branchId = branchIdArray[0];
+    return (dispatch, getState) => {
+        dispatch(reqToServerStart(loadingTypes.UPDATE_CURRENT_BRANCH))
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getState().auth.token}`
+        }
+        axios.put(`/user/${getState().auth.userId}/currentBranch/${branchId}`, {}, {
+            headers: headers
+        })
+            .then(response => {
+                console.log(response.data);
+                dispatch(currentBranchChanged(branchId))
+
+            })
+
+            .catch(error => {
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+            })
+    }
+}
+
+export const getCurrentBranchAndCart = () => {
+
+    return (dispatch, getState) => {
+        dispatch(reqToServerStart(loadingTypes.UPDATE_CURRENT_BRANCH))
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getState().auth.token}`
+        }
+        axios.get(`/user/${getState().auth.userId}/currentBranch`, {
+            headers: headers
+        })
+            .then(response => {
+                console.log(response.data);
+                dispatch(currentBranchChanged(response.data.value.id))
+
+            })
+
+            .catch(error => {
+                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+            })
     }
 }

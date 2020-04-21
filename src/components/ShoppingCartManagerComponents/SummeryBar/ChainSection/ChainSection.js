@@ -4,6 +4,7 @@ import Badge from 'react-bootstrap/Badge';
 import Form from 'react-bootstrap/Form';
 import Collapse from 'react-bootstrap/Collapse';
 import { MdExpandMore, MdExpandLess } from 'react-icons/md'
+import { FiMinusCircle } from 'react-icons/fi';
 
 
 const ChainSection = props => {
@@ -15,7 +16,7 @@ const ChainSection = props => {
         setSrc(`https://heifetz.duckdns.org/img/chain/${chainName}.png`);
     }, [chainName])
     const errorImage = require(`../../../../assets/images/no-image-available.png`);
-    let branches = <Collapse in={open} mountOnEnter unmountOnExit>
+    let branches = <Collapse in={open} mountOnEnter >
         <div>            {props.children.map(branch => (
             <div key={branch.id} onClick={() => branch.cart && props.branchClicked(branch.id)} >
 
@@ -47,10 +48,19 @@ const ChainSection = props => {
                 <div key={branch.id} onClick={() => branch.cart && props.branchClicked(branch.id)} >
                     {(branch.isFavorite || branch.isChosen)
                         ?
-                        <p>
+                        <span>
+                            <FiMinusCircle size='1em' color='red' style={{
+                                cursor: 'pointer',
+                                float: 'right',
+                                marginTop: '6px',
+                                marginRight: '6px',
+                                marginLeft: '6px'
+                            }} onClick={() => { }} />
                             {branch.cart && <Badge className='float-left'>{branch.cart && branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>}
                             {branch.storeName}
-                        </p>
+
+
+                        </span>
                         :
                         null}
                 </div>

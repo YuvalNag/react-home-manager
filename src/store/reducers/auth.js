@@ -5,7 +5,7 @@ const initialState = {
     email: null,
     refreshToken: null,
     expiresIn: null,
-    localId: null,
+    userId: null,
     registered: null,
     kind: null
 }

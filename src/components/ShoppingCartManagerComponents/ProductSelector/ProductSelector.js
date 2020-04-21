@@ -13,7 +13,7 @@ import Spinner from 'react-bootstrap/Spinner'
 
 const productSelector = props => (
     <Fragment>
-        <Col className='m-1 p-0' sm={2} >
+        <Col className='m-1 p-0' xs="auto" >
             <SearchProduct searchClicked={props.searchClicked} changed={props.searchChanged} searchTerm={props.searchTerm} itemClicked={props.itemClicked}
                 items={props.item ? [props.item] : props.items} />
             {/* items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} /> */}

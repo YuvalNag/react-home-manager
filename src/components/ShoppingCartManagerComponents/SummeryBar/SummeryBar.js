@@ -19,45 +19,7 @@ const SummeryBar = props => {
 
     return (
         <Fragment>
-            <VerticallyCenteredModal
-                show={props.locationModalMessage !== null}
-                onHide={props.hide}
-                title={props.locationModalMessage} >
-                <Form
-                    noValidate
-                    validated={props.validatedLocation}
-                    onSubmit={props.submitLocation} >
 
-                    <Form.Group
-                        controlId="formCity">
-                        <Form.Label>עיר</Form.Label>
-                        <Form.Control
-                            placeholder="עיר"
-                            required />
-                        <Form.Control.Feedback
-                            type="invalid">
-                            הכנס עיר
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group
-                        controlId="formAddress">
-                        <Form.Label>רחוב ומספר</Form.Label>
-                        <Form.Control
-                            placeholder="רחוב ומספר"
-                            required />
-                        <Form.Control.Feedback type="invalid">
-                            הכנס רחוב ומספר
-                        </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Button
-                        variant="primary"
-                        type="submit">
-                        שלח
-                        </Button>
-
-                </Form>
-            </VerticallyCenteredModal >
 
             <Form className='w-100'>
 
@@ -70,11 +32,16 @@ const SummeryBar = props => {
                             show={showAllBranchesModel}
                             onHide={() => setAllBranchesModel(false)}
                             title=':בחר שלושה סניפים מועדפים'>
+
                             <Form noValidate
                                 // validated={props.validatedBranchesByLocation}
                                 onSubmit={props.submitBranchesByLocation}
                             >
-
+                                <Button className='float-right sticky-top'
+                                    variant="outline-success"
+                                    type="submit" onClick={() => setAllBranchesModel(false)}>
+                                    שלח
+                                    </Button>
                                 {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
                                     <ChainSection key={chainName} name={chainName.toLowerCase()}  >
                                         {props.closeBranches[chainName]}
@@ -82,11 +49,7 @@ const SummeryBar = props => {
 
                                 )}
 
-                                <Button
-                                    variant="outline-success"
-                                    type="submit" onClick={() => setAllBranchesModel(false)}>
-                                    שלח
-                                    </Button>
+
                             </Form>
                         </VerticallyCenteredModal>
 
@@ -105,22 +68,21 @@ const SummeryBar = props => {
                                 show={showCloseBranchesModel}
                                 onHide={() => setCloseBranchesModel(false)}
                                 title='קרוב אליך'>
+
                                 <Form noValidate
                                     validated={props.validatedBranchesByLocation}
                                     onSubmit={props.submitBranchesByLocation} >
-
+                                    <Button className='float-right sticky-top'
+                                        variant="outline-success"
+                                        type="submit" onClick={() => setCloseBranchesModel(false)}>
+                                        שלח
+                                    </Button>
                                     {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
                                         <ChainSection key={chainName} name={chainName.toLowerCase()}  >
                                             {props.closeBranches[chainName]}
                                         </ChainSection>
 
                                     )}
-
-                                    <Button
-                                        variant="outline-success"
-                                        type="submit" onClick={() => setCloseBranchesModel(false)}>
-                                        שלח
-                                    </Button>
                                 </Form>
                             </VerticallyCenteredModal>
                         }
