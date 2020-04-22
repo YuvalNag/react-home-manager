@@ -22,6 +22,7 @@ import { groupBy, distanceOfStrings, deepClone } from '../../shared/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 import VerticallyCenteredModal from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
 import { Form, Button } from 'react-bootstrap'
+import SearchProduct from '../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/SearchProduct'
 
 
 class ShoppingCartManager extends Component {
@@ -134,6 +135,24 @@ class ShoppingCartManager extends Component {
             }
             this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
         }
+    };
+    removeChosenBranchHandler = branchId => {
+        const alternativeBranchId = () => {
+            let newBranchId;
+            let i = 0;
+            do {
+                newBranchId = Object.keys(this.props.chosenBranches)[i]
+            } while (newBranchId === branchId + '' && i < this.props.chosenBranches.length);
+            if (newBranchId === branchId + '') return;
+            else return newBranchId;
+        }
+        // event.preventDefault();
+        if (this.props.currentBranch[branchId]) {
+            this.props.onUpdateCurrentBranchAndCart(alternativeBranchId())
+        }
+        const updatedChosenBranches = { ...this.props.chosenBranches }
+        delete updatedChosenBranches[branchId]
+        this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
     };
     searchClickedHandler = () => {
         this.tryFetchItems(this.state.searchTerm, this.props.chosenBranches, true)
@@ -256,7 +275,7 @@ class ShoppingCartManager extends Component {
                             manufacturerName: item.ManufacturerName || '',
                             isWeighted: item.bIsWeighted && true,
                             avgPrice: item.mean.toFixed(2) || 'Not Found',
-                            prices:uniquePrices.sort((a, b) => -1 * (a.price - b.price)) ,
+                            prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price)),
                             url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
 
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
@@ -364,22 +383,31 @@ class ShoppingCartManager extends Component {
                     ? <Spinner animation="border" key='spinner' variant='secondary' />
                     :
                     <Container key='container' className='mw-100' style={{ backgroundColor: 'currentColor' }} >
+                        <Row>
+
+                            <SearchProduct searchClicked={this.searchClickedHandler} changed={this.searchChangedHandler}
+                                searchTerm={this.state.searchTerm} itemClicked={this.itemClickedHandler}
+                                items={this.state.chosenItem ? [this.state.chosenItem] : this.state.items} />
+                            {/* items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} /> */}
+                            {loadingSearch && <Spinner animation="border" variant='secondary' />}
+
+                        </Row>
                         <Row  >
                             <ProductSelector
-                                item={this.state.chosenItem}
+                                // item={this.state.chosenItem}
                                 categories={Object.keys(this.props.categoriesInfo)}
-                                searchTerm={this.state.searchTerm}
+                                // searchTerm={this.state.searchTerm}
                                 quantity={this.state.quantity}
-                                items={this.state.items}
-                                searchChanged={this.searchChangedHandler}
-                                searchClicked={this.searchClickedHandler}
+                                // items={this.state.items}
+                                // searchChanged={this.searchChangedHandler}
+                                // searchClicked={this.searchClickedHandler}
                                 quantityChanged={this.quantityChangedHandler}
                                 categoryClicked={this.categoryClickedHandler}
-                                itemClicked={this.itemClickedHandler}
+                                // itemClicked={this.itemClickedHandler}
                                 productIsValid={this.state.quantity && this.state.chosenItem}
                                 addToCartClicked={this.addToCartClickedHandler}
                                 categoryChosen={this.state.categoryChosen}
-                                loadingSearch={loadingSearch}
+                            // loadingSearch={loadingSearch}
                             />
                         </Row>
 
@@ -387,6 +415,7 @@ class ShoppingCartManager extends Component {
                             style={{ backgroundColor: 'currentColor' }}
                             className="h-25 ">
                             <SummeryBar
+                                removeChosenBranch={this.removeChosenBranchHandler}
                                 changeFavoritesClicked={this.changeFavoritesClickedHandler}
                                 loading={loadingBranches}
                                 chosenBranches={groupBy(Object.values(this.props.chosenBranches), 'chainName')}

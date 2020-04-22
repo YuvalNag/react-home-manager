@@ -397,12 +397,12 @@ export const getChosenBranchesAndCart = () => {
             headers: headers
         })
             .then(response => {
-                console.log(response.data);
-                const branchIdsObj = {}
-                response.data.value.forEach(branchId => branchIdsObj[branchId] = null)
-                dispatch(tryFetchBranches(null, branchIdsObj))
-                dispatch(getCurrentBranchAndCart())
-
+                if (response.data.value.length !== 0) {
+                    const branchIdsObj = {}
+                    response.data.value.forEach(branchId => branchIdsObj[branchId] = null)
+                    dispatch(tryFetchBranches(null, branchIdsObj))
+                    dispatch(getCurrentBranchAndCart())
+                }
             })
 
             .catch(error => {
@@ -415,22 +415,25 @@ export const updateCurrentBranchAndCart = (branchId) => {
     // const branchId = branchIdArray[0];
     return (dispatch, getState) => {
         dispatch(reqToServerStart(loadingTypes.UPDATE_CURRENT_BRANCH))
+        dispatch(currentBranchChanged(branchId))
+
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${getState().auth.token}`
         }
-        axios.put(`/user/${getState().auth.userId}/currentBranch/${branchId}`, {}, {
-            headers: headers
-        })
-            .then(response => {
-                console.log(response.data);
-                dispatch(currentBranchChanged(branchId))
-
+        if (getState().shoppingCart.currentBranch[branchId]) {
+            axios.put(`/user/${getState().auth.userId}/currentBranch/${branchId}`, {}, {
+                headers: headers
             })
+                .then(response => {
+                    console.log(response.data);
 
-            .catch(error => {
-                dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
-            })
+                })
+
+                .catch(error => {
+                    dispatch(reqToServerFail(error.response ? error.response.data ? error.response.data : error.response : error))
+                })
+        }
     }
 }
 

@@ -43,7 +43,9 @@ const SummeryBar = props => {
                                     שלח
                                     </Button>
                                 {props.closeBranches && Object.keys(props.closeBranches).map(chainName =>
-                                    <ChainSection key={chainName} name={chainName.toLowerCase()}  >
+                                    <ChainSection key={chainName}
+                                        name={chainName.toLowerCase()}
+                                    >
                                         {props.closeBranches[chainName]}
                                     </ChainSection>
 
@@ -112,7 +114,10 @@ const SummeryBar = props => {
                                 <Dropdown.Item className='p-1'
                                     key={chainName}>
                                     {chainName !== 'undefined' &&
-                                        <ChainSection name={chainName.toLowerCase()} favorite branchClicked={props.branchClicked}>
+                                        <ChainSection name={chainName.toLowerCase()}
+                                            favorite
+                                            branchClicked={props.branchClicked}
+                                            removeChosenBranch={props.removeChosenBranch}>
                                             {props.chosenBranches[chainName]}
                                         </ChainSection>}
                                 </Dropdown.Item>,

@@ -3,22 +3,16 @@ import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 
 
-import SearchProduct from './SearchProduct/SearchProduct'
+// import SearchProduct from './SearchProduct/SearchProduct'
 import AddToCartButton from './AddToCartButton/AddToCartButton'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import Spinner from 'react-bootstrap/Spinner'
+
 
 
 const productSelector = props => (
     <Fragment>
-        <Col className='m-1 p-0' xs="auto" >
-            <SearchProduct searchClicked={props.searchClicked} changed={props.searchChanged} searchTerm={props.searchTerm} itemClicked={props.itemClicked}
-                items={props.item ? [props.item] : props.items} />
-            {/* items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} /> */}
-            {props.loadingSearch && <Spinner animation="border" variant='secondary' />}
-        </Col>
         <Col className='mx-1 p-0'>
             <AddToCartButton addToCartClicked={props.addToCartClicked}
                 valid={props.productIsValid} />

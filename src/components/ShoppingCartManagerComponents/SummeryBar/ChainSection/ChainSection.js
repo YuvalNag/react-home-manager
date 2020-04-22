@@ -45,25 +45,27 @@ const ChainSection = props => {
     if (props.favorite) {
         branches = <div>
             {props.children.map(branch => (
-                <div key={branch.id} onClick={() => branch.cart && props.branchClicked(branch.id)} >
-                    {(branch.isFavorite || branch.isChosen)
-                        ?
-                        <span>
-                            <FiMinusCircle size='1em' color='red' style={{
-                                cursor: 'pointer',
-                                float: 'right',
-                                marginTop: '6px',
-                                marginRight: '6px',
-                                marginLeft: '6px'
-                            }} onClick={() => { }} />
+                (branch.isFavorite || branch.isChosen) ?
+                    <div key={branch.id}  >
+
+
+                        <FiMinusCircle size='1em' color='red' style={{
+                            cursor: 'pointer',
+                            float: 'right',
+                            marginTop: '6px',
+                            marginRight: '6px',
+                            marginLeft: '6px'
+                        }} onClick={(event) => {
+                            event.preventDefault();
+                            props.removeChosenBranch(branch.id)
+                        }} />
+                        <span onClick={() => branch.cart && props.branchClicked(branch.id)}>
                             {branch.cart && <Badge className='float-left'>{branch.cart && branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>}
                             {branch.storeName}
-
-
                         </span>
-                        :
-                        null}
-                </div>
+
+                    </div> :
+                    null
             ))
             }
         </div>
