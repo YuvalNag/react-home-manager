@@ -4,28 +4,14 @@ import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
 import { FiMinusCircle } from 'react-icons/fi'
 import { Image } from 'react-bootstrap'
-
+import axios from '../../../../../../../axios/axios-shoppingCart'
 
 const ItemRow = (props) => {
-    const buildBadges = (pricesArray) => {
-        let badges = []
-        badges.push(<Badge variant="success" > {pricesArray[0].ItemPrice.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{props.children.isWeighted ? " Kg" : ''}</Badge>)
-        for (let index = 1; index < pricesArray.length - 1; index++) {
 
-            badges.push(<Badge variant="warning">{pricesArray[index].ItemPrice.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{props.children.isWeighted ? " Kg" : ''}</Badge>);
-
-        }
-        badges.push(<Badge variant="danger"> {pricesArray[pricesArray.length - 1].ItemPrice.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{props.children.isWeighted ? " Kg" : ''}</Badge>)
-        return badges
-    }
-    const withPrices = props.children.prices !== undefined;
     const [src, setSrc] = useState(props.children.url)
     useEffect(() => {
         setSrc(props.children.url);
     }, [props.children.url])
-    const errorImage = require(`../../../../../../../assets/images/no-image-available.png`);
-
-
 
 
     return (
@@ -79,7 +65,7 @@ const ItemRow = (props) => {
                 }}>
                     <Badge variant={i === props.children.prices.length - 1 ? 'success' : i === 0 ? 'danger' : null} > {price.price}<span style={{ fontSize: '15px' }}>₪</span>{props.children.isWeighted ? " Kg" : ''}</Badge>
                     <Image
-                        src={`https://heifetz.duckdns.org/img/chain/${price.chainName.toLowerCase()}.png`}
+                        src={`${axios.defaults.baseURL}/img/chain/${price.chainName.toLowerCase()}.png`}
                         fluid className='float-right w-100' />
                 </div>
             )}

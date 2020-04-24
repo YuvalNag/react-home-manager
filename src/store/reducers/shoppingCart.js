@@ -1,5 +1,5 @@
 import * as actionType from '../actions/actionTypes'
-import { updateObject, insertItem } from '../../shared/utility'
+import { updateObject } from '../../shared/utility'
 
 const initialState = {
     categoriesInfo: {
@@ -19,11 +19,9 @@ const initialState = {
     },
     currentBranch: {},
     location: null,
-    chosenBranches: { },
-    closeBranches: {}
+    chosenBranches: {},
+    optionalBranches: {}
 }
-
-
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
@@ -42,13 +40,13 @@ const reducer = (state = initialState, action) => {
 }
 
 const fetchBranchesSuccess = (state, action) => {
-    if (action.favoriteBranches) {
-        const newChosenBranches = action.favoriteBranches//{ ...action.favoriteBranches }
+    if (action.chosenBranches) {//merge new all chosen branches 
+        const newChosenBranches = action.chosenBranches
         for (const key in state.chosenBranches) {
             if (state.chosenBranches.hasOwnProperty(key)) {
                 const branch = state.chosenBranches[key];
                 const isInitial = branch === null
-                if (!isInitial && !branch.isFavorite) {
+                if (!isInitial && !branch.isChosen) {
                     newChosenBranches[key] = branch;
                 }
             }
@@ -56,20 +54,16 @@ const fetchBranchesSuccess = (state, action) => {
         return updateObject(state, { chosenBranches: newChosenBranches })
     }
     else {
-        const newChosenBranches = { ...state.chosenBranches }
-        const newCloseBranches = action.closeBranches//{ ...action.closeBranches }
+        const newOptionalBranches = action.optionalBranches
         for (const key in state.chosenBranches) {
             if (state.chosenBranches.hasOwnProperty(key)) {
                 const branch = state.chosenBranches[key];
-                if (branch.isFavorite || branch.isChosen) {//remove duplicate in close branches and favorites branches
-                    delete newCloseBranches[key];
+                if (branch.isChosen) {//remove from optional already chosen branches
+                    delete newOptionalBranches[key];
                 }
-                // if (branch.isChosen && !branch.isFavorite) {//remove old close and chosen branches
-                //     delete newChosenBranches[key];
-                // }
             }
         }
-        return updateObject(state, { closeBranches: newCloseBranches, chosenBranches: newChosenBranches })
+        return updateObject(state, { optionalBranches: newOptionalBranches })
     }
 }
 const saveLocation = (state, action) => {

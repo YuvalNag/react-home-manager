@@ -1,13 +1,8 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
-import VerticallyCenteredModal from '../../../UI/VerticallyCenteredModal/VerticallyCenteredModal'
-import ListGroup from 'react-bootstrap/ListGroup'
-import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages } from "react-icons/io";
-import Badge from 'react-bootstrap/Badge'
 import CategoryList from '../CategoryList/CategoryList'
-
-// import classes from './CategoryCard.module.css'
+import axios from '../../../../axios/axios-shoppingCart'
 
 const CategoryCard = (props) => {
     const [modalShow, setModalShow] = useState(false);
@@ -15,7 +10,7 @@ const CategoryCard = (props) => {
     const imageName = props.imageName;
     const [src, setSrc] = useState()
     useEffect(() => {
-        setSrc(`https://heifetz.duckdns.org/img/category/${imageName}`);
+        setSrc(`${axios.defaults.baseURL}/img/category/${imageName}`);
     }, [imageName])
     const errorImage = require(`../../../../assets/images/no-image-available.png`);
 

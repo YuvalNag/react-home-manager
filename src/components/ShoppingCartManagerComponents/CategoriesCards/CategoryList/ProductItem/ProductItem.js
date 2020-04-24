@@ -3,7 +3,7 @@ import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
 import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages } from 'react-icons/io'
 import Image from 'react-bootstrap/Image'
-import { Modal, Alert } from 'react-bootstrap'
+import  Alert  from 'react-bootstrap/Alert'
 
 
 const ProductItem = props => {
@@ -57,7 +57,7 @@ const ProductItem = props => {
                     float: 'left'
                 }}
                     onClick={() => setShow(true)}
-                    color='black' size='1.2em' />
+                    color='grey' size='1.2em' />
             </div>
         </ListGroup.Item>
     )

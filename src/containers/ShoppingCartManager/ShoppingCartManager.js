@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Container from 'react-bootstrap/Container'
@@ -6,9 +6,8 @@ import Row from 'react-bootstrap/Row'
 import Spinner from 'react-bootstrap/Spinner'
 
 import ProductSelector from '../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
-import CategoriesCards from '../../components/ShoppingCartManagerComponents/CategoriesCards/CategoriesCards'
-import SummeryBar from '../../components/ShoppingCartManagerComponents/SummeryBar/SummeryBar'
-import BranchSummery from '../../components/ShoppingCartManagerComponents/BranchSummery/BranchSummery'
+import CartView from '../../components/ShoppingCartManagerComponents/CartView/CartView'
+import BranchesManager from '../../components/ShoppingCartManagerComponents/BranchesManager/BranchesManager'
 
 import * as actions from '../../store/actions/index'
 import * as actionTypes from '../../store/actions/actionTypes'
@@ -22,7 +21,6 @@ import { groupBy, distanceOfStrings, deepClone } from '../../shared/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 import VerticallyCenteredModal from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
 import { Form, Button } from 'react-bootstrap'
-import SearchProduct from '../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/SearchProduct'
 
 
 class ShoppingCartManager extends Component {
@@ -32,21 +30,20 @@ class ShoppingCartManager extends Component {
         validatedLocation: false,
         searchTerm: '',
         quantity: 1,
-        category: null,
-        categoryChosen: false,
+        chosenCategory: 'מחלקה',
         chosenItem: null,
         timerId: null,
         showLackingModel: false,
         items: [],
         loadingSearch: false,
-        validatedBranchesByLocation: false,
+        validatedUpdateChosenBranches: false,
 
     }
 
-    changeFavoritesClickedHandler = () => {
+    getAllAvailableBranchesHandler = () => {
         this.props.onTryFetchBranches()
     }
-    locationClickedHandler = () => {
+    getClosestAvailableBranchesHandler = () => {
         const getLocation = () => {
             return new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
@@ -65,7 +62,7 @@ class ShoppingCartManager extends Component {
                     }, error =>
                         // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
                         reject(new Error('אפשר מיקום או הכנס ידנית')),
-                        { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                        { maximumAge: 30 * 1000, timeout: 30 * 1000, enableHighAccuracy: true });
                 } else {
                     //Geolocation is not supported by this browser
                     // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
@@ -97,38 +94,26 @@ class ShoppingCartManager extends Component {
             this.setState({ validatedLocation: true, locationModalMessage: null });
         }
     };
-    submitBranchesByLocation = event => {
-        const getFavoritesBranches = (chosenBranches) => {
-            const favoritesBranches = {}
-            for (const key in chosenBranches) {
-                if (chosenBranches.hasOwnProperty(key)) {
-                    const branch = chosenBranches[key];
-                    if (branch.isFavorite) {
-                        favoritesBranches[key] = branch
-                    }
+    submitUpdateChosenBranches = event => {
 
-                }
-            }
-            return favoritesBranches
-        }
         event.preventDefault();
 
         const form = event.currentTarget;
-        const checkedBranches = Array.from(form.elements).filter(a => { if (a.checked) return a.id })
+        const checkedBranches = Array.from(form.elements).filter(a => a.checked)
 
         if (checkedBranches.length === 0) {
             event.stopPropagation();
-            // this.setState({ validatedBranchesByLocation: false });
+            // this.setState({ validatedUpdateChosenBranches: false });
         }
         else {
-            this.setState({ validatedBranchesByLocation: true });
+            this.setState({ validatedUpdateChosenBranches: true });
 
             const checkedBranchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
-            const updatedChosenBranches = getFavoritesBranches(this.props.chosenBranches)
+            const updatedChosenBranches = deepClone(this.props.chosenBranches)
 
-            for (const key in this.props.closeBranches) {
+            for (const key in this.props.optionalBranches) {
                 if (checkedBranchesIdSet.has(key)) {
-                    const newBranch = deepClone(this.props.closeBranches[key])
+                    const newBranch = deepClone(this.props.optionalBranches[key])
                     newBranch.isChosen = true;
                     updatedChosenBranches[key] = newBranch;
                 }
@@ -146,7 +131,6 @@ class ShoppingCartManager extends Component {
             if (newBranchId === branchId + '') return;
             else return newBranchId;
         }
-        // event.preventDefault();
         if (this.props.currentBranch[branchId]) {
             this.props.onUpdateCurrentBranchAndCart(alternativeBranchId())
         }
@@ -160,7 +144,6 @@ class ShoppingCartManager extends Component {
     searchChangedHandler = (event) => {
         const value = event.target.value;
 
-        // console.log(this.state.searchTerm);
         clearInterval(this.state.timerId)
         const timerId = setTimeout(() => {
             if (this.state.searchTerm === value) {
@@ -172,7 +155,6 @@ class ShoppingCartManager extends Component {
     }
     quantityChangedHandler = (event) => {
         const quantity = parseInt(event.target.value);
-        console.log(quantity);
 
         this.setState({
             quantity: quantity
@@ -193,23 +175,21 @@ class ShoppingCartManager extends Component {
 
     }
     categoryClickedHandler = (event) => {
-        this.setState({ category: event.target.innerText, categoryChosen: true });
+        this.setState({ chosenCategory: event.target.innerText });
     }
     addToCartClickedHandler = () => {
-        if (this.state.categoryChosen) {
+        if (this.state.chosenCategory !== 'מחלקה') {
             this.props.onTryAddItemToCart({
                 item: this.state.chosenItem,
                 quantity: this.state.quantity,
-                category: this.state.category
+                category: this.state.chosenCategory
             })
-            console.log(this.state.chosenItem);
 
             this.setState({
                 quantity: 1,
                 chosenItem: null,
                 searchTerm: '',
-                category: null,
-                categoryChosen: false,
+                chosenCategory: 'מחלקה',
                 items: []
             })
         }
@@ -221,22 +201,6 @@ class ShoppingCartManager extends Component {
         this.props.onUpdateCurrentBranchAndCart(branchId + '');
     }
     tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
-        const findUrl = (code) => {
-            const urls = [`https://static.rami-levy.co.il/storage/images/${code}/small.jpg`,
-            `https://m.pricez.co.il/ProductPictures/s/${code}.jpg`
-            ]
-            axios.all(urls).then(axios.spread((...responses) => {
-                for (const response of responses) {
-                    console.log(response);
-
-                }
-                // use/access the results 
-            })).catch(errors => {
-                // react on errors.
-                console.log(errors);
-
-            })
-        }
         let cancel;
         if (searchTerm.trim() === '') {
             this.setState({ items: [], loadingSearch: false })
@@ -244,7 +208,6 @@ class ShoppingCartManager extends Component {
         else {
             this.setState({ items: [], loadingSearch: true })
 
-            console.log(searchTerm);
             cancel && cancel()
             const queryParams = '?searchTerm=' + searchTerm + (branches && Object.keys(branches).map(branchId => ('&branchIds=' + branchId)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
@@ -261,7 +224,6 @@ class ShoppingCartManager extends Component {
                 })
             })
                 .then(response => {
-                    console.log(response);
                     const products = (response && response.data.items) && response.data.items.map(item => {
                         const prices = item.ItemBranches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice.toFixed(2), promotions: branch.Promotions }))
                         const uniquePrices = Array.from(new Set(prices.map(a => a.price)))
@@ -272,6 +234,7 @@ class ShoppingCartManager extends Component {
                             match: distanceOfStrings(searchTerm, item.ItemName),
                             code: item.ItemCode,
                             name: item.ItemName,
+                            isClicked: false,
                             manufacturerName: item.ManufacturerName || '',
                             isWeighted: item.bIsWeighted && true,
                             avgPrice: item.mean.toFixed(2) || 'Not Found',
@@ -307,21 +270,10 @@ class ShoppingCartManager extends Component {
         if (!this.props.isAuth) {
             this.props.history.push('/auth')
         }
-        // else if (Object.entries(this.props.chosenBranches).length !== 0) {
-        //     this.props.onTryFetchBranches(this.props.locationInfo, this.props.chosenBranches)
-        // }
-        // else if (Object.entries(this.props.chosenBranches).length === 0) {
-        //     this.locationClickedHandler()
-        // }
         else {
             this.props.onGetChosenBranchesAndCart()
         }
     }
-    // componentDidUpdate(prevProps, prevState) {
-    //     if (this.props.isAuth && this.props.loadingType === 'INIT') {
-    //         this.props.onGetChosenBranchesAndCart()
-    //     }
-    // }
 
 
 
@@ -367,14 +319,9 @@ class ShoppingCartManager extends Component {
         </VerticallyCenteredModal >)
         const initialLoading = this.props.loadingType === 'INIT'
         const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
-        const loadingSearch = this.state.loadingSearch//this.props.loading && this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS
-        // const loadingSearch = ((this.props.loadingType === loadingTypes.FETCH_ITEMS && this.props.loadingType !== actionTypes.FETCH_ITEMS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
+        const loadingSearch = this.state.loadingSearch
         const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
-        // const loadingCart = this.props.currentBranch.cart === undefined || ((this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS) || this.props.loadingType === loadingTypes.FETCH_BRANCHES || this.props.loadingType === actionTypes.FETCH_Branches_SUCCESS || this.props.loadingType === 'INIT')
-        console.log('init', initialLoading);
-        console.log('branches', loadingBranches);
-        console.log('search', loadingSearch);
-        console.log('cart', loadingCart);
+
         const currentBranch = Object.values(this.props.currentBranch)[0]
         return (
 
@@ -383,51 +330,41 @@ class ShoppingCartManager extends Component {
                     ? <Spinner animation="border" key='spinner' variant='secondary' />
                     :
                     <Container key='container' className='mw-100' style={{ backgroundColor: 'currentColor' }} >
-                        <Row>
-
-                            <SearchProduct searchClicked={this.searchClickedHandler} changed={this.searchChangedHandler}
-                                searchTerm={this.state.searchTerm} itemClicked={this.itemClickedHandler}
-                                items={this.state.chosenItem ? [this.state.chosenItem] : this.state.items} />
-                            {/* items={props.items.length <= 0 ? props.item ? [props.item] : [] : props.items} /> */}
-                            {loadingSearch && <Spinner animation="border" variant='secondary' />}
-
-                        </Row>
                         <Row  >
                             <ProductSelector
-                                // item={this.state.chosenItem}
+                                chosenItem={this.state.chosenItem}
                                 categories={Object.keys(this.props.categoriesInfo)}
-                                // searchTerm={this.state.searchTerm}
+                                searchTerm={this.state.searchTerm}
                                 quantity={this.state.quantity}
-                                // items={this.state.items}
-                                // searchChanged={this.searchChangedHandler}
-                                // searchClicked={this.searchClickedHandler}
+                                items={this.state.items}
+                                searchChanged={this.searchChangedHandler}
+                                searchClicked={this.searchClickedHandler}
                                 quantityChanged={this.quantityChangedHandler}
                                 categoryClicked={this.categoryClickedHandler}
-                                // itemClicked={this.itemClickedHandler}
+                                itemClicked={this.itemClickedHandler}
                                 productIsValid={this.state.quantity && this.state.chosenItem}
                                 addToCartClicked={this.addToCartClickedHandler}
-                                categoryChosen={this.state.categoryChosen}
-                            // loadingSearch={loadingSearch}
+                                chosenCategory={this.state.chosenCategory}
+                                loadingSearch={loadingSearch}
                             />
                         </Row>
 
                         <Row
-                            style={{ backgroundColor: 'currentColor' }}
                             className="h-25 ">
-                            <SummeryBar
+                            <BranchesManager
                                 removeChosenBranch={this.removeChosenBranchHandler}
-                                changeFavoritesClicked={this.changeFavoritesClickedHandler}
+                                getAllAvailableBranches={this.getAllAvailableBranchesHandler}
                                 loading={loadingBranches}
                                 chosenBranches={groupBy(Object.values(this.props.chosenBranches), 'chainName')}
-                                closeBranches={groupBy(Object.values(this.props.closeBranches), 'chainName')}
-                                locationClicked={this.locationClickedHandler}
+                                optionalBranches={groupBy(Object.values(this.props.optionalBranches), 'chainName')}
+                                getClosestAvailableBranches={this.getClosestAvailableBranchesHandler}
                                 located={this.props.locationInfo}
 
-
+                                currentBranchId={currentBranch && currentBranch.id}
 
                                 branchClicked={this.branchClickedHandler}
-                                submitBranchesByLocation={this.submitBranchesByLocation}
-                                validatedBranchesByLocation={this.state.validatedBranchesByLocation}
+                                submitUpdateChosenBranches={this.submitUpdateChosenBranches}
+                                validatedUpdateChosenBranches={this.state.validatedUpdateChosenBranches}
 
                             />
                         </Row>
@@ -436,20 +373,12 @@ class ShoppingCartManager extends Component {
                         </Spinner> :
                             currentBranch && currentBranch.cart
                             &&
-                            <Fragment >
-                                <Row className='m-1' >
-                                    <BranchSummery loadingCart={loadingCart}
-                                        branch={currentBranch}
-                                        deleteItemClicked={this.deleteItemClickedHandler}
-                                    />
-                                </Row>
-                                <Row className="h-75 ">
-                                    <CategoriesCards
-                                        categories={this.buildCategoriesArray(currentBranch.cart.products)}
-                                        deleteItemClicked={this.deleteItemClickedHandler} />
-                                </Row>
-                            </Fragment>
-
+                            <CartView
+                                loadingCart={loadingCart}
+                                branch={currentBranch}
+                                deleteItemClicked={this.deleteItemClickedHandler}
+                                categories={this.buildCategoriesArray(currentBranch.cart.products)}
+                            />
                         }
                     </Container>
             ]
@@ -461,7 +390,7 @@ const mapStateToProps = state => {
         categoriesInfo: state.shoppingCart.categoriesInfo,
         locationInfo: state.shoppingCart.location,
         chosenBranches: state.shoppingCart.chosenBranches,
-        closeBranches: state.shoppingCart.closeBranches,
+        optionalBranches: state.shoppingCart.optionalBranches,
         currentBranch: state.shoppingCart.currentBranch,
 
         loading: state.reqToServer.loading,
@@ -475,13 +404,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        // onSearchInputChanged: (event) => dispatch({ type: actionType.SEARCH_INPUT, searchText: event.target.value }),
-        // onItemClicked: (index) => dispatch({ type: actionType.ITEM_CLICKED, itemIndex: index }),
-        // onAmountInputChanged: (event) => dispatch({ type: actionType.AMOUNT_INPUT, amount: event.target.value }),
-        // onAddToCartClicked: (index) => dispatch({ type: actionType.ADD_TO_CART, itemIndex: index }),
-        // onLoadItems: () => dispatch(actions.loadItems()),
         onTryFetchBranches: (location, branches) => dispatch(actions.tryFetchBranches(location, branches)),
-        // onTryFetchItems: (searchTerm, branches, withPrices) => dispatch(actions.tryFetchItems(searchTerm, branches, withPrices)),
         onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
         onTryFetchCartProducts: () => dispatch(actions.tryFetchCartProducts()),

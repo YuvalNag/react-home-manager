@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes'
 import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToServer'
-import axios from 'axios'
+import axios from '../../axios/axios-shoppingCart'
 
 export const loadingTypes = {
     INIT: undefined,
@@ -45,11 +45,11 @@ export const tryAuth = (email, password, username = '', isSignIn) => {
         let url;
         if (isSignIn) {
             dispatch(reqToServerStart(loadingTypes.LOGIN))
-            url = 'https://heifetz.duckdns.org/user/token'
+            url = '/user/token'
         }
         else {
             dispatch(reqToServerStart(loadingTypes.SIGNUP))
-            url = 'https://heifetz.duckdns.org/user'
+            url = '/user'
         }
         axios.post(url, authData)
             .then(response => {

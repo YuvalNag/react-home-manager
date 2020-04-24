@@ -19,7 +19,6 @@ class TaskManager extends Component {
     }
     handleSubmit = event => {
         const form = event.currentTarget;
-        console.log((new FormData (form)).getAll); 
         
         if (form.checkValidity() === false) {
             event.preventDefault();

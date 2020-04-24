@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 // import logo from './logo.svg';
@@ -10,7 +10,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { connect } from 'react-redux';
 import * as actions from './store/actions'
 import ShoppingCartManager from './containers/ShoppingCartManager/ShoppingCartManager'
-const TaskManager = lazy(() => import('./containers/TaskManager/TaskManager'))
+// const TaskManager = lazy(() => import('./containers/TaskManager/TaskManager'))
 
 function App(props) {
   const { onAutoLogin } = props
@@ -28,7 +28,7 @@ function App(props) {
             <Switch>
               <Route path='/auth' component={Auth} />
               <Route path='/supermarket' component={ShoppingCartManager} />
-              <Route path='/tasks' component={TaskManager} />
+              {/* <Route path='/tasks' component={TaskManager} /> */}
               <Redirect from='/' to='/auth' />
             </Switch>
           </Layout>

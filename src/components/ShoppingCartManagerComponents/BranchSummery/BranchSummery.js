@@ -3,6 +3,7 @@ import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
 import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal';
+import axios from '../../../axios/axios-shoppingCart'
 
 import ListGroup from 'react-bootstrap/ListGroup';
 import { IoMdCloseCircleOutline } from 'react-icons/io';
@@ -13,7 +14,7 @@ const BranchSummery = (props) => {
     const chainName = props.branch.chainName.toLowerCase();
     const [src, setSrc] = useState()
     useEffect(() => {
-        setSrc(`https://heifetz.duckdns.org/img/chain/${chainName}.png`);
+        setSrc(`${axios.defaults.baseURL}/img/chain/${chainName}.png`);
     }, [chainName])
     const errorImage = require(`../../../assets/images/no-image-available.png`);
     return (
@@ -29,7 +30,13 @@ const BranchSummery = (props) => {
                         src={src}
                         onError={() => { setSrc(errorImage) }} fluid className='float-right w-100' />
 
-                    <Badge className='float-left' style={{ color: 'white' }}>{props.branch.storeName} {props.branch.cart.price.toFixed(2)}<span style={{ fontSize: '18px' }}>₪</span>{/*props.children.isWeighted ? " Kg" : ''*/}</Badge>
+                    <h5>
+                        <Badge className='float-left' style={{ color: 'white' }}>
+                            {props.branch.storeName+': '}
+                             {props.branch.cart.price.toFixed(2)
+                             }₪
+                    </Badge>
+                    </h5>
                 </div>
             </Col>
             <Col xs="auto" className='m-1 h-100'>

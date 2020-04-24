@@ -14,7 +14,6 @@ const withErrorHandler = (WrappedComponent, axios) => {
                 this.setState({ error: null })
                 return request
             })
-            console.log(this.state.error);
 
             this.resInterceptor = axios.interceptors.response.use(
                 response => response,
@@ -31,7 +30,6 @@ const withErrorHandler = (WrappedComponent, axios) => {
         }
         modelConfirmedHandler = () => this.setState({ error: null })
         render() {
-            console.log(this.state.error);
 
             return (
 
