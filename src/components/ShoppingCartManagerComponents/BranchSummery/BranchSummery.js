@@ -6,8 +6,8 @@ import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/Vertically
 import axios from '../../../axios/axios-shoppingCart'
 
 import ListGroup from 'react-bootstrap/ListGroup';
-import { IoMdCloseCircleOutline } from 'react-icons/io';
 import Button from 'react-bootstrap/Button';
+import ProductItem from '../CategoriesCards/CategoryList/ProductItem/ProductItem';
 
 const BranchSummery = (props) => {
     const [showLackingModel, setLackingModel] = useState(false)
@@ -32,9 +32,9 @@ const BranchSummery = (props) => {
 
                     <h5>
                         <Badge className='float-left' style={{ color: 'white' }}>
-                            {props.branch.storeName+': '}
-                             {props.branch.cart.price.toFixed(2)
-                             }₪
+                            {props.branch.storeName + ': '}
+                            {props.branch.cart.price.toFixed(2)
+                            }₪
                     </Badge>
                     </h5>
                 </div>
@@ -43,33 +43,17 @@ const BranchSummery = (props) => {
 
                 {props.branch.cart.lacking.length > 0 &&
                     <Fragment>
+
                         <VerticallyCenteredModal
                             show={showLackingModel}
                             onHide={() => setLackingModel(false)}
                             title='חוסרים'>
                             <ListGroup variant="flush">{
-                                props.branch.cart.lacking.map(product =>
-                                    <ListGroup.Item key={product.code}> {product.name}
-                                        <Badge>
-                                            {product.price}
-                                            <span style={{ fontSize: '18px' }}>₪</span>
-                                        </Badge>
-                                        <div style={{
-                                            display: 'inline - flex',
-                                            float: 'right',
-                                            justifyContent: 'space-between',
-                                            width: '50px'
-                                        }}>
-
-                                            <IoMdCloseCircleOutline size='1.2em' color='red' style={{
-                                                cursor: 'pointer',
-                                                float: 'right'
-                                            }} onClick={() => props.deleteItemClicked({ code: product.code, category: props.title, quantity: product.quantity })} />
-
-                                        </div>
-                                    </ListGroup.Item>)
-
-                            }
+                                props.branch.cart.lacking.map(product => <ProductItem
+                                    deleteItemClicked={props.deleteItemClicked}
+                                    key={product.code}
+                                    product={product} />
+                                )}
                             </ListGroup>
                         </VerticallyCenteredModal>
                         < Button variant='secondary' className='float-right' onClick={() => setLackingModel(true)}>

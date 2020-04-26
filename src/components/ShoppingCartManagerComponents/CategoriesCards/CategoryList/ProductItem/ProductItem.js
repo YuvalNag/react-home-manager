@@ -51,7 +51,7 @@ const ProductItem = props => {
                 <IoMdCloseCircleOutline size='1.2em' color='red' style={{
                     cursor: 'pointer',
                     float: 'right'
-                }} onClick={() => props.deleteItemClicked({ code: props.product.code, category: props.title, quantity: props.product.quantity })} />
+                }} onClick={() => props.deleteItemClicked({ code: props.product.code })} />
                 <IoMdImages style={{
                     cursor: 'pointer',
                     float: 'left'

@@ -267,11 +267,11 @@ class ShoppingCartManager extends Component {
         return categoriesArray
     }
     componentDidMount() {
-        if (!this.props.isAuth) {
-            this.props.history.push('/auth')
+        if (this.props.isAuth) {
+            this.props.onGetChosenBranchesAndCart()
         }
         else {
-            this.props.onGetChosenBranchesAndCart()
+            this.props.history.push('/auth')
         }
     }
 
