@@ -78,7 +78,7 @@ export const autoLogin = () => {
         if (token && userId && expirationDate > new Date()) {
             const expiresIn = (expirationDate - new Date()) / 1000
             dispatch(authSuccess({ token: token, userId: userId, expiresIn: expiresIn }))
-            dispatch(checkAuthTimeout(expiresIn))
+            // dispatch(checkAuthTimeout(expiresIn))
         }
         else {
             dispatch(logout())
