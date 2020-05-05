@@ -1,12 +1,9 @@
-import React, { Component, Fragment } from 'react'
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-
-
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import ProductSelector from '../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
+import CartView from '../../components/ShoppingCartManagerComponents/CartView/CartView'
+import BranchesManager from '../../components/ShoppingCartManagerComponents/BranchesManager/BranchesManager'
 
 import * as actions from '../../store/actions/index'
 import * as actionTypes from '../../store/actions/actionTypes'
@@ -16,8 +13,12 @@ import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-import { groupBy, distanceOfStrings } from '../../store/utility'
-
+import { groupBy, distanceOfStrings, deepClone } from '../../shared/utility'
+import { FaCartArrowDown } from 'react-icons/fa'
+import VerticallyCenteredModal from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
+import { Form, Button, Spinner, Container, Row, Tabs, Tab } from 'react-bootstrap'
+import MyCart from './MyCart/MyCart'
+import SearchSection from './SearchSection/SearchSection'
 
 
 class ShoppingCartManager extends Component {
@@ -29,44 +30,47 @@ class ShoppingCartManager extends Component {
         validatedLocation: false,
         searchTerm: '',
         quantity: 1,
-        category: null,
-        categoryChosen: false,
+        chosenCategory: 'מחלקה',
         chosenItem: null,
         timerId: null,
         showLackingModel: false,
         items: [],
         loadingSearch: false,
-        validatedBranchesByLocation: false
+        validatedUpdateChosenBranches: false,
+
     }
 
-    getLocation = () => {
-        return new Promise((resolve, reject) => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    if (accuracy <= 1000) {
-                        resolve({ lat: latitude, lon: longitude })
-                    }
-                    else {
-                        // reject(new Error("Low Accuracy\nManually choose your location"))
-                        reject(new Error("רמת דיוק נמוכה אנא כנס מיקום ידנית"))
-
-                    }
-                }, error =>
-                    // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
-                    reject(new Error('אפשר מיקום או הכנס ידנית')),
-                    { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
-            } else {
-                //Geolocation is not supported by this browser
-                // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
-                reject(new Error("מיקום אינו נתמך במכשירך אנא הכנס ידנית"))
-            }
-        })
+    getAllAvailableBranchesHandler = () => {
+        this.props.onTryFetchBranches()
     }
-    locationClickedHandler = () => {
-        this.getLocation()
+    getClosestAvailableBranchesHandler = () => {
+        const getLocation = () => {
+            return new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+                        if (accuracy <= 1000) {
+                            resolve({ lat: latitude, lon: longitude })
+                        }
+                        else {
+                            // reject(new Error("Low Accuracy\nManually choose your location"))
+                            reject(new Error("רמת דיוק נמוכה אנא כנס מיקום ידנית"))
+
+                        }
+                    }, error =>
+                        // reject(new Error('Enable your GPS position feature \nor manually choose your location')),
+                        reject(new Error('אפשר מיקום או הכנס ידנית')),
+                        { maximumAge: 30 * 1000, timeout: 30 * 1000, enableHighAccuracy: true });
+                } else {
+                    //Geolocation is not supported by this browser
+                    // reject(new Error("Geolocation is not supported by this browser\nManually choose your location"))
+                    reject(new Error("מיקום אינו נתמך במכשירך אנא הכנס ידנית"))
+                }
+            })
+        }
+        getLocation()
             .then(location => this.props.onTryFetchBranches(location))
             .catch(error => {
                 console.error(error.message);
@@ -90,43 +94,60 @@ class ShoppingCartManager extends Component {
             this.setState({ validatedLocation: true, locationModalMessage: null });
         }
     };
-    submitBranchesByLocation = event => {
+    submitUpdateChosenBranches = event => {
+
         event.preventDefault();
 
         const form = event.currentTarget;
-        const checkedBranches = Array.from(form.elements).filter(a => { if (a.checked) return a.id })
+        const checkedBranches = Array.from(form.elements).filter(a => a.checked)
 
-        if (checkedBranches.length > 5) {
+        if (checkedBranches.length === 0) {
             event.stopPropagation();
-            // this.setState({ validatedBranchesByLocation: false });
+            // this.setState({ validatedUpdateChosenBranches: false });
         }
         else {
-            this.setState({ validatedBranchesByLocation: true });
-            const branchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
-            const branches = []
-            this.props.closeBranches.forEach(branch => {
-                if (branchesIdSet.has(branch.id + '')) {
-                    branch.isChosen = true;
-                    branches.push(branch)
+            this.setState({ validatedUpdateChosenBranches: true });
+
+            const checkedBranchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
+            const updatedChosenBranches = deepClone(this.props.chosenBranches)
+
+            for (const key in this.props.optionalBranches) {
+                if (checkedBranchesIdSet.has(key)) {
+                    const newBranch = deepClone(this.props.optionalBranches[key])
+                    newBranch.isChosen = true;
+                    updatedChosenBranches[key] = newBranch;
                 }
-                else {
-                    branch.isChosen = false;
-                }
-            });
-            this.props.onTryFetchCartProducts(branches)
+            }
+            this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
         }
     };
+    removeChosenBranchHandler = branchId => {
+        const alternativeBranchId = () => {
+            let newBranchId;
+            let i = 0;
+            do {
+                newBranchId = Object.keys(this.props.chosenBranches)[i]
+            } while (newBranchId === branchId + '' && i < this.props.chosenBranches.length);
+            if (newBranchId === branchId + '') return;
+            else return newBranchId;
+        }
+        if (this.props.currentBranch[branchId]) {
+            this.props.onUpdateCurrentBranchAndCart(alternativeBranchId())
+        }
+        const updatedChosenBranches = { ...this.props.chosenBranches }
+        delete updatedChosenBranches[branchId]
+        this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
+    };
     searchClickedHandler = () => {
-        this.tryFetchItems(this.state.searchTerm, this.props.favoriteBranches, true)
+        this.tryFetchItems(this.state.searchTerm, this.props.chosenBranches, true)
     }
     searchChangedHandler = (event) => {
         const value = event.target.value;
 
-        // console.log(this.state.searchTerm);
         clearInterval(this.state.timerId)
         const timerId = setTimeout(() => {
             if (this.state.searchTerm === value) {
-                this.tryFetchItems(value, this.props.favoriteBranches, false)
+                this.tryFetchItems(value, this.props.chosenBranches, true)
             }
         }, 500);
         this.setState({ searchTerm: value, timerId: timerId })
@@ -134,7 +155,6 @@ class ShoppingCartManager extends Component {
     }
     quantityChangedHandler = (event) => {
         const quantity = parseInt(event.target.value);
-        console.log(quantity);
 
         this.setState({
             quantity: quantity
@@ -155,23 +175,21 @@ class ShoppingCartManager extends Component {
 
     }
     categoryClickedHandler = (event) => {
-        this.setState({ category: event.target.innerText, categoryChosen: true });
+        this.setState({ chosenCategory: event.target.innerText });
     }
     addToCartClickedHandler = () => {
-        if (this.state.categoryChosen) {
+        if (this.state.chosenCategory !== 'מחלקה') {
             this.props.onTryAddItemToCart({
                 item: this.state.chosenItem,
                 quantity: this.state.quantity,
-                category: this.state.category
+                category: this.state.chosenCategory
             })
-            console.log(this.state.chosenItem);
 
             this.setState({
                 quantity: 1,
                 chosenItem: null,
                 searchTerm: '',
-                category: null,
-                categoryChosen: false,
+                chosenCategory: 'מחלקה',
                 items: []
             })
         }
@@ -180,10 +198,9 @@ class ShoppingCartManager extends Component {
         this.props.onTryDeleteItemFromCart(product)
     }
     branchClickedHandler = (branchId) => {
-        this.props.onCurrentBranchChanged(branchId);
+        this.props.onUpdateCurrentBranchAndCart(branchId + '');
     }
     tryFetchItems = (searchTerm = '', branches = [], withPrices = false) => {
-
         let cancel;
         if (searchTerm.trim() === '') {
             this.setState({ items: [], loadingSearch: false })
@@ -191,28 +208,39 @@ class ShoppingCartManager extends Component {
         else {
             this.setState({ items: [], loadingSearch: true })
 
-            console.log(searchTerm);
             cancel && cancel()
-            const queryParams = '?searchTerm=' + searchTerm + (branches && branches.map(brunch => ('&branchIds=' + brunch.id)).join(''));
+            const queryParams = '?searchTerm=' + searchTerm + (branches && Object.keys(branches).map(branchId => ('&branchIds=' + branchId)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.props.token}`
+            }
             axios.get('/supermarket/item' + queryParams + '&limit=' + 50 + '&price=' + withPrices, {
+                headers: headers,
+
                 cancelToken: new CancelToken(function executor(c) {
                     // An executor function receives a cancel function as a parameter
                     cancel = c;
                 })
             })
                 .then(response => {
-                    console.log(response);
                     const products = (response && response.data.items) && response.data.items.map(item => {
+                        const prices = item.ItemBranches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice.toFixed(2), promotions: branch.Promotions }))
+                        const uniquePrices = Array.from(new Set(prices.map(a => a.price)))
+                            .map(price => {
+                                return prices.find(a => a.price === price)
+                            })
                         return {
                             match: distanceOfStrings(searchTerm, item.ItemName),
                             code: item.ItemCode,
                             name: item.ItemName,
-                            ManufacturerName: item.ManufacturerName,
-                            Branches: item.ItemBranches,
+                            isClicked: false,
+                            manufacturerName: item.ManufacturerName || '',
                             isWeighted: item.bIsWeighted && true,
-                            price: item.mean,
-                            url: 'https://static.rami-levy.co.il/storage/images/' + item.ItemCode + '/small.jpg'
+                            avgPrice: item.mean.toFixed(2) || 'Not Found',
+                            prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price)),
+                            url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
+
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                     });
@@ -239,79 +267,154 @@ class ShoppingCartManager extends Component {
         return categoriesArray
     }
     componentDidMount() {
-        // if (!this.props.locationInfo) {
-        //     this.locationClickedHandler()
-        // }
-        this.props.onTryFetchBranches(this.props.locationInfo, this.props.favoriteBranches)
-    }
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.favoriteBranches && (prevProps.favoriteBranches !== this.props.favoriteBranches)) {
-            this.props.onTryFetchCartProducts(this.props.favoriteBranches)
+        if (this.props.isAuth) {
+            this.props.onGetChosenBranchesAndCart()
+        }
+        else {
+            this.props.history.push('/auth')
         }
     }
 
 
+
     render() {
+        const locationModel = (<VerticallyCenteredModal key='locationModel'
+            show={this.state.locationModalMessage !== null}
+            onHide={() => this.setState({ locationModalMessage: null })}
+            title={this.state.locationModalMessage} >
+            <Form
+                noValidate
+                validated={this.state.validatedLocation}
+                onSubmit={this.submitLocationHandler} >
+
+                <Form.Group
+                    controlId="formCity">
+                    <Form.Label>עיר</Form.Label>
+                    <Form.Control
+                        placeholder="עיר"
+                        required />
+                    <Form.Control.Feedback
+                        type="invalid">
+                        הכנס עיר
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group
+                    controlId="formAddress">
+                    <Form.Label>רחוב ומספר</Form.Label>
+                    <Form.Control
+                        placeholder="רחוב ומספר"
+                        required />
+                    <Form.Control.Feedback type="invalid">
+                        הכנס רחוב ומספר
+                    </Form.Control.Feedback>
+                </Form.Group>
+
+                <Button
+                    variant="primary"
+                    type="submit">
+                    שלח
+                    </Button>
+
+            </Form>
+        </VerticallyCenteredModal >)
+        const initialLoading = this.props.loadingType === 'INIT'
+        const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
+        const loadingSearch = this.state.loadingSearch
+        const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
+
+        const currentBranch = Object.values(this.props.currentBranch)[0]
         return (
-            <Paper>
-                <Tabs
-                    value={this.state.visibleTab}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    onChange={() => this.setState(prevState => ({ visibleTab: (prevState.visibleTab + 1) % 2 }))}
-                    aria-label="disabled tabs example"
-                    variant="fullWidth"
 
-                >
-                    <Tab label="חיפוש" variant="fullWidth" />
-                    <Tab label="העגלה שלי" variant="fullWidth" />
-                </Tabs>
-                <ExpansionPanel value={this.state.visibleTab} index={0} id='full-width-tab-0'>
-                    component
-                </ExpansionPanel >
-                <ExpansionPanel value={this.state.visibleTab} index={1} id='full-width-tab-1'>
+            [locationModel,
+                initialLoading
+                    ? <Spinner animation="border" key='spinner' variant='secondary' />
+                    :
+                    <Container key='container' className='mw-100' style={{ backgroundColor: 'currentColor' }} >
+                        <Row className="h-25 ">
+                            <BranchesManager
+                                removeChosenBranch={this.removeChosenBranchHandler}
+                                getAllAvailableBranches={this.getAllAvailableBranchesHandler}
+                                loading={loadingBranches}
+                                chosenBranches={this.props.chosenBranches}
+                                // chosenBranches={groupBy(Object.values(this.props.chosenBranches), 'chainName')}
+                                optionalBranches={groupBy(Object.values(this.props.optionalBranches), 'chainName')}
+                                getClosestAvailableBranches={this.getClosestAvailableBranchesHandler}
+                                located={this.props.locationInfo}
 
-                </ExpansionPanel>
-            </Paper >
+                                currentBranchId={currentBranch && currentBranch.id}
 
+                                branchClicked={this.branchClickedHandler}
+                                submitUpdateChosenBranches={this.submitUpdateChosenBranches}
+                                validatedUpdateChosenBranches={this.state.validatedUpdateChosenBranches}
+
+                            />
+                        </Row>
+                        <Row className="h-75 ">
+                            <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
+                                <Tab eventKey="addProducts" title="הוספת מוצרים">
+                                    <SearchSection
+                                        chosenItem={this.state.chosenItem}
+                                        categories={Object.keys(this.props.categoriesInfo)}
+                                        searchTerm={this.state.searchTerm}
+                                        quantity={this.state.quantity}
+                                        items={this.state.items}
+                                        searchChanged={this.searchChangedHandler}
+                                        searchClicked={this.searchClickedHandler}
+                                        quantityChanged={this.quantityChangedHandler}
+                                        categoryClicked={this.categoryClickedHandler}
+                                        itemClicked={this.itemClickedHandler}
+                                        productIsValid={this.state.quantity && this.state.chosenItem}
+                                        addToCartClicked={this.addToCartClickedHandler}
+                                        chosenCategory={this.state.chosenCategory}
+                                        loadingSearch={loadingSearch} />
+                                </Tab>
+                                <Tab eventKey="myCart" title="העגלה שלי">
+                                    {loadingCart ? <Spinner animation="border" variant='secondary' >
+                                        <FaCartArrowDown />
+                                    </Spinner> :
+                                        currentBranch && currentBranch.cart
+                                        &&
+                                        <MyCart
+                                            currentBranch={currentBranch}
+                                            loadingCart={loadingCart}
+                                            deleteItemClicked={this.deleteItemClickedHandler}
+                                            categories={this.buildCategoriesArray(currentBranch.cart.products)}
+                                        />
+                                    }
+                                </Tab>
+                            </Tabs>
+                        </Row>
+                    </Container>
+            ]
         )
     }
 }
 const mapStateToProps = state => {
     return {
         categoriesInfo: state.shoppingCart.categoriesInfo,
-        items: state.shoppingCart.items,
-        filteredItems: state.shoppingCart.filteredItems,
-        chosenProduct: state.shoppingCart.chosenProduct,
         locationInfo: state.shoppingCart.location,
-        favoriteBranches: state.shoppingCart.favoriteBranches,
-        closeBranches: state.shoppingCart.closeBranches,
-
-        cart: state.shoppingCart.cart,
-        chains: state.shoppingCart.chains,
+        chosenBranches: state.shoppingCart.chosenBranches,
+        optionalBranches: state.shoppingCart.optionalBranches,
         currentBranch: state.shoppingCart.currentBranch,
-
 
         loading: state.reqToServer.loading,
         loadingType: state.reqToServer.loadingType,
+
+        isAuth: state.auth.token !== null,
+        token: state.auth.token
 
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        // onSearchInputChanged: (event) => dispatch({ type: actionType.SEARCH_INPUT, searchText: event.target.value }),
-        // onItemClicked: (index) => dispatch({ type: actionType.ITEM_CLICKED, itemIndex: index }),
-        // onAmountInputChanged: (event) => dispatch({ type: actionType.AMOUNT_INPUT, amount: event.target.value }),
-        // onAddToCartClicked: (index) => dispatch({ type: actionType.ADD_TO_CART, itemIndex: index }),
-        // onLoadItems: () => dispatch(actions.loadItems()),
         onTryFetchBranches: (location, branches) => dispatch(actions.tryFetchBranches(location, branches)),
-        onTryFetchItems: (searchTerm, branches, withPrices) => dispatch(actions.tryFetchItems(searchTerm, branches, withPrices)),
         onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
-        onTryFetchCartProducts: (branches) => dispatch(actions.tryFetchCartProducts(branches)),
-        onCurrentBranchChanged: (branchId) => dispatch(actions.currentBranchChanged(branchId))
-
+        onTryFetchCartProducts: () => dispatch(actions.tryFetchCartProducts()),
+        onUpdateCurrentBranchAndCart: (branchId) => dispatch(actions.updateCurrentBranchAndCart(branchId)),
+        onUpdateChosenBranchesAndCart: (newChosenBranches) => dispatch(actions.updateChosenBranchesAndCart(newChosenBranches)),
+        onGetChosenBranchesAndCart: () => dispatch(actions.getChosenBranchesAndCart())
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ShoppingCartManager, axios))

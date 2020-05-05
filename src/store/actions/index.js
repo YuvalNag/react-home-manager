@@ -1,8 +1,12 @@
 export {
     tryFetchBranches,
-    tryFetchItems,
+    // tryFetchItems,
     tryAddItemToCart,
     tryFetchCartProducts,
     tryDeleteItemFromCart,
-    currentBranchChanged
+    updateCurrentBranchAndCart,
+    updateChosenBranchesAndCart,
+    getChosenBranchesAndCart
 } from './shoppingCart'
+
+export {tryAuth, logout,autoLogin} from './auth'

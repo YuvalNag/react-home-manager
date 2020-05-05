@@ -1,4 +1,13 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Getting started
+To run code locally, you first need to clone the repository and install development dependencies. Ensure that node.js is already installed on your computer.<br /><br />
+
+$ git clone https://github.com/YuvalNag/react-home-manager.git<br />
+$ npm install<br />
+$ npm start<br />
+Then, you will have access to the HouseKeeper App at http://localhost:3000.<br />
+
+Or you can use the deployed App at https://housekeeper.duckdns.org/home-manager.<br />
 
 ## Available Scripts
 

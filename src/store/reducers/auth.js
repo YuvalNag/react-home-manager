@@ -1,11 +1,11 @@
 import * as actionTypes from '../actions/actionTypes'
-import { updateObject } from '../utility'
+import { updateObject } from '../../shared/utility'
 const initialState = {
-    idToken: null,
+    token: null,
     email: null,
     refreshToken: null,
     expiresIn: null,
-    localId: null,
+    userId: null,
     registered: null,
     kind: null
 }

@@ -5,6 +5,7 @@ class Product {
         this.quantity = quantity;
         this.category = category;
         this.manufacturerName = manufacturerName;
+        this.url=`https://static.rami-levy.co.il/storage/images/${code}/small.jpg`
     }
 }
 
