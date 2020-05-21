@@ -1,11 +1,12 @@
 import React from 'react'
 import CategoryCard from './CategoryCard/CategoryCard'
+import CategoryList from './CategoryList/CategoryList'
 
 
 const categoriesCards = props => {
-    const categoriesCards =props.categories.map(category=><CategoryCard key={category.name} title={category.name} imageName={category.imageName} products={category.products} deleteItemClicked={props.deleteItemClicked}/>)
+    const categoriesCards = props.categories.map(category => <CategoryList key={category.name} title={category.name} products={category.products} deleteItemClicked={props.deleteItemClicked} />)
     return (
-        <div>
+        <div style={{ direction: 'rtl' }}>
             {categoriesCards}
         </div>
     )

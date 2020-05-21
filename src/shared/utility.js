@@ -75,6 +75,16 @@ export const distanceOfStrings = (substr, str) => {
     return 1 - dis / str.length
 
 }
+// export const levenshtein_distance_b = (s, t) => {
+//     if (!s.length) return t.length;
+//     if (!t.length) return s.length;
+
+//     return Math.min(
+//         levenshtein_distance_b(s.substr(1), t) + 1,
+//         levenshtein_distance_b(t.substr(1), s) + 1,
+//         levenshtein_distance_b(s.substr(1), t.substr(1)) + (s[0] !== t[0] ? 1 : 0)
+//     );
+// }
 
 export const checkValidity = (updatedValue, inputId, controls) => {
     const formValidator = (formControls) => {

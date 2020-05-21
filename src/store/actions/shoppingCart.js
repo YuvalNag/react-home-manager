@@ -5,6 +5,7 @@ import { reqToServerStart, reqToServerFail, reqToServerSuccess } from './reqToSe
 import Branch from '../../classes/Branch/Branch'
 import Product from '../../classes/Product/Product'
 import Cart from '../../classes/Cart/Cart'
+import { deepClone } from '../../shared/utility'
 
 export const loadingTypes = {
     INIT: undefined,
@@ -54,7 +55,8 @@ const buildBranchesMap = (branches, isChosenBranches) => {
             branch.lng,
             branch.SubChainName,
             branch.Chain.UserName,
-            isChosenBranches
+            isChosenBranches,
+            branch.distance
         )
     };
     return branchesMap;
@@ -139,16 +141,22 @@ const buildCartsByBranchId = (products, chosenBranchesIds) => {
     }
 
     for (const product of products) {
-        const newProduct = new Product(product.ItemCode, product.ItemName, product.ListItem.quantity, product.ListItem.category, product.ManufacturerName);
+        const newProduct = new Product(product.ItemCode, product.ItemName, product.ListItem.quantity, product.ListItem.category, product.ManufacturerName,product.bIsWeighted);
         const temp = [...chosenBranchesIds];
+        const avgPrice = product.ItemBranches.reduce((sum, cur) => sum + cur.ItemPrice, 0) / product.ItemBranches.length
         for (const branch of product.ItemBranches) {
-            newProduct.price = branch.ItemPrice;
-            carts[branch.BranchId].addProducts(newProduct)
+            const branchProduct = deepClone(newProduct)
+            branchProduct.avgPrice = avgPrice;
+            branchProduct.price = branch.ItemPrice;
+            carts[branch.BranchId].addProducts(branchProduct)
             temp[temp.findIndex(branchId => branchId === '' + branch.BranchId)] = 0
         }
         const branchesWithLack = temp.filter(branchId => branchId !== 0);
         for (const branchId of branchesWithLack) {
-            carts[branchId].lacking.push(newProduct)
+            const lackProduct = deepClone(newProduct)
+            lackProduct.avgPrice = avgPrice;
+            lackProduct.isLack = true
+            carts[branchId].addProducts(lackProduct)
         }
     }
 

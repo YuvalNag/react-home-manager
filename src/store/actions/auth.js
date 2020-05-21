@@ -75,7 +75,8 @@ export const autoLogin = () => {
         const token = localStorage.getItem('token')
         const expirationDate = new Date(localStorage.getItem('expirationDate'))
         const userId = localStorage.getItem('userId')
-        if (token && userId && expirationDate > new Date()) {
+        // if (token && userId && expirationDate > new Date()) {
+        if (token && userId) {
             const expiresIn = (expirationDate - new Date()) / 1000
             dispatch(authSuccess({ token: token, userId: userId, expiresIn: expiresIn }))
             // dispatch(checkAuthTimeout(expiresIn))

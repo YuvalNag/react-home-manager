@@ -1,13 +1,12 @@
 class Cart {
-    constructor(products, lacking) {
+    constructor(products) {
 
         this.products = products || [];
-        this.lacking = lacking || [];
         this.price = this.calculatePrice()
     }
     addProducts = (product) => {
         this.products.push(product);
-        this.price += product.price * product.quantity;
+        this.price += (product.isLack ? product.avgPrice : product.price) * product.quantity;
     }
     calculatePrice = () => {
         return this.products.reduce((sum, cur) => sum + cur.price * cur.quantity, 0);

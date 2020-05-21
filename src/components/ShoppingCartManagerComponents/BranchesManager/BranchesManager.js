@@ -2,14 +2,17 @@ import React, { Fragment, useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
-import { IoIosPin } from 'react-icons/io'
+import { IoIosPin, IoIosArrowDown } from 'react-icons/io'
 import './BranchesManager.css';
 import { FaRegBuilding } from 'react-icons/fa'
 import BranchesModal from './BranchesModal/BranchesModal'
 import CurrentBranchSelector from './CurrentBranchSelector/CurrentBranchSelector'
+import BranchesTable from './BranchesTable/BranchesTable'
+import { Fade  } from 'react-bootstrap'
 
 const BranchesManager = props => {
     const [showBranchesModel, setBranchesModel] = useState(false)
+    const [open, setOpen] = useState(false);
 
     return (
         <Fragment>
@@ -20,10 +23,21 @@ const BranchesManager = props => {
                 submit={props.submitUpdateChosenBranches}
                 optionalBranches={props.optionalBranches}
             />
-            <Form className='w-100'>
-                <Form.Row className=' d-inline-flex float-right'>
-                    <Col>
-                        <Button className='rounded-circle px-2 h-100 w-100'
+            <div style={{
+                borderColor: '#007bff',
+                borderStyle: 'solid',
+                width: '99%'
+            }}>
+
+                <div className=' d-inline-flex rounded' style={{
+                    justifyContent: 'space-around',
+                    alignItems: 'baseline',
+                    width: '99%'
+                }}>
+
+
+                    <div>
+                        <Button className='rounded-circle my-1 '
                             variant='outline-primary'
                             onClick={() => {
                                 props.getAllAvailableBranches();
@@ -31,11 +45,9 @@ const BranchesManager = props => {
                             }}>
                             <FaRegBuilding size='18px' />
                         </Button>
-
-                    </Col>
-                    <Col className=' d-inline-flex p-0' >
-
-                        <Button className='rounded-circle px-2 h-100 w-100'
+                    </div>
+                    <div>
+                        <Button className='rounded-circle  my-1'
                             variant='outline-primary'
                             onClick={() => {
                                 props.getClosestAvailableBranches();
@@ -43,9 +55,19 @@ const BranchesManager = props => {
                             }}>
                             <IoIosPin size='18px' />
                         </Button>
-                    </Col>
-                    <Col className=' d-inline-flex' >
-                        <CurrentBranchSelector
+                    </div>
+                    <h5 className='text-white'>:הסניפים שנבחרו</h5>
+                    <div style={{ color: 'rgb(0, 123, 255)' }}
+                        onClick={() => setOpen(!open)}>
+                        <IoIosArrowDown size='18px' />
+                    </div>
+                </div>
+
+
+
+                <Fade  in={open}  mountOnEnter unmountOnExit>
+                    <span>
+                        <BranchesTable
                             loading={props.loading}
                             located={props.located}
                             chosenBranches={props.chosenBranches}
@@ -53,9 +75,9 @@ const BranchesManager = props => {
                             branchClicked={props.branchClicked}
                             removeChosenBranch={props.removeChosenBranch}
                         />
-                    </Col>
-                </Form.Row>
-            </Form>
+                    </span>
+                </Fade >
+            </div>
         </Fragment>
     )
 }

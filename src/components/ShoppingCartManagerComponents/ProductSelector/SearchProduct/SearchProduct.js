@@ -17,7 +17,7 @@ const SearchProduct = (props) => {
             <Col className='p-0 ' >
                 <FilteredList type="text" searchTerm={props.searchTerm} itemClicked={props.itemClicked} changed={props.changed} items={props.items} />
             </Col>
-            <Col xs="auto" className='p-0 mr-2' >
+            <Col xs="auto" className='p-0 ' >
                 <Button onClick={props.searchClicked}>
                     <IoIosSearch size='18px' />
                 </Button>

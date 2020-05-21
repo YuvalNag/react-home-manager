@@ -19,54 +19,26 @@ const BranchSummery = (props) => {
     const errorImage = require(`../../../assets/images/no-image-available.png`);
     return (
         <Fragment>
-            <Col>
+            <Col className='d-flex'>
+                <h4>
+                    <Badge className='float-right mt-2' style={{ color: 'white' }}>
+                        {props.branch.storeName + ': '}
+                        {props.branch.cart.price.toFixed(2)
+                        }₪
+                    </Badge>
+                </h4>
                 <div style={{
                     boxSizing: 'content-box',
-                    width: '80px',
+                    width: '100px',
                     // display: 'flex',
                     // justifyContent: 'space-between'
                 }}>
                     <Image
                         src={src}
                         onError={() => { setSrc(errorImage) }} fluid className='float-right w-100' />
-
-                    <h5>
-                        <Badge className='float-left' style={{ color: 'white' }}>
-                            {props.branch.storeName + ': '}
-                            {props.branch.cart.price.toFixed(2)
-                            }₪
-                    </Badge>
-                    </h5>
                 </div>
             </Col>
-            <Col xs="auto" className='m-1 h-100'>
 
-                {props.branch.cart.lacking.length > 0 &&
-                    <Fragment>
-
-                        <VerticallyCenteredModal
-                            show={showLackingModel}
-                            onHide={() => setLackingModel(false)}
-                            title='חוסרים'>
-                            <ListGroup variant="flush">{
-                                props.branch.cart.lacking.map(product => <ProductItem
-                                    deleteItemClicked={props.deleteItemClicked}
-                                    key={product.code}
-                                    product={product} />
-                                )}
-                            </ListGroup>
-                        </VerticallyCenteredModal>
-                        < Button variant='secondary' className='float-right' onClick={() => setLackingModel(true)}>
-                            <Badge className='m-1' variant={props.branch.cart.lacking.length < 6 ? 'warning' : 'danger'}>
-                                {props.branch.cart.lacking.length}
-                            </Badge>
-                            <strong>
-                                חוסרים
-                         </strong></Button>
-                    </Fragment>
-                }
-
-            </Col>
         </Fragment >
     )
 }

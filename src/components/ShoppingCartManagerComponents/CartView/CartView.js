@@ -11,7 +11,7 @@ const CartView = props => (
                 deleteItemClicked={props.deleteItemClicked}
             />
         </Row>
-        <Row className="h-75 ">
+        <Row className="h-75">
             <CategoriesCards
                 categories={props.categories}
                 deleteItemClicked={props.deleteItemClicked} />
