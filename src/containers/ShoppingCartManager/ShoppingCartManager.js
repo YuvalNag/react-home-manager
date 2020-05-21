@@ -240,7 +240,7 @@ class ShoppingCartManager extends Component {
         if (!quantity || quantity <= 0 || isNaN(quantity)) return 'הזן כמות'
         if (chosenItem) {
             this.props.onTryAddItemToCart({
-                item: chosenItem,
+                itemCode: chosenItem.code,
                 quantity: quantity,
                 category: chosenCategory
             })
@@ -530,6 +530,8 @@ class ShoppingCartManager extends Component {
                                         currentBranch && currentBranch.cart
                                         &&
                                         <MyCart
+                                            updateCartClicked={this.addToCartClickedHandler}
+                                            allCategories={Object.keys(this.props.categoriesInfo)}
                                             currentBranch={currentBranch}
                                             loadingCart={loadingCart}
                                             deleteItemClicked={this.deleteItemClickedHandler}

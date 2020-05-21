@@ -114,7 +114,7 @@ export const tryAddItemToCart = (product) => {
 
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
 
-        axios.put('/list/default/item/' + product.item.code, { quantity: product.quantity, category: product.category })
+        axios.put('/list/default/item/' + product.itemCode, { quantity: product.quantity, category: product.category })
             .then(response => {
                 if (response.data.message === "OK") {
                     // dispatch(addItemToCartSuccess(product))

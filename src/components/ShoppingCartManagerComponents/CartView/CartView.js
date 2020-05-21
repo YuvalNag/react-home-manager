@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import  Row  from 'react-bootstrap/Row'
+import Row from 'react-bootstrap/Row'
 import CategoriesCards from '../CategoriesCards/CategoriesCards'
 import BranchSummery from '../BranchSummery/BranchSummery'
 
@@ -13,6 +13,8 @@ const CartView = props => (
         </Row>
         <Row className="h-75">
             <CategoriesCards
+                updateCartClicked={props.updateCartClicked}
+                allCategories={props.allCategories}
                 categories={props.categories}
                 deleteItemClicked={props.deleteItemClicked} />
         </Row>

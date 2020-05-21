@@ -1,13 +1,19 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages, IoMdCreate, IoIosArrowForward } from 'react-icons/io'
+import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages, IoMdCreate, IoIosArrowForward, IoIosSync } from 'react-icons/io'
 import Image from 'react-bootstrap/Image'
 import Alert from 'react-bootstrap/Alert'
 import { Form, DropdownButton, Dropdown, Button } from 'react-bootstrap'
 
 
 const ProductItem = props => {
+    const [quantity, setQuantity] = useState(props.product.quantity)
+    const [category, setCategory] = useState(props.product.category)
+    console.log('quantity', props.categories);
+    console.log('category', category);
+
+    const [msg, setMsg] = useState()
     const addView =
         <div style={{
             display: 'flex',
@@ -31,10 +37,10 @@ const ProductItem = props => {
                 fontSize: '85%'
             }}>{!props.product.isWeighted ? 'יחידות' : 'ק"ג'}</p>
 
-            <Form.Control type={props.product.isWeighted ? "text" : "number"} className='text-right w-50' onChange={(event) => {
-                // setQuantity(+event.target.value)
-                // setMsg()
-            }} placeholder="כמות" value={props.product.quantity} />
+            <Form.Control type="number" className='text-right w-50' onChange={(event) => {
+                setQuantity(event.target.value)
+                setMsg()
+            }} placeholder="כמות" value={quantity} />
             <DropdownButton
                 className='w-100'
 
@@ -42,21 +48,30 @@ const ProductItem = props => {
                 id='dropdown-button-drop-down'
                 drop='down'
                 variant="secondary"
-                title={props.product.category}
+                title={category}
             >
                 {props.categories && props.categories.map(category => [
                     <Dropdown.Item eventKey="1" onClick={(event) => {
-                        // setCategory(event.target.innerText)
-                        // setMsg()
+                        setCategory(event.target.innerText)
+                        setMsg()
                     }} key={category}>{category}</Dropdown.Item>,
                     <Dropdown.Divider key={category.id + '_divider'} />]
                 )}
             </DropdownButton>
 
 
-            <Button className='rounded-circle h-100 px-2' variant='outline-secondary' onClick={() => setEdit(false)}>
-                <IoIosArrowForward size='22px' />
-            </Button>
+
+            <IoIosSync size='2.5em' onClick={() => {
+                const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product)
+                if (error) {
+                    setMsg(error)
+                }
+                else {
+                    setEdit(false)
+                }
+
+            }} />
+
         </div >
     const [show, setShow] = useState(false);
     const [edit, setEdit] = useState(false);
@@ -66,9 +81,9 @@ const ProductItem = props => {
         setSrc(props.product.url);
     }, [props.product.url])
     return (
-        <ListGroup.Item style={{
+        <ListGroup.Item className='p-0 ml-2' style={{
             width: '100vw',
-            fontSize:' 1.5em'
+            fontSize: ' 1.2em'
         }}>
             <Alert variant="light " show={show} onClose={() => setShow(false)} dismissible>
 
@@ -83,13 +98,13 @@ const ProductItem = props => {
             {edit
                 ? addView
                 : <Fragment>
-                    <h4>
+                    <h5>
                         <Badge variant={props.product.avgPrice > props.product.price ? 'success' : props.product.avgPrice < props.product.price ? 'danger' : 'secondary'} className='ml-1'>
-                            {(props.product.isLack ? props.product.avgPrice : props.product.price) * props.product.quantity.toFixed(2)}
+                            {((props.product.isLack ? props.product.avgPrice : props.product.price) * quantity).toFixed(2)}
                            ₪
                         </Badge>
-                    </h4>
-                    <strong style={{ float: 'right', marginLeft: '5px' }}> {props.product.quantity} {props.product.isWeighted ? 'ק"ג':"יח'"}</strong>
+                    </h5>
+                    <strong style={{ float: 'right', marginLeft: '5px' }}> {quantity} {props.product.isWeighted ? 'ק"ג' : "יח'"}</strong>
                 </Fragment>}
 
 
@@ -111,8 +126,8 @@ const ProductItem = props => {
                     cursor: 'pointer',
                     float: 'left'
                 }}
-                    color='green' size='2em' />
-                <IoMdCloseCircleOutline size='2em' color='red' style={{
+                    color='green' size='1.5em' />
+                <IoMdCloseCircleOutline size='1.5em' color='red' style={{
                     cursor: 'pointer',
                     float: 'right'
                 }} onClick={() => props.deleteItemClicked({ code: props.product.code })} />
@@ -120,8 +135,8 @@ const ProductItem = props => {
                     cursor: 'pointer',
                     float: 'left'
                 }}
-                    // onClick={() => setEdit(prevEdit => !prevEdit)}
-                    color='grey' size='2em' />
+                    onClick={() => setEdit(prevEdit => !prevEdit)}
+                    color='grey' size='1.5em' />
             </div>
         </ListGroup.Item>
     )

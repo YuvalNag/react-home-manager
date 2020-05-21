@@ -12,6 +12,8 @@ const MyCart = props => {
         //     <div>visible branch->(BranchSummery,CategoriesCards) </div>
         // </Fragment>
         <CartView
+        updateCartClicked={props.updateCartClicked}
+            allCategories={props.allCategories}
             loadingCart={props.loadingCart}
             branch={props.currentBranch}
             deleteItemClicked={props.deleteItemClicked}
