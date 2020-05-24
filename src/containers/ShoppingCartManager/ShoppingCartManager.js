@@ -417,7 +417,7 @@ class ShoppingCartManager extends Component {
             this.props.onGetChosenBranchesAndCart()
         }
         else {
-            this.props.history.push('/auth')
+            this.props.history.push('/home-manager/auth')
         }
     }
 

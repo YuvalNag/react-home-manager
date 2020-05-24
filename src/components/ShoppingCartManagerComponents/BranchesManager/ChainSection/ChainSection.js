@@ -7,14 +7,14 @@ import { MdExpandMore, MdExpandLess } from 'react-icons/md'
 import { FiEye, FiEyeOff, FiMinus } from 'react-icons/fi';
 import { Button } from 'react-bootstrap';
 import axios from '../../../../axios/axios-shoppingCart'
-
+import {staticBaseUrl} from '../../../../shared/variables'
 
 const ChainSection = props => {
     const [open, setOpen] = useState(false);
     const chainName = props.name;
     const [src, setSrc] = useState()
     useEffect(() => {
-        setSrc(`${axios.defaults.baseURL}/img/chain/${chainName}.png`);
+        setSrc(`${staticBaseUrl}/img/chain/${chainName}.png`);
     }, [chainName])
     const errorImage = require(`../../../../assets/images/no-image-available.png`);
     let branches = <Collapse in={open} mountOnEnter >

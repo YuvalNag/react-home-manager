@@ -3,14 +3,14 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import CategoryList from '../CategoryList/CategoryList'
 import axios from '../../../../axios/axios-shoppingCart'
-
+import {staticBaseUrl} from '../../../../shared/variables'
 const CategoryCard = (props) => {
     const [modalShow, setModalShow] = useState(false);
 
     const imageName = props.imageName;
     const [src, setSrc] = useState()
     useEffect(() => {
-        setSrc(`${axios.defaults.baseURL}/img/category/${imageName}`);
+        setSrc(`${staticBaseUrl}/img/category/${imageName}`);
     }, [imageName])
     const errorImage = require(`../../../../assets/images/no-image-available.png`);
 

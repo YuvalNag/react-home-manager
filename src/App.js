@@ -26,10 +26,10 @@ function App(props) {
         <Suspense fallback={Spinner}>
           <Layout isAuth={props.isAuth} logout={props.onLogout}>
             <Switch>
-              <Route path='/auth' component={Auth} />
-              <Route path='/supermarket' component={ShoppingCartManager} />
+              <Route path='/home-manager/auth' component={Auth} />
+              <Route path='/home-manager/supermarket' component={ShoppingCartManager} />
               {/* <Route path='/tasks' component={TaskManager} /> */}
-              <Redirect from='/' to='/auth' />
+              <Redirect from='/home-manager' to='/home-manager/auth' />
             </Switch>
           </Layout>
         </Suspense>

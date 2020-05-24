@@ -94,7 +94,7 @@ function Auth(props) {
                 onClick={() => setIsSignIn(prevState => !prevState)} >
                 {isSignIn ? 'להרשמה' : 'לכניסה'}
             </Button >
-            {props.isAuth ? <Redirect to='/supermarket' /> : null}
+            {props.isAuth ? <Redirect to='/home-manager/supermarket' /> : null}
             <Alert key='validationError' variant='danger' show={validationErrorMsg } onClose={() => setValidationErrorMsg(false)} dismissible>
                 {validationErrorMsg}
             </Alert>

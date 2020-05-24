@@ -1,0 +1,206 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Ubuntu:400,700|Cabin+Condensed:400,600");
+
+/* selectize item */
+.option_item_store {
+    width: 60px;
+    white-space: pre-wrap;
+}
+
+.option_item_media-body {
+    text-align: start;
+}
+
+.option_item_img {
+    width: 60px;
+}
+
+.option_item_badge_middle {
+    margin-right: -5px;
+    margin-left: -5px;
+    padding: 10px;
+    border-radius: 0px;
+    z-index: 666;
+}
+
+.option_item_badge_edge {
+    padding: 10px;
+}
+
+.option_item_search_img {
+    max-height: 65px;
+}
+
+/* item table */
+.dataTables_filter {
+    display: none;
+}
+
+td,
+th {
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+#itemTableSearch .filter-option-inner-inner,
+#itemTableScanner .filter-option-inner-inner {
+    white-space: pre-wrap;
+}
+
+div.dataTables_wrapper div.dataTables_info {
+    white-space: pre-wrap;
+}
+
+#searchOption {
+    border: 1px solid #bfbfbf;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+#image {
+    max-height: 80px;
+}
+
+/*loader*/
+.chosen {
+    width: 100%;
+}
+
+
+.selectize-dropdown,
+.selectize-dropdown.form-control {
+    height: 70% !important;
+}
+
+.selectize-dropdown-content {
+    max-height: 100% !important;
+    height: 100% !important;
+}
+
+input#searchItem-selectized {
+    width: 100% !important;
+}
+
+.selectize-control.single .selectize-input:after {
+    -moz-transition: opacity 0.2s;
+    -webkit-transition: opacity 0.2s;
+    transition: opacity 0.2s;
+    content: ' ';
+    z-index: 2;
+    position: absolute;
+    display: block;
+    top: 12px;
+    right: 34px;
+    width: 16px;
+    height: 16px;
+    background: url(/img/spinner.gif);
+    background-size: 16px 16px;
+    opacity: 0;
+    border-style: none
+}
+
+.selectize-control.single.loading .selectize-input:after {
+    opacity: 0.6;
+}
+
+nav {
+    margin-top: 60px;
+}
+
+
+
+/* .search_media {
+    border-bottom: 1px solid #007bff;
+    padding: 5px;
+} */
+
+#nav-search .bootstrap-autocomplete.dropdown-menu.show {
+    max-height: 200px;
+    overflow: scroll;
+}
+
+body {
+    background-color: #FFF;
+    margin: 0px;
+    font-family: Ubuntu, sans-serif;
+    color: #1e1e1e;
+    font-weight: normal;
+    padding-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: "Cabin Condensed", sans-serif;
+}
+
+header {
+    background: #FFC600;
+    padding: 1em;
+}
+
+header .headline {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+header .headline h1 {
+    color: #FFDD69;
+    font-size: 3em;
+    margin-bottom: 0;
+}
+
+
+header .headline h2 {
+    margin-top: 0.2em;
+}
+
+footer {
+    background: #0A4DB7;
+    color: #6C9CE8;
+    padding: 1em 2em 2em;
+}
+
+#interactive {
+    overflow: hidden;
+    max-height: 200px;
+}
+
+video {
+    width: 100%;
+    pointer-events: none;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    pointer-events: none;
+
+}
+
+#code {
+    overflow-wrap: break-word;
+}
+
+#list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/*Bootstrap select RTL fix*/
+.dropdown-toggle::after {
+    float: left;
+    margin-top: 0.6em;
+    vertical-align: 0.1em;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option {
+    text-align: right !important;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option-inner {
+    padding-right: 0 !important;
+}

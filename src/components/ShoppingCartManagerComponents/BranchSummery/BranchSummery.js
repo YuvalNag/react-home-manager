@@ -4,7 +4,7 @@ import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
 import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal';
 import axios from '../../../axios/axios-shoppingCart'
-
+import {staticBaseUrl} from '../../../shared/variables'
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import ProductItem from '../CategoriesCards/CategoryList/ProductItem/ProductItem';
@@ -14,7 +14,7 @@ const BranchSummery = (props) => {
     const chainName = props.branch.chainName.toLowerCase();
     const [src, setSrc] = useState()
     useEffect(() => {
-        setSrc(`${axios.defaults.baseURL}/img/chain/${chainName}.png`);
+        setSrc(`${staticBaseUrl}/img/chain/${chainName}.png`);
     }, [chainName])
     const errorImage = require(`../../../assets/images/no-image-available.png`);
     return (

@@ -9,9 +9,9 @@ const Layout = (props) => {
 
     let links = <Nav.Link href="/">כניסה</Nav.Link>
     if (props.isAuth) {
-        links = [<Nav.Link key='supermarket' href="/supermarket">קניות</Nav.Link>,
+        links = [<Nav.Link key='supermarket' href="/home-manager/supermarket">קניות</Nav.Link>,
         // <Nav.Link key='tasks' href="/tasks">משימות</Nav.Link>,
-        <span key='logout' onClick={props.logout}><Nav.Link href="/logout">התנתק</Nav.Link></span>]
+        <span key='logout' onClick={props.logout}><Nav.Link href="/home-manager/logout">התנתק</Nav.Link></span>]
     }
     return (
         <Fragment>

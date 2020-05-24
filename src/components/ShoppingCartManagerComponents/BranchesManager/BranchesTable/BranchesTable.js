@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table'
 import { Button } from 'react-bootstrap'
 import { FiEyeOff, FiEye, FiMinus, FiTrash2, FiTrash } from 'react-icons/fi'
 import Collapse from 'react-bootstrap/Collapse'
-
+import {staticBaseUrl} from '../../../../shared/variables'
 
 const BranchesTable = props => {
 
@@ -71,7 +71,7 @@ const BranchesTable = props => {
                             <td>{branch.cart && branch.cart.price.toFixed(2)}</td>
                             <td>{branch.cart && branch.cart.products.filter(product => product.isLack).length}</td>
                             <td>{branch.storeName}</td>
-                            <td><img width='50px' alt={branch.chainName.toLowerCase()} src={`${axios.defaults.baseURL}/img/chain/${branch.chainName.toLowerCase()}.png`} /></td>
+                            <td><img width='50px' alt={branch.chainName.toLowerCase()} src={`${staticBaseUrl}/img/chain/${branch.chainName.toLowerCase()}.png`} /></td>
                         </tr>
                     ))}
                 </tbody>

@@ -5,7 +5,7 @@ import ListGroup from 'react-bootstrap/ListGroup'
 import { Image, Button, Form, DropdownButton, Dropdown } from 'react-bootstrap'
 import axios from '../../../../../../../axios/axios-shoppingCart'
 import { IoMdAdd, IoMdCart, IoIosArrowForward } from 'react-icons/io'
-
+import {staticBaseUrl} from '../../../../../../../shared/variables'
 const ItemRow = (props) => {
 
     const [isClicked, setIsClicked] = useState(false)
@@ -29,7 +29,7 @@ const ItemRow = (props) => {
         }}>
             <Badge variant={i === props.children.prices.length - 1 ? 'success' : i === 0 ? 'danger' : null} > {price.price}<span style={{ fontSize: '15px' }}>₪</span>{props.children.isWeighted ? " Kg" : ''}</Badge>
             <Image
-                src={`${axios.defaults.baseURL}/img/chain/${price.chainName.toLowerCase()}.png`}
+                src={`${staticBaseUrl}/img/chain/${price.chainName.toLowerCase()}.png`}
                 fluid className='float-right w-100' />
 
         </div>
