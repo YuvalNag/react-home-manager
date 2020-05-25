@@ -1,8 +1,12 @@
 FROM node:13.7.0 as build
 WORKDIR /app
+
 COPY ./package.json ./package-lock.json ./
 RUN npm i
-COPY ./ ./
+
+COPY ./public public
+COPY ./src src
+
 RUN npm run build
 
 FROM nissy34/static-file-server
