@@ -1,7 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
-
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
-// import logo from './logo.svg';
 import './App.css';
 
 import Layout from './components/UI/Layout/Layout';
@@ -30,6 +28,7 @@ function App(props) {
               <Route path='/home-manager/supermarket' component={ShoppingCartManager} />
               {/* <Route path='/tasks' component={TaskManager} /> */}
               <Redirect from='/home-manager' to='/home-manager/auth' />
+              <Redirect from='/' to='/home-manager/auth' />
             </Switch>
           </Layout>
         </Suspense>

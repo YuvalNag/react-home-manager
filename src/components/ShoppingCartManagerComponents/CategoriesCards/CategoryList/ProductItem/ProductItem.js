@@ -90,7 +90,7 @@ const ProductItem = props => {
                         fluid
                         alt={props.product.name}
                         src={src}
-                        onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.product.code}.jpg`) }}
+                        onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/${props.product.code}.jpg`) }}
                     />
                 </ImageViewer>
 

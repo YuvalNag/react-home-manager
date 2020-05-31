@@ -102,7 +102,7 @@ const ItemRow = (props) => {
                         <Figure.Image
                             alt={props.children.name}
                             src={src}
-                            onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
+                            onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/${props.children.code}.jpg`) }}
                         />
                     </ImageViewer>
 
