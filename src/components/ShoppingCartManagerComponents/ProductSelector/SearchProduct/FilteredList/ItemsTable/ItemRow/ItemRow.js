@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react'
 import Figure from 'react-bootstrap/Figure'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { Image, Button, Form, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Image, Button, Form, DropdownButton, Dropdown, Toast } from 'react-bootstrap'
 import axios from '../../../../../../../axios/axios-shoppingCart'
 import { IoMdAdd, IoMdCart, IoIosArrowForward } from 'react-icons/io'
 import {staticBaseUrl} from '../../../../../../../shared/variables'
+import ImageViewer from '../../../../../../UI/ImageViewer/ImageViewer'
+
 const ItemRow = (props) => {
 
     const [isClicked, setIsClicked] = useState(false)
     const [quantity, setQuantity] = useState('')
     const [category, setCategory] = useState('מחלקה')
     const [msg, setMsg] = useState()
+    const [showToast, setShowToast] = useState(false);
 
 
 
@@ -31,10 +34,13 @@ const ItemRow = (props) => {
             <Image
                 src={`${staticBaseUrl}/img/chain/${price.chainName.toLowerCase()}.png`}
                 fluid className='float-right w-100' />
-
         </div>
     )
 
+    const successfullyToast = (
+        <Toast style={{ backgroundColor: '#28a745', color: 'white' }} onClose={() => setShowToast(false)} show={showToast} delay={500} autohide>
+            <Toast.Body ><h6>הוסף בהצלחה</h6></Toast.Body>
+        </Toast>)
     const addView =
         <div style={{
             display: 'flex',
@@ -91,13 +97,15 @@ const ItemRow = (props) => {
 
             <div style={{ display: 'flex' }} >
                 <Figure className='m-1 float-left' >
-                    <Figure.Image
-                        width={100}
-                        height={75}
-                        alt={props.children.name}
-                        src={src}
-                        onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
-                    />
+                    <ImageViewer>
+
+                        <Figure.Image
+                            alt={props.children.name}
+                            src={src}
+                            onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.children.code}.jpg`) }}
+                        />
+                    </ImageViewer>
+
                     <Figure.Caption>
                         <ListGroup.Item>
                             <h6 className='d-inline-flex'>
@@ -127,6 +135,7 @@ const ItemRow = (props) => {
                         }
                         else {
                             setIsClicked(false)
+                            setShowToast(true)
                         }
                     }
                     else setIsClicked(true)
@@ -136,6 +145,7 @@ const ItemRow = (props) => {
                 {isClicked ? addView : pricesList}
 
             </div>
+            {showToast && successfullyToast}
         </div >
     )
 }

@@ -109,12 +109,12 @@ export const tryFetchBranches = (location, branches) => {
 }
 
 
-export const tryAddItemToCart = (product) => {
+export const tryAddItemToCart = (product,cart='default') => {
     return (dispatch, getState) => {
 
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
 
-        axios.put('/list/default/item/' + product.itemCode, { quantity: product.quantity, category: product.category })
+        axios.put(`/list/${cart}/item/${product.itemCode}`, { quantity: product.quantity, category: product.category })
             .then(response => {
                 if (response.data.message === "OK") {
                     // dispatch(addItemToCartSuccess(product))
