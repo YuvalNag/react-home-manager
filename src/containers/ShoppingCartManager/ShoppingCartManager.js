@@ -235,7 +235,7 @@ class ShoppingCartManager extends Component {
     // categoryClickedHandler = (event) => {
     //     this.setState({ chosenCategory: event.target.innerText });
     // }
-    addToCartClickedHandler = (quantity, chosenCategory, chosenItem) => {
+    addToCartClickedHandler = (quantity, chosenCategory, chosenItem, cart) => {
         if (chosenCategory === 'מחלקה') return 'בחר מחלקה'
         if (!quantity || quantity <= 0 || isNaN(quantity)) return 'הזן כמות'
         if (chosenItem) {
@@ -243,7 +243,7 @@ class ShoppingCartManager extends Component {
                 itemCode: chosenItem.code,
                 quantity: quantity,
                 category: chosenCategory
-            })
+            }, cart)
             // return { status: 'success', msg: 'נוסף בהצלחה' }
         }
     }
@@ -341,8 +341,8 @@ class ShoppingCartManager extends Component {
             }
         }).then(response => {
             const products = (response && response.data.items) && response.data.items.map(item => {
-                const clearName = item.ItemName.replace(/[^\u0590-\u05FF\w]+|ל'|ליטר|ק"ג|ג'|גרם|מ"ל/g, ' ')
                 const prices = item.ItemBranches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice, promotions: branch.Promotions }))
+                const clearName = item.ItemName.replace(/[^\u0590-\u05FF\w]+|ל'|ליטר|ק"ג|ג'|גרם|מ"ל/g, ' ')
                 return {
                     code: item.ItemCode,
                     name: item.ItemName,
@@ -397,10 +397,40 @@ class ShoppingCartManager extends Component {
         if (action.action === 'input-change') {
             this.setState({ searchTerm: inputValue })
         }
+        else if (action.action === 'menu-close') {
+            this.setState({ searchTerm: '' })
+        }
         // console.log(inputValue,action);
     }
     buttonsClickedHandler = btn => {
         this.setState({ buttons: btn })
+    }
+    prevItemsClickedHandler = () => {
+        const queryParams = '?price=' + true + (this.props.chosenBranches && Object.keys(this.props.chosenBranches).map(branchId => ('&branchIds=' + branchId)).join(''));
+        axios.get('/list/prevCart/item' + queryParams)
+            .then(response => {
+                const products = (response && response.data.items) && response.data.items.map(item => {
+                    const prices = item.ItemBranches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice, promotions: branch.Promotions }))
+                    const uniquePrices = Array.from(new Set(prices.map(a => a.price)))
+                        .map(price => {
+                            return prices.find(a => a.price === price)
+                        })
+                    return {
+                        code: item.ItemCode,
+                        name: item.ItemName,
+                        isClicked: false,
+                        manufacturerName: item.ManufacturerName || '',
+                        isWeighted: item.bIsWeighted && true,
+                        avgPrice: item.mean || prices.reduce((sum, cur) => sum + Number(cur.price), 0) / prices.length,
+                        prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price)),
+                        url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
+
+                        // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
+                    }
+                });
+                this.setState({ items: products })
+            })
+            .catch(error => console.log(error))
     }
     buildCategoriesArray = (products) => {
         const productsGroupByCategory = groupBy(products, 'category');
@@ -478,6 +508,7 @@ class ShoppingCartManager extends Component {
                     <Container key='container' className='mw-100' style={{ backgroundColor: 'currentColor' }} >
                         <Row className="h-25 ">
                             <BranchesManager
+                                searchTerm={this.state.searchTerm}
                                 removeChosenBranch={this.removeChosenBranchHandler}
                                 getAllAvailableBranches={this.getAllAvailableBranchesHandler}
                                 loading={loadingBranches}
@@ -519,7 +550,8 @@ class ShoppingCartManager extends Component {
                                         addToCartClicked={this.addToCartClickedHandler}
                                         buttonsClicked={this.buttonsClickedHandler}
                                         // chosenCategory={this.state.chosenCategory}
-                                        loadingSearch={loadingSearch} />
+                                        loadingSearch={loadingSearch}
+                                        prevItemsClicked={this.prevItemsClickedHandler} />
                                     {/* </Route> */}
                                 </Tab>
                                 <Tab eventKey="myCart" title="העגלה שלי">
@@ -567,7 +599,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         onTryFetchBranches: (location, branches) => dispatch(actions.tryFetchBranches(location, branches)),
-        onTryAddItemToCart: (product) => dispatch(actions.tryAddItemToCart(product)),
+        onTryAddItemToCart: (product, cart) => dispatch(actions.tryAddItemToCart(product, cart)),
         onTryDeleteItemFromCart: (product) => dispatch(actions.tryDeleteItemFromCart(product)),
         onTryFetchCartProducts: () => dispatch(actions.tryFetchCartProducts()),
         onUpdateCurrentBranchAndCart: (branchId) => dispatch(actions.updateCurrentBranchAndCart(branchId)),

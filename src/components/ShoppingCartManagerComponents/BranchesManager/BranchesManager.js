@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
@@ -8,12 +8,24 @@ import { FaRegBuilding } from 'react-icons/fa'
 import BranchesModal from './BranchesModal/BranchesModal'
 import CurrentBranchSelector from './CurrentBranchSelector/CurrentBranchSelector'
 import BranchesTable from './BranchesTable/BranchesTable'
-import { Fade  } from 'react-bootstrap'
+import { Fade } from 'react-bootstrap'
 
 const BranchesManager = props => {
     const [showBranchesModel, setBranchesModel] = useState(false)
     const [open, setOpen] = useState(false);
 
+    const { searchTerm } = props
+    useEffect(() => {
+        // console.log('searchTerm',searchTerm);
+        
+        if (searchTerm !== '') {
+            setOpen(false)
+        }
+
+        return () => {
+            // cleanup
+        }
+    }, [searchTerm, open])
     return (
         <Fragment>
             <BranchesModal
@@ -65,7 +77,7 @@ const BranchesManager = props => {
 
 
 
-                <Fade  in={open}  mountOnEnter unmountOnExit>
+                <Fade in={open} mountOnEnter unmountOnExit>
                     <span>
                         <BranchesTable
                             loading={props.loading}

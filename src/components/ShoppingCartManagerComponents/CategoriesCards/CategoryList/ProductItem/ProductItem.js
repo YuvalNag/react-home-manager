@@ -5,13 +5,13 @@ import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages, IoMdCre
 import Image from 'react-bootstrap/Image'
 import Alert from 'react-bootstrap/Alert'
 import { Form, DropdownButton, Dropdown, Button } from 'react-bootstrap'
+import ImageViewer from '../../../../UI/ImageViewer/ImageViewer'
 
 
 const ProductItem = props => {
     const [quantity, setQuantity] = useState(props.product.quantity)
     const [category, setCategory] = useState(props.product.category)
-    console.log('quantity', props.categories);
-    console.log('category', category);
+
 
     const [msg, setMsg] = useState()
     const addView =
@@ -20,7 +20,7 @@ const ProductItem = props => {
             justifyContent: ' space-between',
             marginLeft: '15px'
         }}>
-            {/* {
+            {
                 msg ? <p style={{
                     position: 'absolute',
                     marginTop: ' 35px',
@@ -29,7 +29,7 @@ const ProductItem = props => {
                     fontSize: '75%',
                     color: '#dc3545'
                 }}>{msg}</p> : null
-            } */}
+            }
             <p style={{
                 marginTop: '15px',
                 marginBottom: '0',
@@ -59,8 +59,6 @@ const ProductItem = props => {
                 )}
             </DropdownButton>
 
-
-
             <IoIosSync size='2.5em' onClick={() => {
                 const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product)
                 if (error) {
@@ -86,13 +84,16 @@ const ProductItem = props => {
             fontSize: ' 1.2em'
         }}>
             <Alert variant="light " show={show} onClose={() => setShow(false)} dismissible>
+                <ImageViewer>
 
-                <Image
-                    fluid
-                    alt={props.product.name}
-                    src={src}
-                    onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.product.code}.jpg`) }}
-                />
+                    <Image
+                        fluid
+                        alt={props.product.name}
+                        src={src}
+                        onError={() => { setSrc(`https://m.pricez.co.il/ProductPictures/s/${props.product.code}.jpg`) }}
+                    />
+                </ImageViewer>
+
             </Alert>
 
             {edit
@@ -126,7 +127,17 @@ const ProductItem = props => {
                     cursor: 'pointer',
                     float: 'left'
                 }}
-                    color='green' size='1.5em' />
+                    color='green' size='1.5em'
+                    onClick={() => {
+                        const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product, 'prevCart')
+                        if (error) {
+                            setMsg(error)
+                        }
+                        else {
+                            props.deleteItemClicked({ code: props.product.code })
+                        }
+
+                    }} />
                 <IoMdCloseCircleOutline size='1.5em' color='red' style={{
                     cursor: 'pointer',
                     float: 'right'

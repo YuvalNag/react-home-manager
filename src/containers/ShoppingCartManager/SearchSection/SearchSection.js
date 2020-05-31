@@ -12,12 +12,7 @@ import AsyncCreatableSelect from 'react-select/async-creatable';
 import ItemsTable from '../../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/FilteredList/ItemsTable/ItemsTable'
 import Scanner from '../../../components/ShoppingCartManagerComponents/Scanner/Scanner'
 
-const icons = {
-    search: <IoIosSearch size='18px' />,
-    barcode: <IoIosBarcode size='18px' />,
-    list: <IoIosList size='18px' />,
-    x: <IoMdClose size='18px' />
-}
+
 
 const customStyles = {
     control: (styles, { selectProps: { inputValue } }) => {
@@ -29,6 +24,12 @@ const customStyles = {
     }
 }
 const SearchSection = props => {
+    const icons = {
+        search: <IoIosSearch size='18px' />,
+        barcode: <IoIosBarcode size='18px' />,
+        list: <IoIosList size='18px' onClick={props.prevItemsClicked} />,
+        x: <IoMdClose size='18px' />
+    }
     const [cancel, setCancel] = useState(false)
     const formatCreateLabel = inputValue => (inputValue)
 
