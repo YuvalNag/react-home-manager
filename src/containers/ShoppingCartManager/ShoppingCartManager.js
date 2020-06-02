@@ -202,13 +202,13 @@ class ShoppingCartManager extends Component {
         //     this.tryFetchItems(label.trim(), this.props.chosenBranches, true)
         // }
         if (value) {
-            items = this.state.products.filter(product => {
-                console.log((label, product.name));
-                console.log(levenshtien(label, product.name));
-                return levenshtien(label, product.name).similarity >= 0.25
+            items = this.state.products.map(product => {
+                // console.log((label, product.name));
+                // console.log(levenshtien(label, product.name));
+                return { ...product, similarity: levenshtien(label, product.name).similarity }
             })
         }
-        this.setState({ searchTerm: label, items: items, loadingSearch: false })
+        this.setState({ searchTerm: label, items: items.sort((a, b) => -1 * (a.similarity - b.similarity)), loadingSearch: false })
 
     }
     // quantityChangedHandler = (event) => {

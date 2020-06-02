@@ -17,7 +17,7 @@ const ItemRow = (props) => {
     const [showToast, setShowToast] = useState(false);
 
 
-
+    console.log(props.children.name,props.children.similarity);
 
     const [src, setSrc] = useState(props.children.url)
     useEffect(() => {
