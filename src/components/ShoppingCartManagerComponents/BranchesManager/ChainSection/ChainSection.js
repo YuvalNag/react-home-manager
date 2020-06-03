@@ -17,7 +17,7 @@ const ChainSection = props => {
     }, [chainName])
     const errorImage = require(`../../../../assets/images/no-image-available.png`);
     let branches = <Collapse in={open} mountOnEnter >
-        <div>            {props.children.map(branch => (
+        <div>            {props.children.sort((a,b)=>a.storeName<b.storeName?-1:a.storeName>b.storeName?1:0).map(branch => (
             <div key={branch.id} onClick={() => branch.cart && props.branchClicked(branch.id)} >
 
                 <Form.Check

@@ -45,7 +45,7 @@ const ItemRow = (props) => {
 
     const categories = props.categories && props.categories.map(category => ({ value: category, label: category }))
 
-    console.log(props.children.name, props.children.similarity);
+    // console.log(props.children.name, props.children.similarity);
 
     const [src, setSrc] = useState(props.children.url)
     useEffect(() => {

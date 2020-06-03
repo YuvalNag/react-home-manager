@@ -23,7 +23,7 @@ const BranchesTable = props => {
                     </tr>
                 </thead>
                 <tbody>
-                    {props.chosenBranches && Object.values(props.chosenBranches).map(branch => (
+                    {props.chosenBranches && Object.values(props.chosenBranches).sort((a, b) => a.cart && b.cart && a.cart.price - b.cart.price).map(branch => (
                         <tr key={branch.id}>
                             <td><div style={{
                                 display: 'inline-flex',

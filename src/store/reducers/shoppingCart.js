@@ -15,7 +15,8 @@ const initialState = {
         "חד-פעמי ומתכלה": { imageName: 'disposable.jpg' },
         "אחזקת הבית ובעח": { imageName: 'clean.jpg' },
         "טיפוח ותינוקות": { imageName: 'grooming.jpg' },
-        "לחם ומאפים": { imageName: 'bakery.jpg' }
+        "לחם ומאפים": { imageName: 'bakery.jpg' },
+        "כלי בית": { imageName: 'bakery.jpg' }
     },
     currentBranch: {},
     location: null,
