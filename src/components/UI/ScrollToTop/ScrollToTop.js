@@ -1,90 +1,24 @@
-import React, { useState, useEffect } from 'react'
-// import styled from 'styled-components'
-
-const ScrollingWrapper = props => {
-    const scrollingWrapper = useRef(null)
-
-    const { hasScrolled, setHasScrolled } = useState(false)
-    useEffect(() => {
-        scrollingWrapper.current.addEventListener('scroll', onScroll)
-        return () => {
-            cleanup
-        }
-    }, [])
+import React from 'react'
+import './ScrollToTop.css'
+import * as Scroll from 'react-scroll';
+import { animateScroll as scroll } from 'react-scroll'
 
 
-    onScroll = () => {
-        if (this.scrollingWrapper.scrollTop > 100 && !this.state.hasScrolled) {
-            setHasScrolled(true)
-        } else if (this.scrollingWrapper.scrollTop < 100 && this.state.hasScrolled) {
-            setHasScrolled(false)
-        }
-    }
+const ScrollToTop = props => {
 
-    scrollToTop = () => {
-        this.scrollingWrapper.scrollTop = 0
-    }
 
-    reference = id => ref => {
-        this[id] = ref
-    }
+    return (
+        <div class="scrolltop-wrap" onClick={() => { scroll.scrollToTop(); }}>
+            <a href="#" role="button" aria-label="Scroll to top">
+                <svg height="48" viewBox="0 0 48 48" width="48" height="48px" xmlns="http://www.w3.org/2000/svg">
+                    <path id="scrolltop-bg" d="M0 0h48v48h-48z"></path>
+                    <path id="scrolltop-arrow" d="M14.83 30.83l9.17-9.17 9.17 9.17 2.83-2.83-12-12-12 12z"></path>
+                </svg>
+            </a>
+        </div>
+    )
 
-    render() {
-        return (
-            <React.Fragment>
-                {hasScrolled && (
-                    <ScrollToTopIconContainer onClick={scrollToTop}>
-                        <div>^</div>
-                        <Button>BACK TO TOP</Button>
-                    </ScrollToTopIconContainer>
-                )}
-                <ScrollingWrapperContainer ref={reference('scrollingWrapper')}>
-                    {props.children}
-                </ScrollingWrapperContainer>
-            </React.Fragment>
-        )
-    }
 }
 
-export default ScrollingWrapper
+export default ScrollToTop
 
-const ScrollingWrapperContainer = styled.div`
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
-  position: relative;
-`
-
-const ScrollToTopIconContainer = styled.div`
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  margin-left: -50px;
-  z-index: 2;
-  cursor: pointer;
-  opacity: 0.4;
-  text-align: center;
-  &:hover {
-    opacity: 1;
-    animation: wiggle 1s ease;
-    animation-iteration-count: 1;
-  }
-  @keyframes wiggle {
-    20% { transform: translateY(6px); }
-    40% { transform: translateY(-6px); }
-    60% { transform: translateY(4px); }
-    80% { transform: translateY(-2px); }
-    100% { transform: translateY(0); }
-  }
-`
-
-const Button = styled.div`
-  background: black;
-  color: white;
-  font-family: Teko;
-  font-size: 16px;
-  line-height: 30px;
-  border-radius: 15px;
-  width: 100px;
-  padding-top: 4px;
-`

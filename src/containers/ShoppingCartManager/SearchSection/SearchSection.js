@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row'
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Scanner from '../../../components/ShoppingCartManagerComponents/Scanner/Scanner'
 import ItemsList from '../../../components/ShoppingCartManagerComponents/ItemsTable/ItemsList'
+import ScrollToTop from '../../../components/UI/ScrollToTop/ScrollToTop'
 
 
 
@@ -95,7 +96,7 @@ const SearchSection = props => {
                     addToCartClicked={props.addToCartClicked}
                 />}
             </Row>
-
+            <ScrollToTop />
         </Fragment>
 
         // <ProductSelector
