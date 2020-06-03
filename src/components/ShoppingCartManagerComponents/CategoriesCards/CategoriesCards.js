@@ -1,5 +1,6 @@
 import React from 'react'
 import CategoryList from './CategoryList/CategoryList'
+import ScrollToTop from '../../UI/ScrollToTop/ScrollToTop'
 
 
 const categoriesCards = props => {
@@ -14,6 +15,7 @@ const categoriesCards = props => {
     return (
         <div style={{ direction: 'rtl' }}>
             {categoriesCards}
+            <ScrollToTop />
         </div>
     )
 }
