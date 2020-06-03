@@ -175,16 +175,20 @@ class ShoppingCartManager extends Component {
     // categoryClickedHandler = (event) => {
     //     this.setState({ chosenCategory: event.target.innerText });
     // }
-    addToCartClickedHandler = (quantity, chosenCategory, chosenItem, cart) => {
+    addToCartClickedHandler = (quantity, chosenCategory, chosenItem, unlistedQuantity, cart) => {
         if (chosenCategory === 'מחלקה') return 'בחר מחלקה'
         if (!quantity || quantity <= 0 || isNaN(quantity)) return 'הזן כמות'
         if (chosenItem) {
             this.props.onTryAddItemToCart({
                 itemCode: chosenItem.code,
                 quantity: quantity,
-                category: chosenCategory
+                category: chosenCategory,
+                unlistedQuantity: unlistedQuantity
             }, cart)
             // return { status: 'success', msg: 'נוסף בהצלחה' }
+        }
+        if (unlistedQuantity) {
+            this.loadPurchasedProducts()
         }
     }
     deleteItemClickedHandler = (product) => {
@@ -203,7 +207,7 @@ class ShoppingCartManager extends Component {
         }
 
     }
-    fetchItemByCode = itemCode => {
+    fetchItemByCode = (itemCode, checkCode = true) => {
         const eanCheckDigit = (s) => {
             if ('number' === typeof s)
                 s = s.toString()
@@ -216,7 +220,7 @@ class ShoppingCartManager extends Component {
         const branches = this.props.chosenBranches
         console.log(itemCode)
 
-        if (!eanCheckDigit(itemCode)) {
+        if (checkCode && !eanCheckDigit(itemCode)) {
             console.warn('wrong code format')
             return
         }
@@ -356,6 +360,14 @@ class ShoppingCartManager extends Component {
 
         return categoriesArray
     }
+
+    loadPurchasedProducts = () => {
+        const currentBranch = Object.values(this.props.currentBranch)[0]
+        const purchasedProducts = (currentBranch && currentBranch.cart && currentBranch.cart.products.filter(product => product.isPurchased)) || []
+        for (const product of purchasedProducts) {
+            this.fetchItemByCode(product.code, false)
+        }
+    }
     componentDidMount() {
         if (this.props.isAuth) {
             this.props.onGetChosenBranchesAndCart()
@@ -364,7 +376,13 @@ class ShoppingCartManager extends Component {
             this.props.history.push('/home-manager/auth')
         }
     }
+    componentDidUpdate(prevProps, prevState) {
+        // const prevCurrentBranch = Object.values(prevProps.currentBranch)[0]
 
+        if (this.state.items.length === 0 && this.props.currentBranch !== prevProps.currentBranch) {
+            this.loadPurchasedProducts()
+        }
+    }
 
 
     render() {
@@ -488,6 +506,7 @@ const mapStateToProps = state => {
         chosenBranches: state.shoppingCart.chosenBranches,
         optionalBranches: state.shoppingCart.optionalBranches,
         currentBranch: state.shoppingCart.currentBranch,
+
 
         loading: state.reqToServer.loading,
         loadingType: state.reqToServer.loadingType,

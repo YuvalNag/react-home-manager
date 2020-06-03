@@ -9,7 +9,7 @@ const CategoryList = props => {
         <Fragment>
             <h4 style={{ color: 'white' }}>{props.title}</h4>
             <ListGroup variant="flush">{
-                props.products.map(product => <ProductItem
+                props.products.map(product => !product.isPurchased && <ProductItem
                     categories={props.categories}
                     deleteItemClicked={props.deleteItemClicked}
                     key={product.code}

@@ -165,7 +165,7 @@ const ItemRow = (props) => {
             }}>
                 <Button className='rounded-circle h-75 px-2' variant='outline-success' onClick={() => {
                     if (isClicked) {
-                        const error = props.addToCartClicked(props.children.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.children)
+                        const error = props.addToCartClicked(props.children.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.children, 0)
                         if (error) {
                             setMsg(error)
                         }

@@ -114,7 +114,7 @@ export const tryAddItemToCart = (product,cart='default') => {
 
         dispatch(reqToServerStart(loadingTypes.ADD_TO_CART))
 
-        axios.put(`/list/${cart}/item/${product.itemCode}`, { quantity: product.quantity, category: product.category })
+        axios.put(`/list/${cart}/item/${product.itemCode}`, { quantity: product.quantity, category: product.category,unlistedQuantity:product.unlistedQuantity })
             .then(response => {
                 if (response.data.message === "OK") {
                     // dispatch(addItemToCartSuccess(product))
@@ -141,7 +141,7 @@ const buildCartsByBranchId = (products, chosenBranchesIds) => {
     }
 
     for (const product of products) {
-        const newProduct = new Product(product.ItemCode, product.ItemName, product.ListItem.quantity, product.ListItem.category, product.ManufacturerName,product.bIsWeighted);
+        const newProduct = new Product(product.ItemCode, product.ItemName, product.ListItem.quantity, product.ListItem.category, product.ManufacturerName,product.bIsWeighted,product.ListItem.unlistedQuantity);
         const temp = [...chosenBranchesIds];
         const avgPrice = product.ItemBranches.reduce((sum, cur) => sum + cur.ItemPrice, 0) / product.ItemBranches.length
         for (const branch of product.ItemBranches) {

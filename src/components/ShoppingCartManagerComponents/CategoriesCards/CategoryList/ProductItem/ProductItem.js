@@ -101,7 +101,7 @@ const ProductItem = props => {
 
 
             <IoIosSync size='30px' onClick={() => {
-                const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product)
+                const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product, 0)
                 if (error) {
                     setMsg(error)
                 }
@@ -178,14 +178,7 @@ const ProductItem = props => {
                 }}
                     color='#28a745' size='1.5em'
                     onClick={() => {
-                        const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product, 'prevCart')
-                        if (error) {
-                            setMsg(error)
-                        }
-                        else {
-                            props.deleteItemClicked({ code: props.product.code })
-                        }
-
+                        props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product, 100)
                     }} />
                 <IoMdCloseCircleOutline size='1.5em' color='#dc3545' style={{
                     cursor: 'pointer',

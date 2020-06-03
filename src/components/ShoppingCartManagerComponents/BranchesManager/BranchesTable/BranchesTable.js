@@ -67,7 +67,7 @@ const BranchesTable = props => {
                                 </div>
                             </div></td>
                             <td>{branch.cart && branch.cart.price.toFixed(2)}</td>
-                            <td>{branch.cart && branch.cart.products.filter(product => product.isLack).length}</td>
+                            <td>{branch.cart && branch.cart.products.filter(product => !product.isPurchased && product.isLack).length}</td>
                             <td>{branch.storeName}</td>
                             <td><img width='50px' alt={branch.chainName.toLowerCase()} src={`${staticBaseUrl}/img/chain/${branch.chainName.toLowerCase()}.png`} /></td>
                         </tr>
