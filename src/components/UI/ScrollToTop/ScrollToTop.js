@@ -8,7 +8,7 @@ const ScrollToTop = props => {
 
 
     return (
-        <div class="scrolltop-wrap" onClick={() => { scroll.scrollToTop(); }}>
+        <div className="scrolltop-wrap" onClick={() => { scroll.scrollToTop(); }}>
             <a href="#" role="button" aria-label="Scroll to top">
                 <svg height="48" viewBox="0 0 48 48" width="48" height="48px" xmlns="http://www.w3.org/2000/svg">
                     <path id="scrolltop-bg" d="M0 0h48v48h-48z"></path>
