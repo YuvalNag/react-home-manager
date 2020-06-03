@@ -11,18 +11,18 @@ const BranchesManager = props => {
     const [showBranchesModel, setBranchesModel] = useState(false)
     const [open, setOpen] = useState(false);
 
-    const { searchTerm } = props
+    const { isTyping } = props
     useEffect(() => {
         // console.log('searchTerm',searchTerm);
-        
-        if (searchTerm !== '') {
+
+        if (isTyping) {
             setOpen(false)
         }
 
         return () => {
             // cleanup
         }
-    }, [searchTerm, open])
+    }, [isTyping, open])
     return (
         <Fragment>
             <BranchesModal

@@ -27,9 +27,9 @@ class ShoppingCartManager extends Component {
         searchTerm: '',
         products: [],
         items: [],
-        loadingSearch: false,
         buttons: ['search', 'barcode', 'list'],
-        lastCode: null
+        lastCode: null,
+        isTyping: false
     }
 
     getAllAvailableBranchesHandler = () => {
@@ -130,57 +130,12 @@ class ShoppingCartManager extends Component {
         delete updatedChosenBranches[branchId]
         this.props.onUpdateChosenBranchesAndCart(updatedChosenBranches)
     };
-    searchClickedHandler = () => {
-        // const inputValue = this.state.searchTerm
-        // axios.get('/supermarket/item?searchTerm=' + inputValue + (this.props.chosenBranches && Object.keys(this.props.chosenBranches).map(branchId => ('&branchIds=' + branchId)).join('')) + '&limit=' + 50 + '&price=' + true, {
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${this.props.token}`
-        //     }
-        // }).then(response => {
-        //     const products = (response && response.data.items) && response.data.items.map(item => {
-        //         const clearName = item.ItemName.replace(/[^\u0590-\u05FF\w]+|ל'|ליטר|ק"ג|ג'|גרם|מ"ל/g, ' ')
-        //         return {
-        //             code: item.ItemCode,
-        //             name: item.ItemName,
-        //             clearName: clearName,
-        //             isClicked: false,
-        //             manufacturerName: item.ManufacturerName || '',
-        //             isWeighted: item.bIsWeighted && true,
-        //             avgPrice: item.mean.toFixed(2) || 'Not Found',
-        //             branches: item.ItemBranches,
-        //             url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
-
-        //             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
-        //         }
-        //     });
-        //     const productsTrie = new Trie()
-        //     for (const product of products) {
-        //         const clearName = product.clearName
-        //         if (productsTrie.isExist(clearName)) {
-        //             productsTrie.updateData(clearName, product)
-        //         }
-        //         else {
-        //             productsTrie.insert(clearName, product)
-        //         }
-        //     }
-        //     const productData = productsTrie.getData(inputValue).map(product => {
-        //         const prices = product.branches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice.toFixed(2), promotions: branch.Promotions }))
-        //         const uniquePrices = Array.from(new Set(prices.map(a => a.price)))
-        //             .map(price => {
-        //                 return prices.find(a => a.price === price)
-        //             })
-        //         return {
-        //             ...product,
-        //             prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price))
-        //         }
-        //     });
-        //     this.setState({ products: productData, loadingSearch: false })
-
-        // });
+    searchClickedHandler = (e) => {
+        this.optionClickedHandler({ value: this.state.searchTerm, label: this.state.searchTerm })
+        this.setState({ isTyping: false })
 
     }
-    searchChangedHandler = (product) => {
+    optionClickedHandler = (product) => {
         let value = (product && product.value);
         let label = (product && product.label)
         let items = []
@@ -193,7 +148,7 @@ class ShoppingCartManager extends Component {
                 return { ...product, similarity: levenshtien(label, product.name).similarity }
             })
         }
-        this.setState({ searchTerm: label, items: items.sort((a, b) => -1 * (a.similarity - b.similarity)), loadingSearch: false })
+        this.setState({ searchTerm: label, items: items.sort((a, b) => -1 * (a.similarity - b.similarity)) })
 
     }
     // quantityChangedHandler = (event) => {
@@ -267,7 +222,7 @@ class ShoppingCartManager extends Component {
         }
         if (this.state.lastCode !== itemCode) {
 
-            this.setState({ loadingSearch: true, lastCode: itemCode })
+            this.setState({ lastCode: itemCode })
             const queryParams = (branches && Object.keys(branches).map(branchId => ('&branchIds=' + branchId)).join(''));
             // const queryParams = '?searchTerm=' + searchTerm +'&branchIds=725&branchIds=718';
             const headers = {
@@ -300,12 +255,12 @@ class ShoppingCartManager extends Component {
                             // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
                         }
                         const filteredProducts = this.state.items.filter(item => item.code !== product.code)
-                        this.setState({ items: filteredProducts.concat(product), loadingSearch: false })
+                        this.setState({ items: filteredProducts.concat(product) })
                     }
                 })
                 .catch(error => {
 
-                    this.setState({ items: [], loadingSearch: false })
+                    this.setState({ items: [] })
 
                 })
 
@@ -361,7 +316,7 @@ class ShoppingCartManager extends Component {
                     prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price))
                 }
             });
-            this.setState({ products: productData, loadingSearch: false })
+            this.setState({ products: productData })
 
             return productData.map(product => ({
                 value: product.code,
@@ -378,43 +333,19 @@ class ShoppingCartManager extends Component {
         this.setState({ buttons: buttons })
 
         if (action.action === 'input-change') {
-            this.setState({ searchTerm: inputValue })
+            const isTyping = inputValue.trim() !== ''
+
+            this.setState({ searchTerm: inputValue, isTyping: isTyping })
         }
-        else if (action.action === 'menu-close') {
-            this.setState({ searchTerm: '' })
+        else {
+            this.setState({ isTyping: false })
         }
         // console.log(inputValue,action);
     }
     buttonsClickedHandler = btn => {
         this.setState({ buttons: btn })
     }
-    prevItemsClickedHandler = () => {
-        const queryParams = '?price=' + true + (this.props.chosenBranches && Object.keys(this.props.chosenBranches).map(branchId => ('&branchIds=' + branchId)).join(''));
-        axios.get('/list/prevCart/item' + queryParams)
-            .then(response => {
-                const products = (response && response.data.items) && response.data.items.map(item => {
-                    const prices = item.ItemBranches.map(branch => ({ chainName: this.props.chosenBranches[branch.BranchId].chainName, price: branch.ItemPrice, promotions: branch.Promotions }))
-                    const uniquePrices = Array.from(new Set(prices.map(a => a.price)))
-                        .map(price => {
-                            return prices.find(a => a.price === price)
-                        })
-                    return {
-                        code: item.ItemCode,
-                        name: item.ItemName,
-                        isClicked: false,
-                        manufacturerName: item.ManufacturerName || '',
-                        isWeighted: item.bIsWeighted && true,
-                        avgPrice: item.mean || prices.reduce((sum, cur) => sum + Number(cur.price), 0) / prices.length,
-                        prices: uniquePrices.sort((a, b) => -1 * (a.price - b.price)),
-                        url: `https://static.rami-levy.co.il/storage/images/${item.ItemCode}/small.jpg`
 
-                        // url: 'https://superpharmstorage.blob.core.windows.net/hybris/products/desktop/small/' + item.ItemCode + '.jpg'
-                    }
-                });
-                this.setState({ items: products })
-            })
-            .catch(error => console.log(error))
-    }
     buildCategoriesArray = (products) => {
         const productsGroupByCategory = groupBy(products, 'category');
         const categoriesArray = [];
@@ -478,7 +409,6 @@ class ShoppingCartManager extends Component {
         </VerticallyCenteredModal >)
         const initialLoading = this.props.loadingType === 'INIT'
         const loadingBranches = this.props.loading && ((this.props.loadingType === loadingTypes.FETCH_BRANCHES && this.props.loadingType !== actionTypes.FETCH_BRANCHES_SUCCESS))
-        const loadingSearch = this.state.loadingSearch
         const loadingCart = this.props.loading && this.props.loadingType === loadingTypes.FETCH_CART && this.props.loadingType !== actionTypes.FETCH_CART_PRODUCTS_SUCCESS
 
         const currentBranch = Object.values(this.props.currentBranch)[0]
@@ -491,7 +421,7 @@ class ShoppingCartManager extends Component {
                     <Container key='container' className='mw-100' style={{ backgroundColor: 'currentColor' }} >
                         <Row className="h-25 ">
                             <BranchesManager
-                                searchTerm={this.state.searchTerm}
+                                isTyping={this.state.isTyping}
                                 removeChosenBranch={this.removeChosenBranchHandler}
                                 getAllAvailableBranches={this.getAllAvailableBranchesHandler}
                                 loading={loadingBranches}
@@ -518,16 +448,13 @@ class ShoppingCartManager extends Component {
                                         onInputChange={this.onInputChangeHandler}
                                         promiseOptions={this.promiseOptions}
                                         buttons={this.state.buttons}
-                                        chosenItem={this.state.chosenItem}
                                         categories={Object.keys(this.props.categoriesInfo)}
-                                        searchTerm={this.state.searchTerm}
                                         items={this.state.items}
-                                        searchChanged={this.searchChangedHandler}
+                                        optionClicked={this.optionClickedHandler}
                                         searchClicked={this.searchClickedHandler}
                                         addToCartClicked={this.addToCartClickedHandler}
                                         buttonsClicked={this.buttonsClickedHandler}
-                                        loadingSearch={loadingSearch}
-                                        prevItemsClicked={this.prevItemsClickedHandler} />
+                                    />
                                 </Tab>
                                 <Tab eventKey="myCart" title="העגלה שלי">
                                     {/* <Route path={this.props.match.path + '/my-cart'}> */}

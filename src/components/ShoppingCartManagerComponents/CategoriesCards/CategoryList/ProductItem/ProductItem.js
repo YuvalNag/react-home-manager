@@ -5,16 +5,41 @@ import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdCreate, IoIosSy
 import Image from 'react-bootstrap/Image'
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form'
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import Dropdown from 'react-bootstrap/Dropdown'
 import ImageViewer from '../../../../UI/ImageViewer/ImageViewer'
+import Select from 'react-select'
 
+const categoriesStyles = {
+    control: (styles, { selectProps: { inputValue } }) => {
+        const width = '150px'
+        const height = '50%'
+        return {
+            ...styles,
+            width: width,
+            height: height
+
+        }
+    }
+}
+// const unitsStyles = {
+//     control: (styles, { selectProps: { inputValue } }) => {
+//         const width = '100px'
+//         const height = '15%'
+//         return {
+//             ...styles,
+//             width: width,
+//             height: height
+
+//         }
+//     }
+// }
 
 const ProductItem = props => {
     const [quantity, setQuantity] = useState(props.product.quantity)
     const [category, setCategory] = useState(props.product.category)
+    // const [unit, setUnit] = useState(props.product.unit || !props.product.isWeighted ? 'יחידות' : 'ק"ג')
 
 
+    const categories = props.categories && props.categories.map(category => ({ value: category, label: category }))
 
     const [msg, setMsg] = useState()
     const editView =
@@ -33,6 +58,25 @@ const ProductItem = props => {
                     color: '#dc3545'
                 }}>{msg}</p> : null
             }
+
+            <Form.Control type="number" className='text-right w-25' onChange={(event) => {
+                setQuantity(event.target.value)
+                setMsg()
+            }} placeholder="כמות" value={quantity} />
+
+            {/* <Select
+                placeholder={!props.product.isWeighted ? 'יחידות' : 'ק"ג'}
+                styles={unitsStyles}
+                isClearable
+                isRtl
+                isSearchable
+                options={[{ value: 'יחידות', label: 'יחידות' }, { value: 'ק"ג', label: 'ק"ג' }]}
+                onChange={(option, actions) => {
+                    if (actions.action === "select-option") {
+                        setUnit(option.value === 'ק"ג' ? true : false)
+                    }
+                }}
+            /> */}
             <p style={{
                 marginTop: '15px',
                 marginBottom: '0',
@@ -40,29 +84,23 @@ const ProductItem = props => {
                 fontSize: '85%'
             }}>{!props.product.isWeighted ? 'יחידות' : 'ק"ג'}</p>
 
-            <Form.Control type="number" className='text-right w-50' onChange={(event) => {
-                setQuantity(event.target.value)
-                setMsg()
-            }} placeholder="כמות" value={quantity} />
-            <DropdownButton
-                className='w-100'
-
-                key='down'
-                id='dropdown-button-drop-down'
-                drop='down'
-                variant="secondary"
-                title={category}
-            >
-                {props.categories && props.categories.map(category => [
-                    <Dropdown.Item eventKey="1" onClick={(event) => {
-                        setCategory(event.target.innerText)
+            <Select
+                placeholder={category}
+                styles={categoriesStyles}
+                isClearable
+                isRtl
+                isSearchable
+                options={categories}
+                onChange={(option, actions) => {
+                    if (actions.action === "select-option") {
+                        setCategory(option.value)
                         setMsg()
-                    }} key={category}>{category}</Dropdown.Item>,
-                    <Dropdown.Divider key={category.id + '_divider'} />]
-                )}
-            </DropdownButton>
+                    }
+                }}
+            />
 
-            <IoIosSync size='2.5em' onClick={() => {
+
+            <IoIosSync size='30px' onClick={() => {
                 const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product)
                 if (error) {
                     setMsg(error)

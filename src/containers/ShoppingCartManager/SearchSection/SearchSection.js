@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button'
 
 import Col from 'react-bootstrap/Col'
 import { IoIosBarcode, IoIosList, IoIosSearch, IoMdClose } from 'react-icons/io'
-import  Row from 'react-bootstrap/Row'
+import Row from 'react-bootstrap/Row'
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Scanner from '../../../components/ShoppingCartManagerComponents/Scanner/Scanner'
 import ItemsList from '../../../components/ShoppingCartManagerComponents/ItemsTable/ItemsList'
@@ -21,9 +21,9 @@ const customStyles = {
 }
 const SearchSection = props => {
     const icons = {
-        search: <IoIosSearch size='18px' />,
+        search: <IoIosSearch size='18px' onClick={props.searchClicked} />,
         barcode: <IoIosBarcode size='18px' />,
-        list: <IoIosList size='18px' onClick={props.prevItemsClicked} />,
+        list: <IoIosList size='18px' />,
         x: <IoMdClose size='18px' />
     }
     const [cancel, setCancel] = useState(false)
@@ -37,7 +37,7 @@ const SearchSection = props => {
             case 'search':
                 return <AsyncCreatableSelect
                     createOptionPosition='first'
-                    onChange={props.searchChanged}
+                    onChange={props.optionClicked}
                     onInputChange={props.onInputChange}
                     styles={customStyles}
                     width='100px'
@@ -46,7 +46,14 @@ const SearchSection = props => {
                     placeholder='חפש מוצר'
                     isRtl
                     isClearable
-                    formatCreateLabel={formatCreateLabel} />
+                    formatCreateLabel={formatCreateLabel}
+                    allowCreateWhileLoading
+                    onKeyDown={(event) => {
+                        if (event.keyCode === 13) {
+                            props.searchClicked()
+                        }
+                    }}
+                />
 
             default:
                 return <div>Error</div>
@@ -97,7 +104,7 @@ const SearchSection = props => {
         //     searchTerm={props.searchTerm}
         //     quantity={props.quantity}
         //     items={props.items}
-        //     searchChanged={props.searchChanged}
+        //     optionClicked={props.optionClicked}
         //     searchClicked={props.searchClicked}
         //     quantityChanged={props.quantityChanged}
         //     categoryClicked={props.categoryClicked}

@@ -2,10 +2,38 @@ import React, { useState, useEffect } from 'react'
 import Figure from 'react-bootstrap/Figure'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { Image, Button, Form, DropdownButton, Dropdown, Toast } from 'react-bootstrap'
-import { IoMdAdd, IoMdCart, IoIosArrowForward } from 'react-icons/io'
-import {staticBaseUrl} from '../../../../shared/variables'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import Image from 'react-bootstrap/Image'
+import { IoMdAdd, IoMdCart, IoIosArrowForward, IoMdCheckmark } from 'react-icons/io'
+import { staticBaseUrl } from '../../../../shared/variables'
 import ImageViewer from '../../../UI/ImageViewer/ImageViewer'
+import Select from 'react-select'
+
+const categoriesStyles = {
+    control: (styles, { selectProps: { inputValue } }) => {
+        const width = '150px'
+        const height = '50%'
+        return {
+            ...styles,
+            width: width,
+            height: height
+
+        }
+    }
+}
+// const unitsStyles = {
+//     control: (styles, { selectProps: { inputValue } }) => {
+//         const width = '100px'
+//         const height = '15%'
+//         return {
+//             ...styles,
+//             width: width,
+//             height: height
+
+//         }
+//     }
+// }
 
 const ItemRow = (props) => {
 
@@ -13,10 +41,11 @@ const ItemRow = (props) => {
     const [quantity, setQuantity] = useState('')
     const [category, setCategory] = useState('מחלקה')
     const [msg, setMsg] = useState()
-    const [showToast, setShowToast] = useState(false);
+    const [isAdded, setIsAdded] = useState(false);
 
+    const categories = props.categories && props.categories.map(category => ({ value: category, label: category }))
 
-    console.log(props.children.name,props.children.similarity);
+    console.log(props.children.name, props.children.similarity);
 
     const [src, setSrc] = useState(props.children.url)
     useEffect(() => {
@@ -36,10 +65,6 @@ const ItemRow = (props) => {
         </div>
     )
 
-    const successfullyToast = (
-        <Toast style={{ backgroundColor: '#28a745', color: 'white' }} onClose={() => setShowToast(false)} show={showToast} delay={500} autohide>
-            <Toast.Body ><h6>הוסף בהצלחה</h6></Toast.Body>
-        </Toast>)
     const addView =
         <div style={{
             display: 'flex',
@@ -56,39 +81,51 @@ const ItemRow = (props) => {
                     color: '#dc3545'
                 }}>{msg}</p> : null
             }
+
+            {/* <Select
+                placeholder={!props.children.isWeighted ? 'יחידות' : 'ק"ג'}
+                styles={unitsStyles}
+                isClearable
+                isRtl
+                isSearchable
+                options={[{ value: 'יחידות', label: 'יחידות' }, { value: 'ק"ג', label: 'ק"ג' }]}
+                onChange={(option, actions) => {
+                    if (actions.action === "select-option") {
+                        props.children.isWeighted = (option.value === 'ק"ג' ? true : false)
+                    }
+                }}
+            /> */}
             <p style={{
                 marginTop: '15px',
                 marginBottom: '0',
                 marginRight: '5px',
                 fontSize: '85%'
             }}>{!props.children.isWeighted ? 'יחידות' : 'ק"ג'}</p>
-
             <Form.Control type="number" className='text-right w-50' onChange={(event) => {
                 setQuantity(event.target.value)
                 setMsg()
             }} placeholder="כמות" value={quantity} />
-            <DropdownButton
-                className='w-100'
 
-                key='down'
-                id='dropdown-button-drop-down'
-                drop='down'
-                variant="secondary"
-                title={category}
-            >
-                {props.categories && props.categories.map(category => [
-                    <Dropdown.Item eventKey="1" onClick={(event) => {
-                        setCategory(event.target.innerText)
+
+            <Select
+                placeholder={category}
+                styles={categoriesStyles}
+                isClearable
+                isRtl
+                isSearchable
+                options={categories}
+                onChange={(option, actions) => {
+                    if (actions.action === "select-option") {
+                        setCategory(option.value)
                         setMsg()
-                    }} key={category}>{category}</Dropdown.Item>,
-                    <Dropdown.Divider key={category.id + '_divider'} />]
-                )}
-            </DropdownButton>
+                    }
+                }}
+            />
 
 
-            <Button className='rounded-circle h-100 px-2' variant='outline-secondary' onClick={() => setIsClicked(false)}>
-                <IoIosArrowForward size='22px' />
-            </Button>
+
+            <IoIosArrowForward size='22px' onClick={() => setIsClicked(false)} />
+
         </div >
 
     return (
@@ -134,17 +171,16 @@ const ItemRow = (props) => {
                         }
                         else {
                             setIsClicked(false)
-                            setShowToast(true)
+                            setIsAdded(true)
                         }
                     }
                     else setIsClicked(true)
                 }}>
-                    {isClicked ? <IoMdCart size='22px' /> : <IoMdAdd size='22px' />}
+                    {isClicked ? <IoMdCart size='22px' /> : isAdded ? <IoMdCheckmark size='22px' /> : <IoMdAdd size='22px' />}
                 </Button>
                 {isClicked ? addView : pricesList}
 
             </div>
-            {showToast && successfullyToast}
         </div >
     )
 }
