@@ -1,48 +1,35 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import ProductSelector from '../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
-import CartView from '../../components/ShoppingCartManagerComponents/CartView/CartView'
 import BranchesManager from '../../components/ShoppingCartManagerComponents/BranchesManager/BranchesManager'
 
 import * as actions from '../../store/actions/index'
 import * as actionTypes from '../../store/actions/actionTypes'
 
 import { loadingTypes } from '../../store/actions/shoppingCart'
-import { CancelToken } from 'axios'
 
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import axios from '../../axios/axios-shoppingCart'
-import { groupBy, distanceOfStrings, deepClone, levenshtein_distance_b } from '../../shared/utility'
+import { groupBy, deepClone } from '../../shared/utility'
 import { FaCartArrowDown } from 'react-icons/fa'
 import VerticallyCenteredModal from '../../components/UI/VerticallyCenteredModal/VerticallyCenteredModal'
 import { Form, Button, Spinner, Container, Row, Tabs, Tab } from 'react-bootstrap'
 import MyCart from './MyCart/MyCart'
 import SearchSection from './SearchSection/SearchSection'
-import { Route } from 'react-router-dom'
 import Trie from '../../DataStructure/Trie'
 import * as levenshtien from 'damerau-levenshtein';
 
 class ShoppingCartManager extends Component {
 
     state = {
-        visibleTab: 0,
-
         locationModalMessage: null,
         validatedLocation: false,
         searchTerm: '',
-        quantity: 1,
-        chosenCategory: 'מחלקה',
-        chosenItem: null,
-        timerId: null,
-        showLackingModel: false,
         products: [],
         items: [],
         loadingSearch: false,
-        validatedUpdateChosenBranches: false,
         buttons: ['search', 'barcode', 'list'],
         lastCode: null
-
     }
 
     getAllAvailableBranchesHandler = () => {
@@ -111,7 +98,7 @@ class ShoppingCartManager extends Component {
             // this.setState({ validatedUpdateChosenBranches: false });
         }
         else {
-            this.setState({ validatedUpdateChosenBranches: true });
+            // this.setState({ validatedUpdateChosenBranches: true });
 
             const checkedBranchesIdSet = new Set(checkedBranches.reduce((branchesArray, curSwitch) => branchesArray.concat(curSwitch.checked && curSwitch.id), []));
             const updatedChosenBranches = deepClone(this.props.chosenBranches)
@@ -203,8 +190,6 @@ class ShoppingCartManager extends Component {
         // }
         if (value) {
             items = this.state.products.map(product => {
-                // console.log((label, product.name));
-                // console.log(levenshtien(label, product.name));
                 return { ...product, similarity: levenshtien(label, product.name).similarity }
             })
         }
@@ -219,17 +204,17 @@ class ShoppingCartManager extends Component {
     //     })
     // }
     itemClickedHandler = (item) => {
-        if (!item.isClicked) {
-            const chosenItem = { ...item, isClicked: true };
-            this.setState({
-                chosenItem: chosenItem
-            });
-        }
-        else {
-            this.setState({
-                chosenItem: null
-            });
-        }
+        // if (!item.isClicked) {
+        //     const chosenItem = { ...item, isClicked: true };
+        //     this.setState({
+        //         chosenItem: chosenItem
+        //     });
+        // }
+        // else {
+        //     this.setState({
+        //         chosenItem: null
+        //     });
+        // }
 
     }
     // categoryClickedHandler = (event) => {
@@ -332,8 +317,6 @@ class ShoppingCartManager extends Component {
     //     this.setState({ results: this.state.results.concat([result]) });
     // }
     promiseOptions = async inputValue => {
-
-
         const products = axios.get('/supermarket/item?searchTerm=' + inputValue + (this.props.chosenBranches && Object.keys(this.props.chosenBranches).map(branchId => ('&branchIds=' + branchId)).join('')) + '&limit=' + 50 + '&price=' + true, {
             headers: {
                 'Content-Type': 'application/json',
@@ -530,7 +513,6 @@ class ShoppingCartManager extends Component {
                             {/* <Tabs variant='pills' defaultActiveKey="addProducts" id="tabs" onSelect={this.tabSelectedHandler}> */}
                             <Tabs variant='pills' defaultActiveKey="addProducts" id="tabs" >
                                 <Tab eventKey="addProducts" title="הוספת מוצרים">
-                                    {/* <Route path={this.props.match.path + '/add-products'}> */}
                                     <SearchSection
                                         onDetected={this.fetchItemByCode}
                                         onInputChange={this.onInputChangeHandler}
@@ -539,20 +521,13 @@ class ShoppingCartManager extends Component {
                                         chosenItem={this.state.chosenItem}
                                         categories={Object.keys(this.props.categoriesInfo)}
                                         searchTerm={this.state.searchTerm}
-                                        // quantity={this.state.quantity}
                                         items={this.state.items}
                                         searchChanged={this.searchChangedHandler}
                                         searchClicked={this.searchClickedHandler}
-                                        // quantityChanged={this.quantityChangedHandler}
-                                        // categoryClicked={this.categoryClickedHandler}
-                                        itemClicked={this.itemClickedHandler}
-                                        productIsValid={this.state.quantity && this.state.chosenItem}
                                         addToCartClicked={this.addToCartClickedHandler}
                                         buttonsClicked={this.buttonsClickedHandler}
-                                        // chosenCategory={this.state.chosenCategory}
                                         loadingSearch={loadingSearch}
                                         prevItemsClicked={this.prevItemsClickedHandler} />
-                                    {/* </Route> */}
                                 </Tab>
                                 <Tab eventKey="myCart" title="העגלה שלי">
                                     {/* <Route path={this.props.match.path + '/my-cart'}> */}

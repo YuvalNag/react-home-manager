@@ -6,7 +6,6 @@ import Collapse from 'react-bootstrap/Collapse';
 import { MdExpandMore, MdExpandLess } from 'react-icons/md'
 import { FiEye, FiEyeOff, FiMinus } from 'react-icons/fi';
 import { Button } from 'react-bootstrap';
-import axios from '../../../../axios/axios-shoppingCart'
 import {staticBaseUrl} from '../../../../shared/variables'
 
 const ChainSection = props => {

@@ -1,12 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import Form from 'react-bootstrap/Form'
-import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import { IoIosPin, IoIosArrowDown } from 'react-icons/io'
 import './BranchesManager.css';
 import { FaRegBuilding } from 'react-icons/fa'
 import BranchesModal from './BranchesModal/BranchesModal'
-import CurrentBranchSelector from './CurrentBranchSelector/CurrentBranchSelector'
 import BranchesTable from './BranchesTable/BranchesTable'
 import { Fade } from 'react-bootstrap'
 

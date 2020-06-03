@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button'
 
 import { IoIosSearch } from "react-icons/io";
 
-import FilteredList from './FilteredList/FilteredList'
+import FilteredList from './FilteredList-!!/FilteredList'
 
 const SearchProduct = (props) => {
     return (

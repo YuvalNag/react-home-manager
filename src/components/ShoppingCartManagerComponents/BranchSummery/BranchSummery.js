@@ -2,15 +2,9 @@ import React, { Fragment, useState, useEffect } from 'react';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
-import VerticallyCenteredModal from '../../UI/VerticallyCenteredModal/VerticallyCenteredModal';
-import axios from '../../../axios/axios-shoppingCart'
 import {staticBaseUrl} from '../../../shared/variables'
-import ListGroup from 'react-bootstrap/ListGroup';
-import Button from 'react-bootstrap/Button';
-import ProductItem from '../CategoriesCards/CategoryList/ProductItem/ProductItem';
 
 const BranchSummery = (props) => {
-    const [showLackingModel, setLackingModel] = useState(false)
     const chainName = props.branch.chainName.toLowerCase();
     const [src, setSrc] = useState()
     useEffect(() => {

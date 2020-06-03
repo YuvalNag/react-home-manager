@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import axios from '../../../../axios/axios-shoppingCart'
 import Spinner from 'react-bootstrap/Spinner'
 import Table from 'react-bootstrap/Table'
-import { Button } from 'react-bootstrap'
-import { FiEyeOff, FiEye, FiMinus, FiTrash2, FiTrash } from 'react-icons/fi'
-import Collapse from 'react-bootstrap/Collapse'
-import {staticBaseUrl} from '../../../../shared/variables'
+import Button from 'react-bootstrap/Button'
+import { FiEyeOff, FiEye, FiTrash } from 'react-icons/fi'
+import { staticBaseUrl } from '../../../../shared/variables'
 
 const BranchesTable = props => {
 

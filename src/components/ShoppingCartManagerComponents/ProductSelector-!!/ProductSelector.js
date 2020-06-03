@@ -8,7 +8,7 @@ import AddToCartButton from './AddToCartButton/AddToCartButton'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import SearchProduct from './SearchProduct/SearchProduct'
+import SearchProduct from './SearchProduct-!!/SearchProduct'
 import Spinner from 'react-bootstrap/Spinner'
 
 

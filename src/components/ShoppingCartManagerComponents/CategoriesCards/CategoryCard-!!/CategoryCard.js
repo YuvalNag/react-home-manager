@@ -2,7 +2,6 @@ import React, { Fragment, useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import CategoryList from '../CategoryList/CategoryList'
-import axios from '../../../../axios/axios-shoppingCart'
 import {staticBaseUrl} from '../../../../shared/variables'
 const CategoryCard = (props) => {
     const [modalShow, setModalShow] = useState(false);

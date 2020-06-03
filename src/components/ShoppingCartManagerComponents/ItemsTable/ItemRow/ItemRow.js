@@ -3,10 +3,9 @@ import Figure from 'react-bootstrap/Figure'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
 import { Image, Button, Form, DropdownButton, Dropdown, Toast } from 'react-bootstrap'
-import axios from '../../../../../../../axios/axios-shoppingCart'
 import { IoMdAdd, IoMdCart, IoIosArrowForward } from 'react-icons/io'
-import {staticBaseUrl} from '../../../../../../../shared/variables'
-import ImageViewer from '../../../../../../UI/ImageViewer/ImageViewer'
+import {staticBaseUrl} from '../../../../shared/variables'
+import ImageViewer from '../../../UI/ImageViewer/ImageViewer'
 
 const ItemRow = (props) => {
 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdImages, IoMdCreate, IoIosArrowForward, IoIosSync } from 'react-icons/io'
+import { IoMdCheckmarkCircleOutline, IoMdCloseCircleOutline, IoMdCreate, IoIosSync } from 'react-icons/io'
 import Image from 'react-bootstrap/Image'
 import Alert from 'react-bootstrap/Alert'
-import { Form, DropdownButton, Dropdown, Button } from 'react-bootstrap'
+import Form from 'react-bootstrap/Form'
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import Dropdown from 'react-bootstrap/Dropdown'
 import ImageViewer from '../../../../UI/ImageViewer/ImageViewer'
 
 
@@ -13,8 +15,9 @@ const ProductItem = props => {
     const [category, setCategory] = useState(props.product.category)
 
 
+
     const [msg, setMsg] = useState()
-    const addView =
+    const editView =
         <div style={{
             display: 'flex',
             justifyContent: ' space-between',
@@ -80,10 +83,18 @@ const ProductItem = props => {
     }, [props.product.url])
     return (
         <ListGroup.Item className='p-0 ml-2' style={{
+
             width: '100vw',
+            backgroundColor: props.product.isLack ? 'rgb(248, 226, 162)' : 'rgb(168, 226, 235)',
             fontSize: ' 1.2em'
         }}>
-            <Alert variant="light " show={show} onClose={() => setShow(false)} dismissible>
+            <Alert variant="light " show={show} onClose={() => setShow(false)} dismissible style={{
+                borderColor: props.product.isLack ? 'rgb(248, 226, 162)' : 'rgb(168, 226, 235)',
+                borderStyle: 'solid',
+                borderWidth: '5px',
+                borderRadius: '20px',
+                marginLeft: '7px'
+            }}>
                 <ImageViewer>
 
                     <Image
@@ -97,7 +108,7 @@ const ProductItem = props => {
             </Alert>
 
             {edit
-                ? addView
+                ? editView
                 : <Fragment>
                     <h5>
                         <Badge variant={props.product.avgPrice > props.product.price ? 'success' : props.product.avgPrice < props.product.price ? 'danger' : 'secondary'} className='ml-1'>
@@ -127,7 +138,7 @@ const ProductItem = props => {
                     cursor: 'pointer',
                     float: 'left'
                 }}
-                    color='green' size='1.5em'
+                    color='#28a745' size='1.5em'
                     onClick={() => {
                         const error = props.updateCartClicked(props.product.isWeighted ? parseFloat(quantity) : parseInt(quantity), category, props.product, 'prevCart')
                         if (error) {
@@ -138,7 +149,7 @@ const ProductItem = props => {
                         }
 
                     }} />
-                <IoMdCloseCircleOutline size='1.5em' color='red' style={{
+                <IoMdCloseCircleOutline size='1.5em' color='#dc3545' style={{
                     cursor: 'pointer',
                     float: 'right'
                 }} onClick={() => props.deleteItemClicked({ code: props.product.code })} />
@@ -147,7 +158,7 @@ const ProductItem = props => {
                     float: 'left'
                 }}
                     onClick={() => setEdit(prevEdit => !prevEdit)}
-                    color='grey' size='1.5em' />
+                    color='#6c757d' size='1.5em' />
             </div>
         </ListGroup.Item>
     )

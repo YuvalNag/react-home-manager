@@ -1,16 +1,12 @@
 import React, { Fragment, useState } from 'react'
-import ProductSelector from '../../../components/ShoppingCartManagerComponents/ProductSelector/ProductSelector'
-import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button'
 
-import SearchProduct from '../../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/SearchProduct'
 import Col from 'react-bootstrap/Col'
-import { IoIosBarcode, IoIosList, IoIosArrowDown, IoIosSearch, IoMdClose } from 'react-icons/io'
-import { Row, Collapse } from 'react-bootstrap'
-import FilteredList from '../../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/FilteredList/FilteredList'
+import { IoIosBarcode, IoIosList, IoIosSearch, IoMdClose } from 'react-icons/io'
+import  Row from 'react-bootstrap/Row'
 import AsyncCreatableSelect from 'react-select/async-creatable';
-import ItemsTable from '../../../components/ShoppingCartManagerComponents/ProductSelector/SearchProduct/FilteredList/ItemsTable/ItemsTable'
 import Scanner from '../../../components/ShoppingCartManagerComponents/Scanner/Scanner'
+import ItemsList from '../../../components/ShoppingCartManagerComponents/ItemsTable/ItemsList'
 
 
 
@@ -79,27 +75,16 @@ const SearchSection = props => {
 
 
     return (
-
-        // <Fragment>
-        //     <div>buttons(search,barCode,list,previousList,...)</div>
-        //     <div>list of extendable lists for each product search</div>
-        // </Fragment>
         <Fragment>
 
 
-            {/* <Col className='m-1 p-0' md={{ span: 6, order: 6 }} xs={{ span: 12, order: 1 }}   > */}
             <Row className='m-1 w-100'>
                 {buttons}
             </Row>
             <Row className='m-1 w-100'>
-                {props.items.length > 0 && <ItemsTable
-                    itemClicked={props.itemClicked}
+                {props.items.length > 0 && <ItemsList
                     items={props.items}
-                    // quantityChanged={props.quantityChanged}
-                    // quantity={props.quantity}
-                    // chosenCategory={props.chosenCategory}
                     categories={props.categories}
-                    // categoryClicked={props.categoryClicked}
                     addToCartClicked={props.addToCartClicked}
                 />}
             </Row>

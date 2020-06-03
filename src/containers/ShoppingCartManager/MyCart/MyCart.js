@@ -1,6 +1,4 @@
-import React, { Fragment } from 'react'
-import { Spinner } from 'react-bootstrap'
-import { FaCartArrowDown } from 'react-icons/fa'
+import React from 'react'
 import CartView from '../../../components/ShoppingCartManagerComponents/CartView/CartView'
 
 const MyCart = props => {
@@ -12,7 +10,7 @@ const MyCart = props => {
         //     <div>visible branch->(BranchSummery,CategoriesCards) </div>
         // </Fragment>
         <CartView
-        updateCartClicked={props.updateCartClicked}
+            updateCartClicked={props.updateCartClicked}
             allCategories={props.allCategories}
             loadingCart={props.loadingCart}
             branch={props.currentBranch}
