@@ -1,9 +1,8 @@
 import React from 'react'
-import './ScrollToTop.css'
-import { animateScroll as scroll } from 'react-scroll'
+import Stepper from 'react-stepper-horizontal'
 
 
-const ScrollToTop = props => {
+const Stepper = props => {
 
 
     return (
@@ -19,5 +18,5 @@ const ScrollToTop = props => {
 
 }
 
-export default ScrollToTop
+export default Stepper
 

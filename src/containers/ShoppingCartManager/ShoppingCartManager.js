@@ -27,7 +27,7 @@ class ShoppingCartManager extends Component {
         searchTerm: '',
         products: [],
         items: [],
-        buttons: ['search', 'barcode', 'list'],
+        buttons: ['search', 'barcode', 'recipe'],
         lastCode: null,
         isTyping: false
     }
@@ -330,7 +330,7 @@ class ShoppingCartManager extends Component {
         return products
     }
     onInputChangeHandler = (inputValue, action) => {
-        let buttons = ['search', 'barcode', 'list']
+        let buttons = ['search', 'barcode', 'recipe']
         if (inputValue.trim() !== '') {
             buttons = ['search']
         }

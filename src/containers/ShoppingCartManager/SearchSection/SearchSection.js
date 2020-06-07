@@ -2,7 +2,9 @@ import React, { Fragment, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 
 import Col from 'react-bootstrap/Col'
-import { IoIosBarcode, IoIosList, IoIosSearch, IoMdClose } from 'react-icons/io'
+import { IoIosBarcode, IoIosSearch, IoMdClose } from 'react-icons/io'
+import { GiCupcake } from 'react-icons/gi'
+
 import Row from 'react-bootstrap/Row'
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Scanner from '../../../components/ShoppingCartManagerComponents/Scanner/Scanner'
@@ -24,7 +26,7 @@ const SearchSection = props => {
     const icons = {
         search: <IoIosSearch size='18px' onClick={props.searchClicked} />,
         barcode: <IoIosBarcode size='18px' />,
-        list: <IoIosList size='18px' />,
+        recipe: <GiCupcake size='18px' />,
         x: <IoMdClose size='18px' />
     }
     const [cancel, setCancel] = useState(false)
@@ -46,6 +48,7 @@ const SearchSection = props => {
                     loadOptions={props.promiseOptions}
                     placeholder='חפש מוצר'
                     isRtl
+                    isSearchable
                     isClearable
                     formatCreateLabel={formatCreateLabel}
                     allowCreateWhileLoading
@@ -71,7 +74,7 @@ const SearchSection = props => {
                 <Col xs='auto' key={btn} className='mr-1 p-0'>
                     <Button onClick={() => {
                         if (btn !== 'search') {
-                            const buttons = cancel ? ['search', 'barcode', 'list'] : [btn]
+                            const buttons = cancel ? ['search', 'barcode', 'recipe'] : [btn]
                             props.buttonsClicked(buttons)
                             setCancel(prev => !prev)
                         }
