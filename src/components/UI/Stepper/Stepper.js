@@ -1,13 +1,12 @@
 import React from 'react'
-import './ScrollToTop.css'
-import { animateScroll as scroll } from 'react-scroll'
+import Stepper from 'react-stepper-horizontal'
 
 
-const ScrollToTop = props => {
+const Stepper = props => {
 
 
     return (
-        <div className="scrolltop-wrap" onClick={() => { scroll.scrollToTop(); }}>
+        <div class="scrolltop-wrap" onClick={() => { scroll.scrollToTop(); }}>
             <a href="#" role="button" aria-label="Scroll to top">
                 <svg height="48" viewBox="0 0 48 48" width="48" height="48px" xmlns="http://www.w3.org/2000/svg">
                     <path id="scrolltop-bg" d="M0 0h48v48h-48z"></path>
@@ -19,5 +18,5 @@ const ScrollToTop = props => {
 
 }
 
-export default ScrollToTop
+export default Stepper
 

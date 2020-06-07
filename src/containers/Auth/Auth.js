@@ -8,6 +8,8 @@ import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
 import { loadingTypes } from '../../store/actions/shoppingCart';
 import * as actionTypes from '../../store/actions/actionTypes';
+import Stepper from 'react-stepper-horizontal'
+
 import classes from './Auth.module.css';
 
 
@@ -49,7 +51,7 @@ function Auth(props) {
 
     return (
         <div className={classes.Auth}>
-
+            {!isSignIn && <Stepper steps={[{ title: 'הרשמה' }, { title: 'העדפות' }, { title: 'איך משתמשים'}]} activeStep={0} />}
             <Form onSubmit={handleSubmit} noValidate validated={validated}>
                 <h3>{isSignIn ? 'כניסה' : 'הרשמה'}</h3>
                 <Form.Group controlId="formEmail">
@@ -95,7 +97,7 @@ function Auth(props) {
                 {isSignIn ? 'להרשמה' : 'לכניסה'}
             </Button >
             {props.isAuth ? <Redirect to='/home-manager/supermarket' /> : null}
-            <Alert key='validationError' variant='danger' show={validationErrorMsg } onClose={() => setValidationErrorMsg(false)} dismissible>
+            <Alert key='validationError' variant='danger' show={validationErrorMsg} onClose={() => setValidationErrorMsg(false)} dismissible>
                 {validationErrorMsg}
             </Alert>
         </div>

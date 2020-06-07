@@ -5,8 +5,8 @@ const config = {
         type: "LiveStream",
         target: '#interactive',
         constraints: {
-            width: 350,
-            height: 350,
+            width: 1080,
+            height: 1080,
             facingMode: "environment",
             aspectRatio: {
                 min: 0.5,
