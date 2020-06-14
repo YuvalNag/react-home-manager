@@ -1,5 +1,5 @@
 const getUrl = window.location
-const baseUrl = getUrl.protocol + "//" + getUrl.host
+const baseUrl = getUrl.protocol + "//api." + getUrl.host
 
 const state = {
     selectedBranchChanged: false,
