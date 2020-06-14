@@ -574,7 +574,7 @@ function search() {
             //     state.ajax.abort()
             let branches = $('.branchSelect').selectpicker('val')
             state.ajax = $.ajax({
-                url: `supermarket/item`,
+                url: `${baseUrl}/supermarket/item`,
                 method: 'GET',
                 mode: '',
                 traditional: true,
